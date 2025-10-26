@@ -21,7 +21,7 @@ import {
 
 interface Contributor {
   name: string;
-  email: string;
+  email: string | null;
   githubId: number | null;
   githubLogin: string | null;
   avatarUrl: string | null;

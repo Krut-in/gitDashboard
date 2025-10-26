@@ -55,7 +55,7 @@ export type GitHubCommit = z.infer<typeof GitHubCommitSchema>;
  */
 export const ContributorStatsSchema = z.object({
   name: z.string(),
-  email: z.string(),
+  email: z.string().nullable(),
   githubId: z.number().nullable(),
   githubLogin: z.string().nullable(),
   avatarUrl: z.string().nullable(),
@@ -281,15 +281,15 @@ export function aggregateStats(
 ): ContributorStats[] {
   const results: ContributorStats[] = [];
 
-  for (const [, contributor] of contributors) {
-    const sortedDates = contributor.commitDates.sort((a, b) => a.getTime() - b.getTime());
+  for (const [, contributor] of Array.from(contributors)) {
+    const sortedDates = contributor.commitDates.sort((a: Date, b: Date) => a.getTime() - b.getTime());
     const firstDate = sortedDates[0] || null;
     const lastDate = sortedDates[sortedDates.length - 1] || null;
     const activeDays = daysDifference(firstDate, lastDate);
 
     results.push({
       name: contributor.name,
-      email: Array.from(contributor.emails)[0], // Primary email
+      email: (Array.from(contributor.emails)[0] as string) || null, // Primary email
       githubId: contributor.githubId,
       githubLogin: contributor.githubLogin,
       avatarUrl: contributor.avatarUrl,

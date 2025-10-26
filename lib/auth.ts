@@ -49,6 +49,8 @@ export const authConfig: NextAuthConfig = {
   session: {
     strategy: 'jwt',
   },
+  // Trust host for Vercel deployment
+  trustHost: true,
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);

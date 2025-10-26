@@ -62,8 +62,8 @@ export async function GET(request: NextRequest) {
       stargazers_count: repo.stargazers_count,
       forks_count: repo.forks_count,
       open_issues_count: repo.open_issues_count,
-      created_at: repo.created_at,
-      updated_at: repo.updated_at,
+      created_at: repo.created_at || new Date().toISOString(),
+      updated_at: repo.updated_at || new Date().toISOString(),
       private: repo.private,
     }));
 
