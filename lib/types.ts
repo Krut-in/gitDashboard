@@ -87,7 +87,59 @@ export interface AnalysisMetadata {
 }
 
 /**
- * Complete analysis response with CSV/text exports
+ * Contributor statistics from analysis
+ */
+export interface Contributor {
+  name: string;
+  email: string | null;
+  githubLogin: string | null;
+  githubId: number | null;
+  avatarUrl: string | null;
+  commitCount: number;
+  additions: number;
+  deletions: number;
+  netLines: number;
+  firstCommitDate: string | null;
+  lastCommitDate: string | null;
+  activeDays: number;
+  isMergeCommitter: boolean;
+}
+
+/**
+ * Commit time data for visualizations
+ */
+export interface CommitTime {
+  date: string;
+  timestamp: number;
+  author: string;
+}
+
+/**
+ * Supplementary analysis data
+ */
+export interface SupplementaryData {
+  totalCommits: number;
+  analyzedCommits: number;
+  dateRange: {
+    start: string | null;
+    end: string | null;
+  };
+  commitTimes: CommitTime[];
+}
+
+/**
+ * Complete analysis result with all data and exports
+ */
+export interface AnalysisResult {
+  contributors: Contributor[];
+  supplementary: SupplementaryData;
+  exportCSV: string;
+  commitsCSV: string;
+  warnings: string[];
+}
+
+/**
+ * Complete analysis response with CSV/text exports (API response format)
  */
 export interface AnalysisResponse {
   contributors: any[];
