@@ -1,13 +1,13 @@
 /**
  * Repositories Page
- * 
+ *
  * Main dashboard page that displays the list of user's GitHub repositories.
  * Allows searching, filtering, and selecting a repository to analyze.
  */
 
-import { Suspense } from 'react';
-import { RepoList } from '@/components/RepoList';
-import { Spinner } from '@/components/ui/Spinner';
+import { Suspense } from "react";
+import { RepoList } from "@/components/RepoList";
+import { Spinner } from "@/components/ui/Spinner";
 
 export default function RepositoriesPage() {
   return (

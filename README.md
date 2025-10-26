@@ -8,26 +8,29 @@ A production-ready Next.js application for comprehensive GitHub contribution ana
 ## ✨ Features
 
 ### Authentication & Security
+
 - ✅ Secure GitHub OAuth authentication via Auth.js v5
 - ✅ Protected routes with middleware
 - ✅ JWT-based session management
 - ✅ Automatic token refresh
 
 ### Repository Analysis
+
 - ✅ List all accessible repositories (public & private)
 - ✅ Search and filter repositories by name, visibility, and language
 - ✅ View all branches for selected repository
 - ✅ Protected branch indicators
 
 ### Contribution Analytics
+
 - ✅ **Comprehensive Contributor Metrics**:
   - Commit counts and commit dates
   - Lines added, deleted, and net changes
   - Active days and contribution periods
   - Merge commit tracking
   - Bot filtering capability
-  
 - ✅ **Smart Deduplication**:
+
   - GitHub ID-based matching
   - Email-based matching (with normalization)
   - Name-based fallback
@@ -39,6 +42,7 @@ A production-ready Next.js application for comprehensive GitHub contribution ana
   - First and last commit tracking
 
 ### Visualizations
+
 - ✅ **Net Lines Bar Chart**: Top contributors by code impact
 - ✅ **Add/Remove Stacked Chart**: Addition vs deletion patterns
 - ✅ **Commits Over Time**: Activity timeline
@@ -47,14 +51,15 @@ A production-ready Next.js application for comprehensive GitHub contribution ana
 - ✅ Inactive contributor highlighting (>30 days)
 
 ### Reports & Exports
+
 - ✅ **Manager-Readable Summary**:
   - Executive overview with key metrics
   - Top contributor highlights
   - Inactive developer alerts
   - Code pattern analysis
   - Actionable recommendations
-  
 - ✅ **CSV Exports**:
+
   - Contributors with full statistics
   - Commit times and dates
   - Downloadable for Excel/Sheets
@@ -64,6 +69,7 @@ A production-ready Next.js application for comprehensive GitHub contribution ana
   - Ready for documentation/sharing
 
 ### User Experience
+
 - ✅ Modern, responsive UI with Tailwind CSS
 - ✅ Real-time loading states and progress indicators
 - ✅ Error handling with user-friendly messages
@@ -71,6 +77,7 @@ A production-ready Next.js application for comprehensive GitHub contribution ana
 - ✅ Mobile-friendly design
 
 ### Developer Experience
+
 - ✅ TypeScript with strict mode
 - ✅ Comprehensive unit tests (Jest)
 - ✅ Zod schema validation
@@ -80,18 +87,18 @@ A production-ready Next.js application for comprehensive GitHub contribution ana
 
 ## 🛠 Tech Stack
 
-| Category | Technology |
-|----------|-----------|
-| **Framework** | Next.js 14 (App Router) |
-| **Language** | TypeScript (strict mode) |
-| **Authentication** | Auth.js v5 (NextAuth) |
-| **Styling** | Tailwind CSS |
-| **GitHub API** | Octokit REST API v20 |
-| **Validation** | Zod v3.22 |
-| **Testing** | Jest + ts-jest |
-| **Charts** | Chart.js + react-chartjs-2 |
-| **Icons** | Lucide React |
-| **Date Utils** | date-fns |
+| Category           | Technology                 |
+| ------------------ | -------------------------- |
+| **Framework**      | Next.js 14 (App Router)    |
+| **Language**       | TypeScript (strict mode)   |
+| **Authentication** | Auth.js v5 (NextAuth)      |
+| **Styling**        | Tailwind CSS               |
+| **GitHub API**     | Octokit REST API v20       |
+| **Validation**     | Zod v3.22                  |
+| **Testing**        | Jest + ts-jest             |
+| **Charts**         | Chart.js + react-chartjs-2 |
+| **Icons**          | Lucide React               |
+| **Date Utils**     | date-fns                   |
 
 ## 📋 Prerequisites
 
@@ -139,6 +146,7 @@ NEXTAUTH_URL=http://localhost:3000
 ```
 
 Generate `NEXTAUTH_SECRET`:
+
 ```bash
 openssl rand -base64 32
 ```
@@ -158,7 +166,6 @@ npm test
 ```
 
 ### 6. Build for Production
-
 
 ```bash
 npm run build
@@ -228,11 +235,13 @@ All API routes require authentication. Requests must include valid session cooki
 List accessible repositories for authenticated user.
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `per_page` (optional): Results per page (default: 30, max: 100)
 - `visibility` (optional): `all`, `public`, or `private`
 
 **Response:**
+
 ```json
 [
   {
@@ -256,12 +265,14 @@ List accessible repositories for authenticated user.
 List branches for a repository.
 
 **Query Parameters:**
+
 - `owner` (required): Repository owner
 - `repo` (required): Repository name
 - `page` (optional): Page number
 - `per_page` (optional): Results per page
 
 **Response:**
+
 ```json
 [
   {
@@ -280,18 +291,20 @@ List branches for a repository.
 Run contribution analysis for a branch.
 
 **Request Body:**
+
 ```json
 {
   "owner": "username",
   "repo": "my-repo",
   "branch": "main",
-  "since": "2024-01-01",      // Optional
-  "until": "2024-12-31",      // Optional
-  "filterBots": true          // Optional (default: true)
+  "since": "2024-01-01", // Optional
+  "until": "2024-12-31", // Optional
+  "filterBots": true // Optional (default: true)
 }
 ```
 
 **Response:**
+
 ```json
 {
   "contributors": [
@@ -340,27 +353,34 @@ Run contribution analysis for a branch.
 ## 📊 Usage Guide
 
 ### 1. Sign In
+
 Click "Sign in with GitHub" on the homepage.
 
 ### 2. Select Repository
+
 Browse or search for a repository in the dashboard.
 
 ### 3. Choose Branch
+
 Select the branch you want to analyze.
 
 ### 4. Configure Analysis (Optional)
+
 - Set date range (since/until)
 - Toggle bot filtering
 
 ### 5. Run Analysis
+
 Click "Start Analysis" and wait for results.
 
 ### 6. View Results
+
 - Charts: Visual patterns and trends
 - Table: Sortable contributor statistics
 - Summary: Manager-ready report
 
 ### 7. Export Data
+
 - Download Contributors CSV
 - Download Commits CSV
 - Download Summary Markdown
@@ -368,24 +388,28 @@ Click "Start Analysis" and wait for results.
 ## ⚠️ Known Limitations
 
 ### GitHub API Rate Limits
+
 - **Authenticated**: 5,000 requests/hour
 - **Unauthenticated**: 60 requests/hour
 - Large repositories (>1000 commits) may take time
 - The app checks rate limits before analysis
 
 ### Performance Considerations
+
 - Analysis time scales with commit count
 - Repos with >10,000 commits may timeout
 - Consider using date range filters for large repos
 - Pagination is automatic but affects performance
 
 ### Data Accuracy
+
 - Bot detection is heuristic-based (may have false positives/negatives)
 - Contribution stats depend on commit metadata accuracy
 - Squash merges may affect individual contribution tracking
 - Private emails (`noreply@github.com`) are handled but limit deduplication
 
 ### Technical Limitations
+
 - No real-time collaboration (single-user sessions)
 - No database (all analysis is on-demand)
 - CSV exports are limited to browser memory
@@ -427,6 +451,7 @@ docker run -p 3000:3000 --env-file .env.local github-dashboard
 ```
 
 ### Other Platforms
+
 - **Netlify**: Use Next.js adapter
 - **AWS**: Amplify or ECS
 - **Self-hosted**: PM2 + nginx reverse proxy
@@ -434,16 +459,19 @@ docker run -p 3000:3000 --env-file .env.local github-dashboard
 ## 🧪 Testing
 
 Run unit tests:
+
 ```bash
 npm test
 ```
 
 Run with coverage:
+
 ```bash
 npm run test:coverage
 ```
 
 Test files are in `__tests__/`:
+
 - `date.test.ts`: Date parsing and formatting
 - `analysis.test.ts`: Deduplication and aggregation logic
 
@@ -471,6 +499,7 @@ MIT License - see LICENSE file for details.
 ## 📧 Support
 
 For issues or questions:
+
 - Open an issue on GitHub
 - Check existing issues for solutions
 - Review API documentation above
@@ -479,26 +508,27 @@ For issues or questions:
 
 **Built with ❤️ using Next.js 14 and TypeScript**
 
-│   ├── auth.ts                   # Auth.js configuration
-│   ├── github.ts                 # GitHub API client factory
-│   ├── analysis.ts               # Contribution analysis engine
-│   ├── progress.ts               # SSE progress emitter
-│   ├── date.ts                   # Date utilities
-│   ├── types.ts                  # TypeScript type definitions
-│   ├── errors.ts                 # Error handling utilities
-│   └── safe-fetch.ts             # Safe fetch wrapper
-├── __tests__/
-│   ├── analysis.test.ts          # Analysis engine tests
-│   └── date.test.ts              # Date utilities tests
-├── middleware.ts                 # Route protection
-├── .env.example                  # Environment variables template
-├── .env.local                    # Your local environment (do not commit)
-├── jest.config.ts                # Jest configuration
-├── next.config.mjs               # Next.js configuration
-├── tailwind.config.ts            # Tailwind CSS configuration
-├── tsconfig.json                 # TypeScript configuration
-└── package.json                  # Dependencies and scripts
-```
+│ ├── auth.ts # Auth.js configuration
+│ ├── github.ts # GitHub API client factory
+│ ├── analysis.ts # Contribution analysis engine
+│ ├── progress.ts # SSE progress emitter
+│ ├── date.ts # Date utilities
+│ ├── types.ts # TypeScript type definitions
+│ ├── errors.ts # Error handling utilities
+│ └── safe-fetch.ts # Safe fetch wrapper
+├── **tests**/
+│ ├── analysis.test.ts # Analysis engine tests
+│ └── date.test.ts # Date utilities tests
+├── middleware.ts # Route protection
+├── .env.example # Environment variables template
+├── .env.local # Your local environment (do not commit)
+├── jest.config.ts # Jest configuration
+├── next.config.mjs # Next.js configuration
+├── tailwind.config.ts # Tailwind CSS configuration
+├── tsconfig.json # TypeScript configuration
+└── package.json # Dependencies and scripts
+
+````
 
 ## Security Notes
 
@@ -540,7 +570,7 @@ npm run test:coverage
 
 # Development server with hot reload
 npm run dev
-```
+````
 
 ## API Endpoints
 

@@ -1,16 +1,16 @@
 /**
  * Repository Details Page
- * 
+ *
  * Displays branches for a selected repository.
  * User can select a branch to run contribution analysis.
  */
 
-import { Suspense } from 'react';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { BranchSelector } from '@/components/BranchSelector';
-import { Spinner } from '@/components/ui/Spinner';
-import { Button } from '@/components/ui/Button';
+import { Suspense } from "react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { BranchSelector } from "@/components/BranchSelector";
+import { Spinner } from "@/components/ui/Spinner";
+import { Button } from "@/components/ui/Button";
 
 interface RepoPageProps {
   params: {
