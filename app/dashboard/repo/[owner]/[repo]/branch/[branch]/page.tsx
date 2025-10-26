@@ -83,10 +83,11 @@ export default function BranchPage({ params }: BranchPageProps) {
       const data: AnalysisResponse = await response.json();
       setAnalysisState({ status: "complete", data });
     } catch (error: any) {
-      if (error.name === 'AbortError') {
+      if (error.name === "AbortError") {
         setAnalysisState({
           status: "error",
-          message: "Analysis timed out. This repository may be too large. Try using date filters to reduce the scope.",
+          message:
+            "Analysis timed out. This repository may be too large. Try using date filters to reduce the scope.",
         });
       } else {
         setAnalysisState({

@@ -11,7 +11,13 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { GitBranch, Shield, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  GitBranch,
+  Shield,
+  Star,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { Button } from "./ui/Button";
 import { Spinner } from "./ui/Spinner";
@@ -48,23 +54,23 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
       }
 
       const data = await response.json();
-      
+
       // Sort branches: main/master first, then alphabetically
       const sortedBranches = [...data.branches].sort((a, b) => {
-        const isAMain = a.name === 'main' || a.name === 'master';
-        const isBMain = b.name === 'main' || b.name === 'master';
-        
+        const isAMain = a.name === "main" || a.name === "master";
+        const isBMain = b.name === "main" || b.name === "master";
+
         if (isAMain && !isBMain) return -1;
         if (!isAMain && isBMain) return 1;
-        
+
         // If both are main/master, prefer 'main'
         if (isAMain && isBMain) {
-          return a.name === 'main' ? -1 : 1;
+          return a.name === "main" ? -1 : 1;
         }
-        
+
         return a.name.localeCompare(b.name);
       });
-      
+
       setBranches(sortedBranches);
       setError(null);
     } catch (err) {
@@ -75,25 +81,28 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
   }
 
   // Pagination logic
-  const { mainBranch, otherBranches, paginatedBranches, totalPages } = useMemo(() => {
-    const main = branches.find(b => b.name === 'main' || b.name === 'master');
-    const others = branches.filter(b => b.name !== 'main' && b.name !== 'master');
-    
-    const startIndex = (currentPage - 1) * BRANCHES_PER_PAGE;
-    const endIndex = startIndex + BRANCHES_PER_PAGE;
-    const paginated = others.slice(startIndex, endIndex);
-    
-    return {
-      mainBranch: main,
-      otherBranches: others,
-      paginatedBranches: paginated,
-      totalPages: Math.ceil(others.length / BRANCHES_PER_PAGE)
-    };
-  }, [branches, currentPage]);
+  const { mainBranch, otherBranches, paginatedBranches, totalPages } =
+    useMemo(() => {
+      const main = branches.find(b => b.name === "main" || b.name === "master");
+      const others = branches.filter(
+        b => b.name !== "main" && b.name !== "master"
+      );
+
+      const startIndex = (currentPage - 1) * BRANCHES_PER_PAGE;
+      const endIndex = startIndex + BRANCHES_PER_PAGE;
+      const paginated = others.slice(startIndex, endIndex);
+
+      return {
+        mainBranch: main,
+        otherBranches: others,
+        paginatedBranches: paginated,
+        totalPages: Math.ceil(others.length / BRANCHES_PER_PAGE),
+      };
+    }, [branches, currentPage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (loading) {
@@ -137,9 +146,11 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
         branch.name
       )}`}
     >
-      <div className={`flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:border-primary transition-colors cursor-pointer ${
-        isMain ? 'bg-blue-50 border-blue-300 hover:bg-blue-100' : ''
-      }`}>
+      <div
+        className={`flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:border-primary transition-colors cursor-pointer ${
+          isMain ? "bg-blue-50 border-blue-300 hover:bg-blue-100" : ""
+        }`}
+      >
         <div className="flex items-center gap-3">
           {isMain ? (
             <Star className="w-5 h-5 text-blue-600 fill-blue-600" />
@@ -148,7 +159,11 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
           )}
           <div>
             <div className="flex items-center gap-2">
-              <p className={`font-medium ${isMain ? 'text-blue-900' : 'text-gray-900'}`}>
+              <p
+                className={`font-medium ${
+                  isMain ? "text-blue-900" : "text-gray-900"
+                }`}
+              >
                 {branch.name}
               </p>
               {isMain && (
@@ -179,7 +194,8 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
       <CardHeader>
         <CardTitle>Select a Branch to Analyze</CardTitle>
         <p className="text-sm text-gray-600 mt-1">
-          {branches.length} {branches.length === 1 ? 'branch' : 'branches'} available
+          {branches.length} {branches.length === 1 ? "branch" : "branches"}{" "}
+          available
         </p>
       </CardHeader>
       <CardContent>
@@ -214,7 +230,8 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
                 {totalPages > 1 && (
                   <div className="mt-6 flex items-center justify-between border-t pt-4">
                     <div className="text-sm text-gray-600">
-                      Page {currentPage} of {totalPages} ({otherBranches.length} branches)
+                      Page {currentPage} of {totalPages} ({otherBranches.length}{" "}
+                      branches)
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -226,33 +243,40 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
                         <ChevronLeft className="w-4 h-4 mr-1" />
                         Previous
                       </Button>
-                      
+
                       {/* Page Numbers */}
                       <div className="flex gap-1">
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                          let pageNum;
-                          if (totalPages <= 5) {
-                            pageNum = i + 1;
-                          } else if (currentPage <= 3) {
-                            pageNum = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            pageNum = totalPages - 4 + i;
-                          } else {
-                            pageNum = currentPage - 2 + i;
+                        {Array.from(
+                          { length: Math.min(5, totalPages) },
+                          (_, i) => {
+                            let pageNum;
+                            if (totalPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (currentPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (currentPage >= totalPages - 2) {
+                              pageNum = totalPages - 4 + i;
+                            } else {
+                              pageNum = currentPage - 2 + i;
+                            }
+
+                            return (
+                              <Button
+                                key={pageNum}
+                                onClick={() => handlePageChange(pageNum)}
+                                variant={
+                                  currentPage === pageNum
+                                    ? "default"
+                                    : "outline"
+                                }
+                                size="sm"
+                                className="min-w-[40px]"
+                              >
+                                {pageNum}
+                              </Button>
+                            );
                           }
-                          
-                          return (
-                            <Button
-                              key={pageNum}
-                              onClick={() => handlePageChange(pageNum)}
-                              variant={currentPage === pageNum ? "default" : "outline"}
-                              size="sm"
-                              className="min-w-[40px]"
-                            >
-                              {pageNum}
-                            </Button>
-                          );
-                        })}
+                        )}
                       </div>
 
                       <Button
