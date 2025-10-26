@@ -51,3 +51,57 @@ export interface ErrorResponse {
   code?: string;
   status?: number;
 }
+
+/**
+ * GitHub branch data
+ */
+export interface Branch {
+  name: string;
+  commit: {
+    sha: string;
+    url: string;
+  };
+  protected: boolean;
+}
+
+/**
+ * Analysis request parameters
+ */
+export interface AnalysisRequest {
+  owner: string;
+  repo: string;
+  branch: string;
+}
+
+/**
+ * Analysis metadata
+ */
+export interface AnalysisMetadata {
+  totalCommits: number;
+  analyzedCommits: number;
+  totalContributors: number;
+  dateRange: {
+    start: string | null;
+    end: string | null;
+  };
+}
+
+/**
+ * Complete analysis response with CSV/text exports
+ */
+export interface AnalysisResponse {
+  contributors: any[];
+  commitMessages: any[];
+  commitTimes: any[];
+  filesByAuthor: any[];
+  merges: any[];
+  warnings: string[];
+  metadata: AnalysisMetadata;
+  exports: {
+    contributorsCSV: string;
+    commitMessagesText: string;
+    commitTimesText: string;
+    filesByAuthorText: string;
+    mergesText: string;
+  };
+}

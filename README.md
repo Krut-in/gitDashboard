@@ -1,15 +1,19 @@
 # GitHub Contribution Dashboard
 
-A production-ready Next.js application for tracking and visualizing GitHub contributions, repository insights, and activity metrics.
+A production-ready Next.js application for tracking and visualizing GitHub contributions, repository insights, and activity metrics with powerful contribution analysis.
 
 ## Features
 
 - 🔐 Secure GitHub OAuth authentication via Auth.js
 - 📊 Dashboard with contribution statistics
+- 🔍 Repository and branch analysis
+- 📈 Detailed contributor metrics and analytics
+- 💾 CSV and text export of analysis data
 - 🎨 Modern UI with Tailwind CSS
 - 🔒 Protected routes with middleware
 - ⚡ Built with Next.js 14 App Router
 - 📱 Fully responsive design
+- 🧪 Comprehensive unit tests
 
 ## Tech Stack
 
@@ -17,8 +21,9 @@ A production-ready Next.js application for tracking and visualizing GitHub contr
 - **Language**: TypeScript
 - **Authentication**: Auth.js v5 (NextAuth) with GitHub OAuth
 - **Styling**: Tailwind CSS
-- **GitHub API**: Octokit
+- **GitHub API**: Octokit REST API
 - **Validation**: Zod
+- **Testing**: Jest + ts-jest
 - **Charts**: Chart.js with react-chartjs-2
 - **Icons**: Lucide React
 
@@ -108,35 +113,49 @@ npm run start
 gitDashboard/
 ├── app/
 │   ├── (auth)/
-│   │   └── sign-in/          # Sign-in page
+│   │   └── sign-in/              # Sign-in page
 │   ├── api/
-│   │   └── auth/
-│   │       └── [...nextauth]/ # Auth.js API routes
-│   ├── dashboard/             # Protected dashboard pages
-│   ├── globals.css            # Global styles
-│   ├── layout.tsx             # Root layout
-│   ├── page.tsx               # Landing page
-│   ├── error.tsx              # Error boundary
-│   ├── global-error.tsx       # Global error boundary
-│   └── loading.tsx            # Global loading state
+│   │   ├── auth/
+│   │   │   └── [...nextauth]/    # Auth.js API routes
+│   │   └── github/
+│   │       ├── repos/            # Repository list API
+│   │       ├── branches/         # Branch list API
+│   │       └── analyze/          # Analysis API
+│   │           ├── route.ts      # Main analysis endpoint
+│   │           └── stream/       # SSE progress stream
+│   ├── dashboard/                # Protected dashboard pages
+│   ├── globals.css               # Global styles
+│   ├── layout.tsx                # Root layout
+│   ├── page.tsx                  # Landing page
+│   ├── error.tsx                 # Error boundary
+│   ├── global-error.tsx          # Global error boundary
+│   └── loading.tsx               # Global loading state
 ├── components/
-│   ├── ui/                    # Reusable UI components
+│   ├── ui/                       # Reusable UI components
 │   │   ├── Button.tsx
 │   │   ├── Card.tsx
 │   │   └── Spinner.tsx
-│   └── NavBar.tsx             # Navigation bar
+│   └── NavBar.tsx                # Navigation bar
 ├── lib/
-│   ├── auth.ts                # Auth.js configuration
-│   ├── types.ts               # TypeScript type definitions
-│   ├── errors.ts              # Error handling utilities
-│   └── safe-fetch.ts          # Safe fetch wrapper
-├── middleware.ts              # Route protection
-├── .env.example               # Environment variables template
-├── .env.local                 # Your local environment (do not commit)
-├── next.config.mjs            # Next.js configuration
-├── tailwind.config.ts         # Tailwind CSS configuration
-├── tsconfig.json              # TypeScript configuration
-└── package.json               # Dependencies and scripts
+│   ├── auth.ts                   # Auth.js configuration
+│   ├── github.ts                 # GitHub API client factory
+│   ├── analysis.ts               # Contribution analysis engine
+│   ├── progress.ts               # SSE progress emitter
+│   ├── date.ts                   # Date utilities
+│   ├── types.ts                  # TypeScript type definitions
+│   ├── errors.ts                 # Error handling utilities
+│   └── safe-fetch.ts             # Safe fetch wrapper
+├── __tests__/
+│   ├── analysis.test.ts          # Analysis engine tests
+│   └── date.test.ts              # Date utilities tests
+├── middleware.ts                 # Route protection
+├── .env.example                  # Environment variables template
+├── .env.local                    # Your local environment (do not commit)
+├── jest.config.ts                # Jest configuration
+├── next.config.mjs               # Next.js configuration
+├── tailwind.config.ts            # Tailwind CSS configuration
+├── tsconfig.json                 # TypeScript configuration
+└── package.json                  # Dependencies and scripts
 ```
 
 ## Security Notes
@@ -168,8 +187,116 @@ npm run type-check
 # Linting
 npm run lint
 
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
 # Development server with hot reload
 npm run dev
+```
+
+## API Endpoints
+
+### GET /api/github/repos
+Returns paginated list of user repositories.
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `per_page` (optional): Items per page (default: 30, max: 100)
+- `sort` (optional): Sort field (default: updated)
+- `direction` (optional): Sort direction (default: desc)
+
+**Response:**
+```json
+{
+  "repositories": [...],
+  "pagination": {
+    "page": 1,
+    "perPage": 30,
+    "hasNext": true,
+    "hasPrev": false
+  }
+}
+```
+
+### GET /api/github/branches
+Returns list of branches for a repository.
+
+**Query Parameters:**
+- `owner` (required): Repository owner
+- `repo` (required): Repository name
+- `page` (optional): Page number
+- `per_page` (optional): Items per page
+
+**Response:**
+```json
+{
+  "branches": [
+    {
+      "name": "main",
+      "commit": { "sha": "abc123...", "url": "..." },
+      "protected": false
+    }
+  ],
+  "pagination": {...}
+}
+```
+
+### POST /api/github/analyze
+Analyzes contributions for a repository branch.
+
+**Request Body:**
+```json
+{
+  "owner": "username",
+  "repo": "repository",
+  "branch": "main",
+  "includeBots": false
+}
+```
+
+**Response:**
+```json
+{
+  "contributors": [...],
+  "commitMessages": [...],
+  "commitTimes": [...],
+  "filesByAuthor": [...],
+  "merges": [...],
+  "warnings": [],
+  "metadata": {
+    "totalCommits": 1234,
+    "analyzedCommits": 1200,
+    "totalContributors": 15,
+    "dateRange": { "start": "...", "end": "..." }
+  },
+  "exports": {
+    "contributorsCSV": "...",
+    "commitMessagesText": "...",
+    "commitTimesText": "...",
+    "filesByAuthorText": "...",
+    "mergesText": "..."
+  }
+}
+```
+
+### GET /api/github/analyze/stream
+Server-Sent Events endpoint for real-time analysis progress.
+
+**Query Parameters:**
+- `owner` (required): Repository owner
+- `repo` (required): Repository name
+- `branch` (required): Branch name
+
+**SSE Events:**
+```
+data: {"type":"progress","percent":50,"message":"Processing...","currentPage":5}
+data: {"type":"complete","percent":100,"message":"Analysis complete"}
 ```
 
 ## Deployment
@@ -212,25 +339,27 @@ npm run dev
 
 ## Next Steps
 
-This is Part 1 of 3. The foundation includes:
+**Part 1 (Complete):** ✅
+- Authentication with GitHub OAuth
+- Protected dashboard routes
+- User session management
+- Error handling and loading states
+- Responsive UI components
 
-- ✅ Authentication with GitHub OAuth
-- ✅ Protected dashboard routes
-- ✅ User session management
-- ✅ Error handling and loading states
-- ✅ Responsive UI components
+**Part 2 (Complete):** ✅
+- Repository listing API
+- Branch listing API
+- Contribution analysis engine
+- Real-time progress streaming
+- CSV/text export generation
+- Comprehensive unit tests
 
-Part 2 will add:
-
-- Repository listing and search
-- Contribution statistics
-- API integration with Octokit
-
-Part 3 will add:
-
+**Part 3 (Coming):**
 - Advanced visualizations
-- Detailed analytics
-- Export functionality
+- Detailed analytics UI
+- Interactive charts and graphs
+- Export functionality in UI
+- Repository search and filtering
 
 ## License
 
