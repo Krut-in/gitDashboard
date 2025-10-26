@@ -56,6 +56,10 @@ export default function BranchPage({ params }: BranchPageProps) {
   const startAnalysis = async () => {
     setAnalysisState({ status: "analyzing" });
 
+    // Set a longer timeout for large repositories (10 minutes)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutes
+
     try {
       const response = await fetch("/api/github/analyze", {
         method: "POST",
@@ -66,7 +70,10 @@ export default function BranchPage({ params }: BranchPageProps) {
           branch: decodedBranch,
           ...filters,
         }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const error = await response.json();
@@ -75,12 +82,21 @@ export default function BranchPage({ params }: BranchPageProps) {
 
       const data: AnalysisResponse = await response.json();
       setAnalysisState({ status: "complete", data });
-    } catch (error) {
-      setAnalysisState({
-        status: "error",
-        message:
-          error instanceof Error ? error.message : "Unknown error occurred",
-      });
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        setAnalysisState({
+          status: "error",
+          message: "Analysis timed out. This repository may be too large. Try using date filters to reduce the scope.",
+        });
+      } else {
+        setAnalysisState({
+          status: "error",
+          message:
+            error instanceof Error ? error.message : "Unknown error occurred",
+        });
+      }
+    } finally {
+      clearTimeout(timeoutId);
     }
   };
 

@@ -2,9 +2,6 @@
 
 A production-ready Next.js application for comprehensive GitHub contribution analysis. Track contributors, visualize activity patterns, export data, and generate manager-ready reports for any repository branch.
 
-![Dashboard Preview](./docs/screenshots/dashboard.png)
-![Analysis Results](./docs/screenshots/analysis.png)
-
 ## ✨ Features
 
 ### Authentication & Security
@@ -19,7 +16,10 @@ A production-ready Next.js application for comprehensive GitHub contribution ana
 - ✅ List all accessible repositories (public & private)
 - ✅ Search and filter repositories by name, visibility, and language
 - ✅ View all branches for selected repository
+- ✅ **Main branch pinned at top** with quick access
+- ✅ **Paginated branch list** (10 branches per page)
 - ✅ Protected branch indicators
+- ✅ Smart branch sorting (main/master first, then alphabetical)
 
 ### Contribution Analytics
 
@@ -397,9 +397,11 @@ Click "Start Analysis" and wait for results.
 ### Performance Considerations
 
 - Analysis time scales with commit count
-- Repos with >10,000 commits may timeout
+- **Extended timeout (10 minutes)** for large repositories
+- Repos with >10,000 commits may still timeout - use date filters
 - Consider using date range filters for large repos
 - Pagination is automatic but affects performance
+- Branch pagination (10 per page) improves load times
 
 ### Data Accuracy
 
