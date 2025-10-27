@@ -35,20 +35,6 @@ export default function HomePage() {
               </div>
               <span className="text-xl font-bold text-gray-900">GitDash</span>
             </div>
-            <div className="hidden md:flex items-center gap-8">
-              <a
-                href="#features"
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-300"
-              >
-                Features
-              </a>
-              <a
-                href="#how-it-works"
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-300"
-              >
-                How it Works
-              </a>
-            </div>
             <form
               action={async () => {
                 "use server";
@@ -58,9 +44,10 @@ export default function HomePage() {
               <Button
                 type="submit"
                 size="sm"
-                className="bg-black hover:bg-gray-800 text-white"
+                className="bg-black hover:bg-gray-800 text-white flex items-center gap-2"
               >
-                Sign In
+                <Github className="w-4 h-4" />
+                Sign in with GitHub
               </Button>
             </form>
           </div>
@@ -68,10 +55,10 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section className="relative bg-white max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left Content */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div className="inline-block">
               <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-700">
                 <Zap className="w-4 h-4 text-orange-500" />
@@ -80,17 +67,13 @@ export default function HomePage() {
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
-              Effortlessly Organize
-              <br />
-              and Simplify Your
-              <br />
-              <span className="text-gray-900">GitHub Analytics</span>
+              Effortlessly Organize and Simplify Your GitHub Analytics
             </h1>
 
             <p className="text-lg text-gray-600 leading-relaxed max-w-xl">
-              Automatically track your repositories, contributions, and
-              branches. Gain insights into your development workflow and achieve
-              your project goals.
+              Track your repositories, contributions, and branches. Gain
+              insights into your development workflow and achieve your project
+              goals.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -103,21 +86,24 @@ export default function HomePage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="bg-black hover:bg-gray-800 text-white px-8 py-6 text-base rounded-xl"
+                  className="bg-black hover:bg-gray-800 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2"
                 >
+                  <Github className="w-5 h-5" />
                   Get Started
                 </Button>
               </form>
-              <Button
-                size="lg"
-                className="bg-gray-900 hover:bg-gray-800 text-white border-2 border-gray-900 px-8 py-6 text-base rounded-xl transition-all duration-300"
-              >
-                Explore Features →
-              </Button>
+              <a href="#how-it-works">
+                <Button
+                  size="lg"
+                  className="bg-gray-900 hover:bg-gray-800 text-white border-2 border-gray-900 px-8 py-6 text-base rounded-xl transition-all duration-300"
+                >
+                  Explore Features →
+                </Button>
+              </a>
             </div>
 
             {/* Trust Indicators */}
-            <div className="flex items-center gap-3 pt-4">
+            <div className="flex items-center gap-3">
               <div className="flex -space-x-2">
                 <div className="w-8 h-8 rounded-full bg-blue-500 border-2 border-white"></div>
                 <div className="w-8 h-8 rounded-full bg-green-500 border-2 border-white"></div>
@@ -218,80 +204,65 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trusted By Section */}
-      <section className="bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-500 mb-8">TRUSTED BY</p>
-          <div className="flex justify-center items-center gap-12 flex-wrap opacity-50">
-            <Github className="w-20 h-8" />
-            <Code2 className="w-20 h-8" />
-            <GitBranch className="w-20 h-8" />
-            <BarChart3 className="w-20 h-8" />
-            <TrendingUp className="w-20 h-8" />
-          </div>
-        </div>
-      </section>
-
       {/* How it Works Section */}
-      <section
-        id="how-it-works"
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20"
-      >
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            The Dashboard showcases multiple analyses
-          </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Seamlessly integrate with your existing workflow. Connect your
-            GitHub account and start analyzing your repositories instantly.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Feature 1 */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <GitBranch className="w-8 h-8 text-gray-900" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Branch Analysis
-            </h3>
-            <p className="text-sm text-gray-600">
-              Deep dive into any branch with commit history and contributor
-              stats
+      <section id="how-it-works" className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              The Dashboard showcases multiple analyses
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Seamlessly integrate with your existing workflow. Connect your
+              GitHub account and start analyzing your repositories instantly.
             </p>
           </div>
 
-          {/* Feature 3 */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <BarChart3 className="w-8 h-8 text-gray-900" />
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <GitBranch className="w-8 h-8 text-gray-900" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                Branch Analysis
+              </h3>
+              <p className="text-sm text-gray-600">
+                Deep dive into any branch with commit history and contributor
+                stats
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Visual Charts
-            </h3>
-            <p className="text-sm text-gray-600">
-              Beautiful, interactive charts for commits and activity heatmaps
-            </p>
-          </div>
 
-          {/* Feature 4 */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <TrendingUp className="w-8 h-8 text-gray-900" />
+            {/* Feature 3 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="w-8 h-8 text-gray-900" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                Visual Charts
+              </h3>
+              <p className="text-sm text-gray-600">
+                Beautiful, interactive charts for commits and activity heatmaps
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Export Reports
-            </h3>
-            <p className="text-sm text-gray-600">
-              Generate and download CSV reports for detailed analytics
-            </p>
+
+            {/* Feature 4 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-gray-900" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                Export Reports
+              </h3>
+              <p className="text-sm text-gray-600">
+                Generate and download CSV reports for detailed analytics
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-12">
+      <footer className="bg-white border-t border-gray-200 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
@@ -310,7 +281,7 @@ export default function HomePage() {
                   className="flex items-center gap-1 font-semibold text-gray-900 hover:text-blue-600 transition-colors duration-300"
                 >
                   <Linkedin className="w-4 h-4" />
-                  Krutin
+                  Krutin Rathod
                 </a>
               </div>
               <p className="text-sm text-gray-500">
