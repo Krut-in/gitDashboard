@@ -51,7 +51,9 @@ export function RepoList() {
           throw new Error("Please sign in to view your repositories");
         }
         if (response.status === 403) {
-          throw new Error("GitHub API rate limit exceeded. Please try again later");
+          throw new Error(
+            "GitHub API rate limit exceeded. Please try again later"
+          );
         }
         throw new Error("Failed to fetch repositories. Please try again");
       }
@@ -65,7 +67,8 @@ export function RepoList() {
       setRepos(data.repositories);
       setHasMore(data.pagination?.hasNext || false);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      const errorMessage =
+        err instanceof Error ? err.message : "An unexpected error occurred";
       setError(errorMessage);
       console.error("Error fetching repositories:", err);
     } finally {
@@ -115,8 +118,8 @@ export function RepoList() {
         <CardContent className="pt-6">
           <div className="text-center">
             <p className="text-red-800 font-medium mb-4">{error}</p>
-            <Button 
-              onClick={() => fetchRepos()} 
+            <Button
+              onClick={() => fetchRepos()}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               Try Again
@@ -134,8 +137,8 @@ export function RepoList() {
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" 
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"
                 aria-hidden="true"
               />
               <input
@@ -147,7 +150,11 @@ export function RepoList() {
                 aria-label="Search repositories"
               />
             </div>
-            <div className="flex gap-2" role="group" aria-label="Filter repositories by visibility">
+            <div
+              className="flex gap-2"
+              role="group"
+              aria-label="Filter repositories by visibility"
+            >
               <Button
                 variant={filterPrivate === "all" ? "default" : "outline"}
                 onClick={() => setFilterPrivate("all")}
@@ -214,55 +221,64 @@ export function RepoList() {
                 href={`/dashboard/repo/${owner}/${repoName}`}
                 role="listitem"
               >
-              <Card className="hover:shadow-xl hover:bg-white/70 transition-all cursor-pointer">
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate">
-                          {repo.name}
-                        </h3>
-                        {repo.private ? (
-                          <Lock className="w-4 h-4 text-gray-500 flex-shrink-0" aria-label="Private repository" />
-                        ) : (
-                          <Unlock className="w-4 h-4 text-gray-500 flex-shrink-0" aria-label="Public repository" />
+                <Card className="hover:shadow-xl hover:bg-white/70 transition-all cursor-pointer">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900 truncate">
+                            {repo.name}
+                          </h3>
+                          {repo.private ? (
+                            <Lock
+                              className="w-4 h-4 text-gray-500 flex-shrink-0"
+                              aria-label="Private repository"
+                            />
+                          ) : (
+                            <Unlock
+                              className="w-4 h-4 text-gray-500 flex-shrink-0"
+                              aria-label="Public repository"
+                            />
+                          )}
+                        </div>
+
+                        {repo.description && (
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                            {repo.description}
+                          </p>
                         )}
-                      </div>
 
-                      {repo.description && (
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                          {repo.description}
-                        </p>
-                      )}
-
-                      <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
-                        {repo.language && (
+                        <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
+                          {repo.language && (
+                            <span className="flex items-center gap-1">
+                              <span
+                                className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"
+                                aria-hidden="true"
+                              ></span>
+                              {repo.language}
+                            </span>
+                          )}
                           <span className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-blue-500" aria-hidden="true"></span>
-                            {repo.language}
+                            <Star className="w-4 h-4" aria-hidden="true" />
+                            <span aria-label={`${repo.stargazers_count} stars`}>
+                              {formatNumber(repo.stargazers_count)}
+                            </span>
                           </span>
-                        )}
-                        <span className="flex items-center gap-1">
-                          <Star className="w-4 h-4" aria-hidden="true" />
-                          <span aria-label={`${repo.stargazers_count} stars`}>
-                            {formatNumber(repo.stargazers_count)}
+                          <span className="flex items-center gap-1">
+                            <GitBranch className="w-4 h-4" aria-hidden="true" />
+                            <span aria-label={`${repo.forks_count} forks`}>
+                              {formatNumber(repo.forks_count)}
+                            </span>
                           </span>
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <GitBranch className="w-4 h-4" aria-hidden="true" />
-                          <span aria-label={`${repo.forks_count} forks`}>
-                            {formatNumber(repo.forks_count)}
+                          <span>
+                            Updated {formatRelativeTime(repo.updated_at)}
                           </span>
-                        </span>
-                        <span>
-                          Updated {formatRelativeTime(repo.updated_at)}
-                        </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })
         )}
@@ -280,7 +296,7 @@ export function RepoList() {
           >
             Previous
           </Button>
-          <span 
+          <span
             className="flex items-center px-4 text-gray-700 backdrop-blur-md bg-white/40 rounded-lg border border-white/30"
             aria-current="page"
             aria-label={`Current page: ${page}`}
