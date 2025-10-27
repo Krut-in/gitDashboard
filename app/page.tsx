@@ -24,13 +24,21 @@ import {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
+      {/* Animated Background Orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 right-1/4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-6000"></div>
+      </div>
+
       {/* Navigation */}
-      <nav className="border-b border-gray-200">
+      <nav className="relative z-10 backdrop-blur-md bg-white/30 border-b border-white/20 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
                 <Github className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">GitDash</span>
@@ -44,7 +52,7 @@ export default function HomePage() {
               <Button
                 type="submit"
                 size="sm"
-                className="bg-black hover:bg-gray-800 text-white flex items-center gap-2"
+                className="backdrop-blur-md bg-black/80 hover:bg-black/90 text-white flex items-center gap-2 shadow-lg border border-white/20"
               >
                 <Github className="w-4 h-4" />
                 Sign in with GitHub
@@ -55,12 +63,12 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative bg-white max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+      <section className="relative bg-transparent max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left Content */}
-          <div className="space-y-6">
+          <div className="space-y-6 relative z-10">
             <div className="inline-block">
-              <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-700">
+              <div className="flex items-center gap-2 px-4 py-2 backdrop-blur-md bg-white/40 rounded-full text-sm text-gray-800 shadow-lg border border-white/30">
                 <Zap className="w-4 h-4 text-orange-500" />
                 <span>Analyze • Visualize • Optimize</span>
               </div>
@@ -86,7 +94,7 @@ export default function HomePage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="bg-black hover:bg-gray-800 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2"
+                  className="backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300"
                 >
                   <Github className="w-5 h-5" />
                   Get Started
@@ -95,7 +103,7 @@ export default function HomePage() {
               <a href="#how-it-works">
                 <Button
                   size="lg"
-                  className="bg-gray-900 hover:bg-gray-800 text-white border-2 border-gray-900 px-8 py-6 text-base rounded-xl transition-all duration-300"
+                  className="backdrop-blur-md bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300"
                 >
                   Explore Features →
                 </Button>
@@ -119,14 +127,14 @@ export default function HomePage() {
           </div>
 
           {/* Right Visual */}
-          <div className="relative">
-            <div className="bg-gray-50 rounded-3xl p-8 border border-gray-200">
-              <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
+          <div className="relative z-10">
+            <div className="backdrop-blur-md bg-white/30 rounded-3xl p-8 border border-white/40 shadow-2xl">
+              <div className="backdrop-blur-lg bg-white/50 rounded-2xl shadow-lg p-6 space-y-6 border border-white/60">
                 {/* Mock Dashboard Preview */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-black rounded-full"></div>
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full shadow-lg"></div>
                       <div>
                         <div className="text-sm font-semibold text-gray-900">
                           Repository Overview
@@ -136,17 +144,17 @@ export default function HomePage() {
                         </div>
                       </div>
                     </div>
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-green-500 rounded-full shadow-lg"></div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="backdrop-blur-sm bg-white/60 rounded-xl p-4 border border-white/50 shadow-md">
                       <div className="text-2xl font-bold text-gray-900">
                         247
                       </div>
                       <div className="text-xs text-gray-500">Total Commits</div>
                     </div>
-                    <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="backdrop-blur-sm bg-white/60 rounded-xl p-4 border border-white/50 shadow-md">
                       <div className="text-2xl font-bold text-gray-900">12</div>
                       <div className="text-xs text-gray-500">Contributors</div>
                     </div>
@@ -159,25 +167,25 @@ export default function HomePage() {
                         +24% this week
                       </span>
                     </div>
-                    <div className="h-24 bg-gray-50 rounded-lg flex items-end gap-1 p-2">
+                    <div className="h-24 backdrop-blur-sm bg-white/40 rounded-lg flex items-end gap-1 p-2 border border-white/50">
                       <div
-                        className="flex-1 bg-gray-300 rounded-sm"
+                        className="flex-1 bg-gradient-to-t from-gray-400 to-gray-300 rounded-sm"
                         style={{ height: "40%" }}
                       ></div>
                       <div
-                        className="flex-1 bg-gray-300 rounded-sm"
+                        className="flex-1 bg-gradient-to-t from-gray-400 to-gray-300 rounded-sm"
                         style={{ height: "70%" }}
                       ></div>
                       <div
-                        className="flex-1 bg-black rounded-sm"
+                        className="flex-1 bg-gradient-to-t from-purple-600 to-blue-600 rounded-sm shadow-lg"
                         style={{ height: "100%" }}
                       ></div>
                       <div
-                        className="flex-1 bg-gray-300 rounded-sm"
+                        className="flex-1 bg-gradient-to-t from-gray-400 to-gray-300 rounded-sm"
                         style={{ height: "60%" }}
                       ></div>
                       <div
-                        className="flex-1 bg-gray-300 rounded-sm"
+                        className="flex-1 bg-gradient-to-t from-gray-400 to-gray-300 rounded-sm"
                         style={{ height: "45%" }}
                       ></div>
                     </div>
@@ -187,7 +195,7 @@ export default function HomePage() {
             </div>
 
             {/* Floating Card */}
-            <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-4 border border-gray-200">
+            <div className="absolute -bottom-6 -left-6 backdrop-blur-md bg-white/50 rounded-2xl shadow-xl p-4 border border-white/60">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                   <CheckCircle2 className="w-6 h-6 text-green-600" />
@@ -205,55 +213,55 @@ export default function HomePage() {
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it-works" className="bg-gray-50 py-16">
+      <section id="how-it-works" className="relative bg-transparent py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 relative z-10">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               The Dashboard showcases multiple analyses
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-gray-700 max-w-2xl mx-auto">
               Seamlessly integrate with your existing workflow. Connect your
               GitHub account and start analyzing your repositories instantly.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 relative z-10">
             {/* Feature 1 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <GitBranch className="w-8 h-8 text-gray-900" />
+            <div className="text-center backdrop-blur-md bg-white/40 rounded-2xl p-6 border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <GitBranch className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
                 Branch Analysis
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-700">
                 Deep dive into any branch with commit history and contributor
                 stats
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="w-8 h-8 text-gray-900" />
+            <div className="text-center backdrop-blur-md bg-white/40 rounded-2xl p-6 border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <BarChart3 className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
                 Visual Charts
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-700">
                 Beautiful, interactive charts for commits and activity heatmaps
               </p>
             </div>
 
             {/* Feature 4 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-gray-900" />
+            <div className="text-center backdrop-blur-md bg-white/40 rounded-2xl p-6 border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <TrendingUp className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
                 Export Reports
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-700">
                 Generate and download CSV reports for detailed analytics
               </p>
             </div>
@@ -262,11 +270,11 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-10">
+      <footer className="relative backdrop-blur-md bg-white/30 border-t border-white/20 py-10 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
                 <Github className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">GitDash</span>
