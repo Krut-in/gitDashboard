@@ -8,7 +8,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Search, GitBranch, Star, Lock, Unlock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
@@ -28,32 +28,58 @@ export function RepoList() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  useEffect(() => {
-    fetchRepos();
-  }, [page]);
-
-  async function fetchRepos() {
+  /**
+   * Fetches repositories from the GitHub API
+   * Handles pagination and error states
+   */
+  const fetchRepos = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
+
       const response = await fetch(
-        `/api/github/repos?page=${page}&per_page=30`
+        `/api/github/repos?page=${page}&per_page=30`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch repositories");
+        if (response.status === 401) {
+          throw new Error("Please sign in to view your repositories");
+        }
+        if (response.status === 403) {
+          throw new Error("GitHub API rate limit exceeded. Please try again later");
+        }
+        throw new Error("Failed to fetch repositories. Please try again");
       }
 
       const data = await response.json();
+
+      if (!data.repositories || !Array.isArray(data.repositories)) {
+        throw new Error("Invalid response from server");
+      }
+
       setRepos(data.repositories);
-      setHasMore(data.pagination.hasNext);
-      setError(null);
+      setHasMore(data.pagination?.hasNext || false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(errorMessage);
+      console.error("Error fetching repositories:", err);
     } finally {
       setLoading(false);
     }
-  }
+  }, [page]);
 
+  useEffect(() => {
+    fetchRepos();
+  }, [fetchRepos]);
+
+  /**
+   * Filter repositories based on search term and privacy filter
+   */
   const filteredRepos = repos.filter(repo => {
     const matchesSearch =
       repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -87,10 +113,15 @@ export function RepoList() {
     return (
       <Card className="border-red-200 bg-red-50">
         <CardContent className="pt-6">
-          <p className="text-red-800">Error: {error}</p>
-          <Button onClick={() => fetchRepos()} className="mt-4">
-            Retry
-          </Button>
+          <div className="text-center">
+            <p className="text-red-800 font-medium mb-4">{error}</p>
+            <Button 
+              onClick={() => fetchRepos()} 
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Try Again
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -103,16 +134,20 @@ export function RepoList() {
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" 
+                aria-hidden="true"
+              />
               <input
                 type="text"
                 placeholder="Search repositories..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 backdrop-blur-md bg-white/50 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                aria-label="Search repositories"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2" role="group" aria-label="Filter repositories by visibility">
               <Button
                 variant={filterPrivate === "all" ? "default" : "outline"}
                 onClick={() => setFilterPrivate("all")}
@@ -122,6 +157,7 @@ export function RepoList() {
                     ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
                     : "backdrop-blur-md bg-white/40 border-white/30"
                 }
+                aria-pressed={filterPrivate === "all"}
               >
                 All
               </Button>
@@ -134,6 +170,7 @@ export function RepoList() {
                     ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
                     : "backdrop-blur-md bg-white/40 border-white/30"
                 }
+                aria-pressed={filterPrivate === "public"}
               >
                 Public
               </Button>
@@ -146,6 +183,7 @@ export function RepoList() {
                     ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
                     : "backdrop-blur-md bg-white/40 border-white/30"
                 }
+                aria-pressed={filterPrivate === "private"}
               >
                 Private
               </Button>
@@ -155,21 +193,27 @@ export function RepoList() {
       </Card>
 
       {/* Repository List */}
-      <div className="grid gap-4">
+      <div className="grid gap-4" role="list" aria-label="Repository list">
         {filteredRepos.length === 0 ? (
           <Card>
             <CardContent className="pt-6 text-center text-gray-600">
-              No repositories found matching your criteria.
+              <p className="text-lg font-medium mb-2">No repositories found</p>
+              <p className="text-sm">
+                {searchTerm || filterPrivate !== "all"
+                  ? "Try adjusting your search or filter criteria"
+                  : "You don't have any repositories yet"}
+              </p>
             </CardContent>
           </Card>
         ) : (
-          filteredRepos.map(repo => (
-            <Link
-              key={repo.id}
-              href={`/dashboard/repo/${repo.full_name.split("/")[0]}/${
-                repo.full_name.split("/")[1]
-              }`}
-            >
+          filteredRepos.map(repo => {
+            const [owner, repoName] = repo.full_name.split("/");
+            return (
+              <Link
+                key={repo.id}
+                href={`/dashboard/repo/${owner}/${repoName}`}
+                role="listitem"
+              >
               <Card className="hover:shadow-xl hover:bg-white/70 transition-all cursor-pointer">
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
@@ -179,9 +223,9 @@ export function RepoList() {
                           {repo.name}
                         </h3>
                         {repo.private ? (
-                          <Lock className="w-4 h-4 text-gray-500" />
+                          <Lock className="w-4 h-4 text-gray-500 flex-shrink-0" aria-label="Private repository" />
                         ) : (
-                          <Unlock className="w-4 h-4 text-gray-500" />
+                          <Unlock className="w-4 h-4 text-gray-500 flex-shrink-0" aria-label="Public repository" />
                         )}
                       </div>
 
@@ -191,20 +235,24 @@ export function RepoList() {
                         </p>
                       )}
 
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
                         {repo.language && (
                           <span className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></span>
+                            <span className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-blue-500" aria-hidden="true"></span>
                             {repo.language}
                           </span>
                         )}
                         <span className="flex items-center gap-1">
-                          <Star className="w-4 h-4" />
-                          {formatNumber(repo.stargazers_count)}
+                          <Star className="w-4 h-4" aria-hidden="true" />
+                          <span aria-label={`${repo.stargazers_count} stars`}>
+                            {formatNumber(repo.stargazers_count)}
+                          </span>
                         </span>
                         <span className="flex items-center gap-1">
-                          <GitBranch className="w-4 h-4" />
-                          {formatNumber(repo.forks_count)}
+                          <GitBranch className="w-4 h-4" aria-hidden="true" />
+                          <span aria-label={`${repo.forks_count} forks`}>
+                            {formatNumber(repo.forks_count)}
+                          </span>
                         </span>
                         <span>
                           Updated {formatRelativeTime(repo.updated_at)}
@@ -215,22 +263,28 @@ export function RepoList() {
                 </CardContent>
               </Card>
             </Link>
-          ))
+            );
+          })
         )}
       </div>
 
       {/* Pagination */}
       {(page > 1 || hasMore) && (
-        <div className="flex justify-center gap-2">
+        <nav className="flex justify-center gap-2" aria-label="Pagination">
           <Button
             variant="outline"
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1 || loading}
             className="backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
+            aria-label="Go to previous page"
           >
             Previous
           </Button>
-          <span className="flex items-center px-4 text-gray-700 backdrop-blur-md bg-white/40 rounded-lg border border-white/30">
+          <span 
+            className="flex items-center px-4 text-gray-700 backdrop-blur-md bg-white/40 rounded-lg border border-white/30"
+            aria-current="page"
+            aria-label={`Current page: ${page}`}
+          >
             Page {page}
           </span>
           <Button
@@ -238,10 +292,11 @@ export function RepoList() {
             onClick={() => setPage(p => p + 1)}
             disabled={!hasMore || loading}
             className="backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
+            aria-label="Go to next page"
           >
             Next
           </Button>
-        </div>
+        </nav>
       )}
     </div>
   );
