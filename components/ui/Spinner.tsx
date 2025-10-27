@@ -3,6 +3,7 @@
  *
  * A loading spinner to show when data is being fetched.
  * Provides visual feedback during asynchronous operations.
+ * Features a gradient design matching the application theme.
  */
 
 import * as React from "react";
@@ -12,9 +13,9 @@ export interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const sizeClasses = {
-  sm: "w-4 h-4 border-2",
-  md: "w-8 h-8 border-2",
-  lg: "w-12 h-12 border-3",
+  sm: "w-5 h-5 border-2",
+  md: "w-10 h-10 border-3",
+  lg: "w-16 h-16 border-4",
 };
 
 export function Spinner({
@@ -30,7 +31,11 @@ export function Spinner({
       aria-label="Loading"
     >
       <div
-        className={`${sizeClasses[size]} border-gray-300 border-t-primary rounded-full animate-spin`}
+        className={`${sizeClasses[size]} border-purple-200 border-t-purple-600 rounded-full animate-spin`}
+        style={{
+          borderRightColor: "rgb(147 51 234)",
+          borderBottomColor: "rgb(59 130 246)",
+        }}
       />
     </div>
   );

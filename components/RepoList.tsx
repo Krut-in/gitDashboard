@@ -67,10 +67,17 @@ export function RepoList() {
 
   if (loading && repos.length === 0) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <div className="text-center space-y-4">
+      <div className="flex flex-col items-center justify-center p-12">
+        <div className="backdrop-blur-md bg-white/60 border border-white/30 rounded-2xl p-8 shadow-lg text-center space-y-4">
           <Spinner size="lg" />
-          <p className="text-gray-600">Loading repositories...</p>
+          <div>
+            <p className="text-lg font-medium text-gray-900">
+              Loading repositories...
+            </p>
+            <p className="text-sm text-gray-600 mt-2">
+              Fetching your GitHub repositories
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -102,7 +109,7 @@ export function RepoList() {
                 placeholder="Search repositories..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full pl-10 pr-4 py-2 backdrop-blur-md bg-white/50 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
             <div className="flex gap-2">
@@ -110,6 +117,11 @@ export function RepoList() {
                 variant={filterPrivate === "all" ? "default" : "outline"}
                 onClick={() => setFilterPrivate("all")}
                 size="sm"
+                className={
+                  filterPrivate === "all"
+                    ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
+                    : "backdrop-blur-md bg-white/40 border-white/30"
+                }
               >
                 All
               </Button>
@@ -117,6 +129,11 @@ export function RepoList() {
                 variant={filterPrivate === "public" ? "default" : "outline"}
                 onClick={() => setFilterPrivate("public")}
                 size="sm"
+                className={
+                  filterPrivate === "public"
+                    ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
+                    : "backdrop-blur-md bg-white/40 border-white/30"
+                }
               >
                 Public
               </Button>
@@ -124,6 +141,11 @@ export function RepoList() {
                 variant={filterPrivate === "private" ? "default" : "outline"}
                 onClick={() => setFilterPrivate("private")}
                 size="sm"
+                className={
+                  filterPrivate === "private"
+                    ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
+                    : "backdrop-blur-md bg-white/40 border-white/30"
+                }
               >
                 Private
               </Button>
@@ -148,18 +170,18 @@ export function RepoList() {
                 repo.full_name.split("/")[1]
               }`}
             >
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="hover:shadow-xl hover:bg-white/70 transition-all cursor-pointer">
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-semibold text-primary truncate">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">
                           {repo.name}
                         </h3>
                         {repo.private ? (
-                          <Lock className="w-4 h-4 text-gray-400" />
+                          <Lock className="w-4 h-4 text-gray-500" />
                         ) : (
-                          <Unlock className="w-4 h-4 text-gray-400" />
+                          <Unlock className="w-4 h-4 text-gray-500" />
                         )}
                       </div>
 
@@ -169,10 +191,10 @@ export function RepoList() {
                         </p>
                       )}
 
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
                         {repo.language && (
                           <span className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                            <span className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></span>
                             {repo.language}
                           </span>
                         )}
@@ -204,16 +226,18 @@ export function RepoList() {
             variant="outline"
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1 || loading}
+            className="backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
           >
             Previous
           </Button>
-          <span className="flex items-center px-4 text-gray-600">
+          <span className="flex items-center px-4 text-gray-700 backdrop-blur-md bg-white/40 rounded-lg border border-white/30">
             Page {page}
           </span>
           <Button
             variant="outline"
             onClick={() => setPage(p => p + 1)}
             disabled={!hasMore || loading}
+            className="backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
           >
             Next
           </Button>

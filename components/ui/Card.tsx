@@ -14,7 +14,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     return (
       <div
         ref={ref}
-        className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}
+        className={`rounded-xl backdrop-blur-md bg-white/60 border border-white/30 text-card-foreground shadow-lg ${className}`}
         {...props}
       />
     );
