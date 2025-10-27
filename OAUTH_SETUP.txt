@@ -1,0 +1,50 @@
+===============================================
+GITHUB OAUTH SETUP - FIX REDIRECT URI ERROR
+===============================================
+
+PROBLEM:
+"The redirect_uri is not associated with this application"
+This error occurs because the GitHub OAuth app doesn't have the correct callback URL registered.
+
+SOLUTION:
+
+1. GO TO GITHUB OAUTH APP SETTINGS:
+   - Visit: https://github.com/settings/developers
+   - Click on "OAuth Apps" in the left sidebar
+   - Find your OAuth app (with Client ID: Ov23liKJAtQmLViXd5nJ)
+   - Click on it to edit
+
+2. UPDATE THE CALLBACK URL:
+   In the "Authorization callback URL" field, enter EXACTLY:
+   
+   http://localhost:3000/api/auth/callback/github
+   
+   (Copy and paste to avoid typos)
+
+3. SAVE THE CHANGES:
+   - Click "Update application" button at the bottom
+
+4. VERIFY YOUR .env FILE:
+   Make sure your .env file contains:
+   
+   GITHUB_CLIENT_ID=Ov23liKJAtQmLViXd5nJ
+   GITHUB_CLIENT_SECRET=your_secret_here
+   AUTH_SECRET=your_auth_secret_here
+   NEXTAUTH_URL=http://localhost:3000
+
+5. RESTART YOUR DEVELOPMENT SERVER:
+   - Stop the current server (Ctrl+C)
+   - Run: npm run dev
+   - Try clicking "Get Started with GitHub" again
+
+IMPORTANT NOTES:
+- The callback URL MUST be exactly: http://localhost:3000/api/auth/callback/github
+- No trailing slash
+- Must include the /api/auth/callback/github path
+- For production, add your production URL with the same path
+
+PRODUCTION DEPLOYMENT:
+When deploying to production (e.g., Vercel), add another callback URL:
+https://yourdomain.com/api/auth/callback/github
+
+===============================================

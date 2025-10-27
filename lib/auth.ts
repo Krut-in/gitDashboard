@@ -49,8 +49,10 @@ export const authConfig: NextAuthConfig = {
   session: {
     strategy: 'jwt',
   },
-  // Trust host for Vercel deployment
+  // Trust host for development and production deployments
   trustHost: true,
+  // Explicitly set the base path for OAuth callbacks
+  basePath: '/api/auth',
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
