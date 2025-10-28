@@ -1,29 +1,32 @@
 /**
  * Analysis Dashboard Page
- * 
+ *
  * Main page for running repository analysis with multiple modes.
  * Allows users to choose between blame, commits, GitHub API, or hybrid analysis.
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { AnalysisModeSelector, type AnalysisModeConfig } from '@/components/AnalysisModeSelector';
-import { AnalysisResults } from '@/components/AnalysisResults';
-import { Spinner } from '@/components/ui/Spinner';
-import { Card } from '@/components/ui/Card';
+import { useState } from "react";
+import {
+  AnalysisModeSelector,
+  type AnalysisModeConfig,
+} from "@/components/AnalysisModeSelector";
+import { AnalysisResults } from "@/components/AnalysisResults";
+import { Spinner } from "@/components/ui/Spinner";
+import { Card } from "@/components/ui/Card";
 
-type AnalysisState = 
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'success'; data: any }
-  | { status: 'error'; error: string };
+type AnalysisState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; data: any }
+  | { status: "error"; error: string };
 
 export default function AnalysisDashboard() {
-  const [state, setState] = useState<AnalysisState>({ status: 'idle' });
+  const [state, setState] = useState<AnalysisState>({ status: "idle" });
 
   const handleModeChange = async (config: AnalysisModeConfig) => {
-    setState({ status: 'loading' });
+    setState({ status: "loading" });
 
     try {
       const requestBody: any = {
@@ -34,34 +37,34 @@ export default function AnalysisDashboard() {
         requestBody.repoPath = config.repoPath;
       }
 
-      if (config.mode === 'github-api' || config.mode === 'hybrid') {
+      if (config.mode === "github-api" || config.mode === "hybrid") {
         requestBody.githubOptions = {
           owner: config.owner,
           repo: config.repo,
         };
       }
 
-      if (config.mode === 'commits' && config.branch) {
+      if (config.mode === "commits" && config.branch) {
         requestBody.commitOptions = {
           branch: config.branch,
         };
       }
 
-      const response = await fetch('/api/github/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/github/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Analysis failed');
+        throw new Error(errorData.error || "Analysis failed");
       }
 
       const data = await response.json();
-      setState({ status: 'success', data });
+      setState({ status: "success", data });
     } catch (error: any) {
-      setState({ status: 'error', error: error.message });
+      setState({ status: "error", error: error.message });
     }
   };
 
@@ -79,13 +82,13 @@ export default function AnalysisDashboard() {
         <div className="lg:col-span-1">
           <AnalysisModeSelector
             onModeChange={handleModeChange}
-            loading={state.status === 'loading'}
+            loading={state.status === "loading"}
           />
         </div>
 
         {/* Results Panel */}
         <div className="lg:col-span-2">
-          {state.status === 'idle' && (
+          {state.status === "idle" && (
             <Card className="p-8 text-center">
               <div className="text-gray-400 dark:text-gray-600">
                 <svg
@@ -110,7 +113,7 @@ export default function AnalysisDashboard() {
             </Card>
           )}
 
-          {state.status === 'loading' && (
+          {state.status === "loading" && (
             <Card className="p-8">
               <div className="flex flex-col items-center justify-center">
                 <Spinner size="lg" />
@@ -124,7 +127,7 @@ export default function AnalysisDashboard() {
             </Card>
           )}
 
-          {state.status === 'error' && (
+          {state.status === "error" && (
             <Card className="p-6 border-red-200 dark:border-red-800">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
@@ -154,7 +157,7 @@ export default function AnalysisDashboard() {
             </Card>
           )}
 
-          {state.status === 'success' && (
+          {state.status === "success" && (
             <AnalysisResults result={state.data} />
           )}
         </div>
