@@ -1,149 +1,160 @@
 # GitHub Contribution Dashboard
 
-A production-ready Next.js application for comprehensive GitHub contribution analysis. Track contributors, visualize activity patterns, export data, and generate manager-ready reports for any repository branch.
+A production-ready Next.js application for accurate repository analysis using multiple analysis modes. Get true line-level code ownership, commit activity, and GitHub metadata with production-grade attribution.
 
-## ✨ Features
+## 🎯 Analysis Modes
+
+### 1. Blame Mode (Recommended for Accurate Attribution)
+Uses `git blame` to show true line-level code ownership:
+- ✅ **Accurate line attribution** - Shows who actually wrote each line
+- ✅ **Ignores merge commits** - Prevents false attribution to branch mergers
+- ✅ **Detects code moves** - Tracks code moved between files (-M -C)
+- ✅ **Ignores whitespace** - Focuses on meaningful changes (-w)
+- ✅ **Normalizes identities** - Uses .mailmap for email aliases
+- ✅ **Respects ignore list** - Honors .git-blame-ignore-revs
+
+### 2. Commits Mode (Activity Analysis)
+Uses `git log --no-merges` for commit activity:
+- ✅ **Excludes merge commits** - Accurate commit counting
+- ✅ **Tracks additions/deletions** - Per-author line changes
+- ✅ **Activity timeline** - When commits were made
+- ✅ **Commit frequency** - How often authors commit
+
+### 3. GitHub API Mode (Metadata)
+Fetches repository metadata via GitHub API:
+- ✅ **Pull requests** - Count and status
+- ✅ **Issues** - Open and closed issues
+- ✅ **Contributors** - GitHub contributor list
+
+### 4. Hybrid Mode (Complete Analysis)
+Combines all three methods for comprehensive insights:
+- ✅ **Line ownership** - True code attribution
+- ✅ **Commit activity** - Historical activity patterns
+- ✅ **GitHub metadata** - PR and issue tracking
+
+## ✨ Key Features
 
 ### Authentication & Security
+- Secure GitHub OAuth authentication via Auth.js v5
+- Protected routes with middleware
+- JWT-based session management
+- Automatic token refresh
 
-- ✅ Secure GitHub OAuth authentication via Auth.js v5
-- ✅ Protected routes with middleware
-- ✅ JWT-based session management
-- ✅ Automatic token refresh
-
-### Repository Analysis
-
-- ✅ List all accessible repositories (public & private)
-- ✅ Search and filter repositories by name, visibility, and language
-- ✅ View all branches for selected repository
-- ✅ **Main branch pinned at top** with quick access
-- ✅ **Paginated branch list** (10 branches per page)
-- ✅ Protected branch indicators
-- ✅ Smart branch sorting (main/master first, then alphabetical)
-
-### Contribution Analytics
-
-- ✅ **Comprehensive Contributor Metrics**:
-  - Commit counts and commit dates
-  - Lines added, deleted, and net changes
-  - Active days and contribution periods
-  - Merge commit tracking
-  - Bot filtering capability
-- ✅ **Smart Deduplication**:
-
-  - GitHub ID-based matching
-  - Email-based matching (with normalization)
-  - Name-based fallback
-  - Handles noreply emails correctly
-
-- ✅ **Date Range Filtering**:
-  - Analyze specific time periods
-  - Automatic date range detection
-  - First and last commit tracking
+### Production-Ready Attribution
+- **No false merge commit attribution** - Blame mode shows true authors
+- **Parallel processing** - Fast analysis on large repositories
+- **Error resilience** - Handles binary files and problematic commits
+- **Memory efficient** - 200MB buffer for large repos
 
 ### Visualizations
-
-- ✅ **Net Lines Bar Chart**: Top contributors by code impact
-- ✅ **Add/Remove Stacked Chart**: Addition vs deletion patterns
-- ✅ **Commits Over Time**: Activity timeline
-- ✅ **Activity Heatmap**: Weekly patterns and hourly distribution
-- ✅ Interactive sortable contributor table
+- Net Lines Bar Chart - Top contributors by code impact
+- Add/Remove Stacked Chart - Addition vs deletion patterns
+- Commits Over Time - Activity timeline
+- Activity Heatmap - Weekly patterns and hourly distribution
+- Interactive sortable tables
 - ✅ Inactive contributor highlighting (>30 days)
 
-### Reports & Exports
+## 🚀 Quick Start
 
-- ✅ **Manager-Readable Summary**:
-  - Executive overview with key metrics
-  - Top contributor highlights
-  - Inactive developer alerts
-  - Code pattern analysis
-  - Actionable recommendations
-- ✅ **CSV Exports**:
-
-  - Contributors with full statistics
-  - Commit times and dates
-  - Downloadable for Excel/Sheets
-
-- ✅ **Markdown Export**:
-  - Complete analysis report
-  - Ready for documentation/sharing
-
-### User Experience
-
-- ✅ Modern, responsive UI with Tailwind CSS
-- ✅ Real-time loading states and progress indicators
-- ✅ Error handling with user-friendly messages
-- ✅ Breadcrumb navigation
-- ✅ Mobile-friendly design
-
-### Developer Experience
-
-- ✅ TypeScript with strict mode
-- ✅ Comprehensive unit tests (Jest)
-- ✅ Zod schema validation
-- ✅ ESLint and code quality checks
-- ✅ Modular architecture
-- ✅ Extensive inline documentation
-
-## 🛠 Tech Stack
-
-| Category           | Technology                 |
-| ------------------ | -------------------------- |
-| **Framework**      | Next.js 14 (App Router)    |
-| **Language**       | TypeScript (strict mode)   |
-| **Authentication** | Auth.js v5 (NextAuth)      |
-| **Styling**        | Tailwind CSS               |
-| **GitHub API**     | Octokit REST API v20       |
-| **Validation**     | Zod v3.22                  |
-| **Testing**        | Jest + ts-jest             |
-| **Charts**         | Chart.js + react-chartjs-2 |
-| **Icons**          | Lucide React               |
-| **Date Utils**     | date-fns                   |
-
-## 📋 Prerequisites
-
-- Node.js 18+ or 20+
-- npm, yarn, or pnpm
-- GitHub account
-- GitHub OAuth App credentials
-
-## 🚀 Setup Instructions
-
-### 1. Create a GitHub OAuth App
-
-1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
-2. Click "New OAuth App"
-3. Fill in the application details:
-   - **Application name**: GitHub Contribution Dashboard
-   - **Homepage URL**: `http://localhost:3000`
-   - **Authorization callback URL**: `http://localhost:3000/api/auth/callback/github`
-4. Click "Register application"
-5. Note down your **Client ID**
-6. Generate a new **Client Secret** and note it down
-
-### 2. Install Dependencies
-
+### 1. Install Dependencies
 ```bash
-cd gitDashboard
 npm install
 ```
 
-### 3. Configure Environment Variables
-
+### 2. Configure Environment
 Create `.env.local`:
-
-```bash
-cp .env.example .env.local
-```
-
-Add your credentials to `.env.local`:
-
 ```env
-GITHUB_CLIENT_ID=your_github_client_id_here
-GITHUB_CLIENT_SECRET=your_github_client_secret_here
-NEXTAUTH_SECRET=your_random_secret_here
+GITHUB_CLIENT_ID=your_github_oauth_app_client_id
+GITHUB_CLIENT_SECRET=your_github_oauth_app_secret
+NEXTAUTH_SECRET=your_random_secret_string
 NEXTAUTH_URL=http://localhost:3000
 ```
+
+### 3. Run Development Server
+```bash
+npm run dev
+```
+
+Navigate to `http://localhost:3000/dashboard/analyze`
+
+## 📖 Usage Guide
+
+### Blame Mode (Accurate Line Attribution)
+1. Navigate to `/dashboard/analyze`
+2. Select "Blame - True Line Ownership"
+3. Enter local repository path (e.g., `/Users/you/projects/myrepo`)
+4. Click "Start Analysis"
+5. View results showing who wrote each line of code
+
+**Example API Call:**
+```bash
+curl -X POST http://localhost:3000/api/github/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "blame",
+    "repoPath": "/path/to/your/repository"
+  }'
+```
+
+### Commits Mode (Activity Analysis)
+1. Select "Commits - Activity Analysis"
+2. Enter repository path
+3. Optionally specify branch
+4. View commit frequency and additions/deletions per author
+
+### Hybrid Mode (Complete Analysis)
+1. Select "Hybrid - All Combined"
+2. Enter both repository path and GitHub owner/repo
+3. Get comprehensive insights combining all methods
+
+## � Technical Details
+
+### Attribution Methods
+
+| Method | Data Source | Excludes Merges | Use Case |
+|--------|------------|-----------------|----------|
+| **Blame** | `git blame -w -M -C` | ✅ Automatic | Code ownership |
+| **Commits** | `git log --no-merges` | ✅ Manual flag | Activity tracking |
+| **GitHub API** | Octokit REST | ❌ Manual filter | PR/Issue metadata |
+
+### Why Blame Mode is Recommended
+
+The original implementation used GitHub API to fetch commits, which had a critical flaw:
+- **Problem**: Merge commits attributed thousands of lines to the merger instead of original authors
+- **Solution**: Git blame tracks true line-level authorship, ignoring merges automatically
+
+### Configuration Options
+
+**Blame Options:**
+- `ignoreWhitespace`: Ignore whitespace changes (default: true)
+- `detectMoves`: Detect moved code within files (default: true)
+- `detectCopies`: Detect copied code across files (default: true)
+- `useMailmap`: Normalize author emails (default: true)
+- `respectIgnoreRevs`: Use .git-blame-ignore-revs (default: true)
+
+**Commit Options:**
+- `excludeMerges`: Exclude merge commits (default: true)
+- `since`: Filter commits after date (e.g., "2024-01-01")
+- `until`: Filter commits before date
+- `branch`: Analyze specific branch
+
+## 🛠 Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Git Operations | Node.js child_process |
+| GitHub API | Octokit REST |
+| Styling | Tailwind CSS |
+| Charts | Chart.js |
+
+## 📋 Prerequisites
+
+- Node.js 18+
+- Git installed and accessible via CLI
+- GitHub OAuth App credentials
+- Local git repository for blame/commits modes
 
 Generate `NEXTAUTH_SECRET`:
 
