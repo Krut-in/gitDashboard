@@ -42,6 +42,11 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // Custom metric colors for charts and visualizations
+        'metric-commits': '#f97316', // orange-500
+        'metric-additions': '#22c55e', // green-500
+        'metric-deletions': '#ef4444', // red-500
+        'metric-net': '#ec4899', // pink-500
       },
       borderRadius: {
         lg: 'var(--radius)',

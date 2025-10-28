@@ -278,6 +278,30 @@ export default function BranchPage({ params }: BranchPageProps) {
               branchName={decodedBranch}
             />
 
+            {/* Advanced Analysis Link */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      Want deeper insights?
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      View advanced timeline analysis, Gantt charts, and
+                      individual user contributions
+                    </p>
+                  </div>
+                  <Link
+                    href={`/dashboard/repo/${owner}/${repo}/branch/${branch}/advanced`}
+                  >
+                    <Button className="gap-2 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                      View Advanced Analysis →
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <NetLinesBar
