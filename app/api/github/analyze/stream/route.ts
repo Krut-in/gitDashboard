@@ -17,9 +17,10 @@
 import { NextRequest } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { createGitHubClient, checkRateLimit } from '@/lib/github';
-import { ProgressEmitter, formatSSE, createKeepAlive } from '@/lib/progress';
+import { ProgressEmitter, formatSSE, createKeepAlive } from '@/lib/progress-tracker';
+import { GITHUB_API_LIMITS } from '@/lib/constants';
 
-const COMMITS_PER_PAGE = 100;
+const COMMITS_PER_PAGE = GITHUB_API_LIMITS.COMMITS_PER_PAGE;
 const KEEP_ALIVE_INTERVAL = 15000; // 15 seconds
 
 export async function GET(request: NextRequest) {

@@ -3,6 +3,22 @@
  * 
  * Client-side aggregation of timeline data from daily to weekly, monthly, and quarterly views.
  * Supports filtering by date range and metric type.
+ * 
+ * This module provides performant aggregation functions for large datasets:
+ * - Daily metrics → Weekly/Monthly/Quarterly aggregation
+ * - Date range filtering with boundary checks
+ * - Timeline gap filling for continuous visualization
+ * - Top contributor identification per period
+ * 
+ * All functions are pure and side-effect free for predictable behavior.
+ * 
+ * @example
+ * ```typescript
+ * import { aggregateTimeline, filterByDateRange } from '@/lib/aggregation';
+ * 
+ * const weeklyData = aggregateTimeline(dailyMetrics, 'week');
+ * const filtered = filterByDateRange(weeklyData, '2024-01-01', '2024-12-31');
+ * ```
  */
 
 import type { DailyMetric, AggregatedTimeline, UserTimelineData, WeeklyMetric } from "./types";
@@ -10,6 +26,15 @@ import { TIME_RANGES, type TimeRange } from "./constants";
 
 /**
  * Get Monday of the week for a given date
+ * Used for consistent week-based aggregation
+ * 
+ * @param date - Input date
+ * @returns Monday of that week (midnight UTC)
+ * 
+ * @example
+ * ```typescript
+ * const monday = getMonday(new Date('2024-01-15')); // Returns Mon Jan 14
+ * ```
  */
 function getMonday(date: Date): Date {
   const d = new Date(date);
@@ -22,6 +47,10 @@ function getMonday(date: Date): Date {
 
 /**
  * Get first day of month for a given date
+ * Used for monthly aggregation
+ * 
+ * @param date - Input date
+ * @returns First day of that month (midnight UTC)
  */
 function getFirstOfMonth(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1);
@@ -29,6 +58,10 @@ function getFirstOfMonth(date: Date): Date {
 
 /**
  * Get first day of quarter for a given date
+ * Quarters: Q1(Jan-Mar), Q2(Apr-Jun), Q3(Jul-Sep), Q4(Oct-Dec)
+ * 
+ * @param date - Input date
+ * @returns First day of that quarter (midnight UTC)
  */
 function getFirstOfQuarter(date: Date): Date {
   const month = date.getMonth();
@@ -38,6 +71,11 @@ function getFirstOfQuarter(date: Date): Date {
 
 /**
  * Get period key based on time range
+ * Returns ISO date string for the start of the period
+ * 
+ * @param date - Input date
+ * @param timeRange - Time range type (week, month, quarter, year)
+ * @returns ISO date string (YYYY-MM-DD) for period start
  */
 function getPeriodKey(date: Date, timeRange: TimeRange): string {
   switch (timeRange) {
@@ -56,6 +94,11 @@ function getPeriodKey(date: Date, timeRange: TimeRange): string {
 
 /**
  * Get human-readable label for period
+ * Formats period start date into user-friendly string
+ * 
+ * @param periodKey - ISO date string for period start
+ * @param timeRange - Time range type
+ * @returns Formatted label (e.g., "Week of Jan 15, 2024", "Q1 2024")
  */
 function getPeriodLabel(periodKey: string, timeRange: TimeRange): string {
   const date = new Date(periodKey);
@@ -78,6 +121,18 @@ function getPeriodLabel(periodKey: string, timeRange: TimeRange): string {
 
 /**
  * Aggregate daily metrics to specified time range
+ * Groups daily data into weeks, months, quarters, or years
+ * Identifies top contributor per period
+ * 
+ * @param dailyMetrics - Array of daily metric data
+ * @param timeRange - Time range to aggregate to (week, month, quarter, year)
+ * @returns Array of aggregated timeline data sorted chronologically
+ * 
+ * @example
+ * ```typescript
+ * const weeklyData = aggregateTimeline(dailyMetrics, 'week');
+ * console.log(weeklyData[0].topContributor); // "alice"
+ * ```
  */
 export function aggregateTimeline(
   dailyMetrics: DailyMetric[],
@@ -149,6 +204,17 @@ export function aggregateTimeline(
 
 /**
  * Filter timeline data by date range
+ * Performs inclusive filtering (includes start and end dates)
+ * 
+ * @param timeline - Array of aggregated timeline data
+ * @param startDate - Start date (ISO string, YYYY-MM-DD)
+ * @param endDate - End date (ISO string, YYYY-MM-DD)
+ * @returns Filtered timeline data
+ * 
+ * @example
+ * ```typescript
+ * const filtered = filterByDateRange(timeline, '2024-01-01', '2024-03-31');
+ * ```
  */
 export function filterByDateRange(
   timeline: AggregatedTimeline[],
@@ -161,7 +227,16 @@ export function filterByDateRange(
 }
 
 /**
- * Get recent time range based on quarters (default: last 3 months)
+ * Get recent time range based on months (default: last 3 months)
+ * Calculates date range from current date backwards
+ * 
+ * @param months - Number of months to go back (default: 3)
+ * @returns Object with startDate and endDate (ISO strings)
+ * 
+ * @example
+ * ```typescript
+ * const { startDate, endDate } = getRecentTimeRange(6); // Last 6 months
+ * ```
  */
 export function getRecentTimeRange(
   months: number = 3
@@ -178,6 +253,16 @@ export function getRecentTimeRange(
 
 /**
  * Aggregate user timeline data to weekly metrics
+ * Groups daily metrics by week (Monday-Sunday) and calculates totals
+ * 
+ * @param user - User timeline data with daily metrics
+ * @returns User timeline data with added weekly metrics
+ * 
+ * @example
+ * ```typescript
+ * const userWithWeekly = aggregateUserToWeekly(userData);
+ * console.log(userWithWeekly.weeklyMetrics[0].commits); // Total commits for week
+ * ```
  */
 export function aggregateUserToWeekly(user: UserTimelineData): UserTimelineData {
   const weekMap = new Map<string, WeeklyMetric>();
@@ -217,6 +302,10 @@ export function aggregateUserToWeekly(user: UserTimelineData): UserTimelineData 
 
 /**
  * Aggregate all users to include weekly metrics
+ * Applies weekly aggregation to array of users
+ * 
+ * @param users - Array of user timeline data
+ * @returns Array of users with weekly metrics added
  */
 export function aggregateAllUsersToWeekly(
   users: UserTimelineData[]
@@ -226,6 +315,20 @@ export function aggregateAllUsersToWeekly(
 
 /**
  * Get date range for a specific period before today
+ * Useful for "last N weeks/months/quarters/years" calculations
+ * 
+ * @param timeRange - Type of time period
+ * @param periodsBack - Number of periods to go back (0 = current period)
+ * @returns Object with startDate and endDate (ISO strings)
+ * 
+ * @example
+ * ```typescript
+ * // Get date range for last quarter (3 months ago to now)
+ * const range = getDateRangeForPeriod('quarter', 0);
+ * 
+ * // Get date range for 2 quarters ago
+ * const oldRange = getDateRangeForPeriod('quarter', 2);
+ * ```
  */
 export function getDateRangeForPeriod(
   timeRange: TimeRange,
@@ -262,6 +365,19 @@ export function getDateRangeForPeriod(
 /**
  * Fill gaps in timeline data with zero values
  * Ensures continuous timeline even when there are days with no commits
+ * Important for consistent visualizations (prevents broken graphs)
+ * 
+ * @param timeline - Timeline data with possible gaps
+ * @param startDate - Start date for filling (ISO string)
+ * @param endDate - End date for filling (ISO string)
+ * @param timeRange - Time range type (determines gap filling interval)
+ * @returns Timeline with gaps filled with zero-value entries
+ * 
+ * @example
+ * ```typescript
+ * const filled = fillTimelineGaps(timeline, '2024-01-01', '2024-01-31', 'week');
+ * // Returns timeline with entries for every week, even if no commits
+ * ```
  */
 export function fillTimelineGaps(
   timeline: AggregatedTimeline[],

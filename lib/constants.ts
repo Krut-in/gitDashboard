@@ -52,6 +52,7 @@ export const DATA_LIMITS = {
   MAX_YEARS: 5,
   DEFAULT_PAGE_SIZE: 100,
   MAX_CONCURRENT_WORKERS: 8,
+  MAX_CONCURRENT_REQUESTS: 3, // For API request queuing
 } as const;
 
 /**

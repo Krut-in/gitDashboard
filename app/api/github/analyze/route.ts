@@ -22,6 +22,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { createGitHubClient, checkRateLimit } from '@/lib/github';
 import { toErrorResponse } from '@/lib/errors';
+import { RequestQueue } from '@/lib/request-queue';
 import { 
   analyzeCommits,
   serializeContributorsCSV,
@@ -36,49 +37,9 @@ import { computeBlameAttribution } from '@/lib/git/blame';
 import { computeCommitStats } from '@/lib/git/commits';
 import { Octokit } from '@octokit/rest';
 import type { AnalysisConfig } from '@/lib/analysis-modes';
+import { GITHUB_API_LIMITS } from '@/lib/constants';
 
-const MAX_CONCURRENT_REQUESTS = 3;
-const COMMITS_PER_PAGE = 100;
-
-/**
- * Queue for managing concurrent API requests
- */
-class RequestQueue {
-  private queue: Array<() => Promise<any>> = [];
-  private running = 0;
-
-  async add<T>(fn: () => Promise<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this.queue.push(async () => {
-        try {
-          const result = await fn();
-          resolve(result);
-        } catch (error) {
-          reject(error);
-        }
-      });
-      this.process();
-    });
-  }
-
-  private async process(): Promise<void> {
-    if (this.running >= MAX_CONCURRENT_REQUESTS || this.queue.length === 0) {
-      return;
-    }
-
-    this.running++;
-    const fn = this.queue.shift();
-    
-    if (fn) {
-      try {
-        await fn();
-      } finally {
-        this.running--;
-        this.process();
-      }
-    }
-  }
-}
+const COMMITS_PER_PAGE = GITHUB_API_LIMITS.COMMITS_PER_PAGE;
 
 /**
  * Fetch all commits for a branch with pagination

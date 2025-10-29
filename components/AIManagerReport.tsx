@@ -1,9 +1,17 @@
 /**
  * AI Manager Report Component
  *
- * Displays AI-generated summary and recommendations for managers.
- * Currently shows a placeholder with manual summary structure.
- * TODO: Integrate with OpenAI API or similar for actual generation.
+ * Displays an intelligent analysis summary and actionable recommendations for managers.
+ * Provides insights into team productivity, collaboration patterns, and code quality metrics.
+ *
+ * Key Features:
+ * - Team productivity overview with contribution metrics
+ * - Collaboration patterns and solo contributor identification
+ * - Work pattern analysis (weekday vs. weekend, timing)
+ * - Actionable recommendations based on data patterns
+ *
+ * Future Enhancement: Can be extended with AI/ML models for deeper insights
+ * and predictive analytics about team performance.
  */
 
 "use client";

@@ -1,32 +1,43 @@
 /**
  * GitHub API Error Handling Utilities
  * 
- * Provides consistent error handling for GitHub API operations.
- * Handles rate limits, authentication, and network errors.
+ * Provides consistent error handling specifically for GitHub API operations.
+ * Handles rate limits, authentication, repository access, and network errors.
+ * 
+ * All functions in this module use the unified error system from errors.ts
+ * and throw GitHubAPIError instances with appropriate status codes.
+ * 
+ * @example
+ * ```typescript
+ * try {
+ *   const commits = await fetchCommits();
+ * } catch (error) {
+ *   handleCommitFetchError(error); // Throws GitHubAPIError
+ * }
+ * ```
  */
 
-import { AppError } from './errors';
-
-export class GitHubAPIError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public code: string
-  ) {
-    super(message);
-    this.name = 'GitHubAPIError';
-  }
-}
+import { GitHubAPIError } from './errors';
 
 /**
  * Handle errors during commit fetching operations
+ * Converts various error types into GitHubAPIError with appropriate status codes
+ * 
+ * @param error - Error object from GitHub API or fetch operation
+ * @throws {GitHubAPIError} Standardized error with status code and error code
+ * @returns never - Always throws
+ * 
+ * @example
+ * ```typescript
+ * try {
+ *   const response = await octokit.repos.listCommits({...});
+ * } catch (error) {
+ *   handleCommitFetchError(error);
+ * }
+ * ```
  */
 export function handleCommitFetchError(error: unknown): never {
   if (error instanceof GitHubAPIError) {
-    throw error;
-  }
-
-  if (error instanceof AppError) {
     throw error;
   }
 
@@ -96,6 +107,19 @@ export function handleCommitFetchError(error: unknown): never {
 
 /**
  * Handle empty repository edge case
+ * Throws a specialized error when a repository has no commits
+ * 
+ * @param owner - Repository owner username or organization
+ * @param repo - Repository name
+ * @throws {GitHubAPIError} With 404 status and EMPTY_REPOSITORY code
+ * @returns never - Always throws
+ * 
+ * @example
+ * ```typescript
+ * if (commits.length === 0) {
+ *   handleEmptyRepository('owner', 'repo');
+ * }
+ * ```
  */
 export function handleEmptyRepository(owner: string, repo: string): never {
   throw new GitHubAPIError(
@@ -107,6 +131,20 @@ export function handleEmptyRepository(owner: string, repo: string): never {
 
 /**
  * Handle invalid branch edge case
+ * Throws when a specified branch doesn't exist in the repository
+ * 
+ * @param branch - Branch name that wasn't found
+ * @throws {GitHubAPIError} With 404 status and INVALID_BRANCH code
+ * @returns never - Always throws
+ * 
+ * @example
+ * ```typescript
+ * try {
+ *   await octokit.repos.getBranch({ owner, repo, branch });
+ * } catch (error) {
+ *   handleInvalidBranch(branch);
+ * }
+ * ```
  */
 export function handleInvalidBranch(branch: string): never {
   throw new GitHubAPIError(
@@ -118,6 +156,18 @@ export function handleInvalidBranch(branch: string): never {
 
 /**
  * Handle repositories with only merge commits
+ * Throws when filtering excludes all commits (e.g., excludeMerges=true but only merge commits exist)
+ * 
+ * @throws {GitHubAPIError} With 404 status and NO_VALID_COMMITS code
+ * @returns never - Always throws
+ * 
+ * @example
+ * ```typescript
+ * const nonMergeCommits = commits.filter(c => c.parents.length < 2);
+ * if (nonMergeCommits.length === 0) {
+ *   handleOnlyMergeCommits();
+ * }
+ * ```
  */
 export function handleOnlyMergeCommits(): never {
   throw new GitHubAPIError(
@@ -126,4 +176,3 @@ export function handleOnlyMergeCommits(): never {
     'NO_VALID_COMMITS'
   );
 }
-

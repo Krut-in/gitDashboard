@@ -9,6 +9,7 @@
 import { Octokit } from '@octokit/rest';
 import { handleCommitFetchError, handleEmptyRepository, handleOnlyMergeCommits } from './api-errors';
 import { calculateProgress } from './progress-tracker';
+import { GITHUB_API_LIMITS } from './constants';
 
 export interface CommitData {
   sha: string;
@@ -27,8 +28,8 @@ export interface FetchCommitsOptions {
   onProgress?: (message: string, percent: number) => void;
 }
 
-const COMMITS_PER_PAGE = 100;
-const DEFAULT_MAX_COMMITS = 5000;
+const COMMITS_PER_PAGE = GITHUB_API_LIMITS.COMMITS_PER_PAGE;
+const DEFAULT_MAX_COMMITS = GITHUB_API_LIMITS.MAX_COMMITS_PER_REQUEST;
 
 /**
  * Fetch commits for a specific branch with pagination and merge filtering
