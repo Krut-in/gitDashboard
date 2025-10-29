@@ -13,7 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { createGitHubClient, handleGitHubError } from '@/lib/github';
+import { createGitHubClient } from '@/lib/github';
 import { toErrorResponse } from '@/lib/errors';
 import { Branch } from '@/lib/types';
 
