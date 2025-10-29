@@ -18,6 +18,7 @@ export interface CommitData {
   date: string; // ISO string
   additions: number;
   deletions: number;
+  files: string[]; // Array of file paths modified in this commit
 }
 
 export interface FetchCommitsOptions {
@@ -109,6 +110,7 @@ export async function fetchCommitsForBranch(
           date: commit.commit.author?.date || new Date().toISOString(),
           additions: 0, // Will be filled in later
           deletions: 0, // Will be filled in later
+          files: [], // Will be filled in later
         });
       }
 
@@ -198,6 +200,7 @@ async function fetchDetailedStats(
 
           commit.additions = data.stats?.additions || 0;
           commit.deletions = data.stats?.deletions || 0;
+          commit.files = (data.files || []).map(f => f.filename);
         } catch (error) {
           console.error(`Failed to fetch stats for commit ${commit.sha}:`, error);
           // Keep zeros if fetch fails - at least we have the commit counted
@@ -328,6 +331,7 @@ export async function fetchCommitsForFile(
           date: commit.commit.author?.date || new Date().toISOString(),
           additions: fileStats?.additions || 0,
           deletions: fileStats?.deletions || 0,
+          files: detailedCommit.data.files?.map(f => f.filename) || [],
         });
       }
 

@@ -2,7 +2,7 @@
  * Analysis Summary Component
  *
  * Generates and displays a manager-readable summary of the contribution analysis.
- * Includes key insights, top contributors, inactive developers, and code patterns.
+ * Includes key insights, top contributors, inactive developers, and code statistics.
  * Summary is deterministic (no AI) and can be exported as markdown.
  */
 

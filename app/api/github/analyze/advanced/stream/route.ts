@@ -11,7 +11,7 @@ import { createGitHubClient, checkRateLimit } from "@/lib/github";
 import { extractTimelineFromGitHub } from "@/lib/git/timeline";
 import { extractUserMetricsFromCommits } from "@/lib/git/user-metrics";
 import { aggregateAllUsersToWeekly } from "@/lib/aggregation";
-import { extractBasicInsights } from "@/lib/insights";
+import { extractBasicInsights, extractInsights } from "@/lib/insights";
 import { createProgressStream, sendProgress, sendComplete, sendError } from "@/lib/progress-tracker";
 import { GITHUB_API_LIMITS } from "@/lib/constants";
 import { fetchCommitsForBranch } from "@/lib/github-api-commits";
@@ -182,8 +182,30 @@ export async function POST(request: NextRequest) {
 
         await sendProgress(writer, 'Generating insights...', 95);
 
-        // Extract insights
-        const insights = extractBasicInsights(timeline.users);
+        // Transform commits to the format expected by extractInsights
+        const commitDetails = commits.map(c => ({
+          sha: c.sha,
+          author: c.authorName,
+          date: c.date,
+          message: '', // Message not needed for insights
+          additions: c.additions,
+          deletions: c.deletions,
+          files: c.files,
+        }));
+
+        // Build file contributors map
+        const fileContributors = new Map<string, Set<string>>();
+        for (const commit of commits) {
+          for (const file of commit.files) {
+            if (!fileContributors.has(file)) {
+              fileContributors.set(file, new Set());
+            }
+            fileContributors.get(file)!.add(commit.authorName);
+          }
+        }
+
+        // Extract insights with full commit data
+        const insights = extractInsights(timeline.users, commitDetails, fileContributors);
 
         // Build final response
         const result: AdvancedAnalysisResponse = {

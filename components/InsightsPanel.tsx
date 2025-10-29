@@ -4,14 +4,14 @@
  * Displays extracted insights from commit data:
  * - Temporal patterns (most active day/hour)
  * - Work patterns (weekday vs weekend, morning vs evening)
- * - Code patterns (largest commit, commit types)
+ * - Language patterns (languages used, most edited files)
  * - Collaboration patterns
  */
 
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
-import { Clock, TrendingUp, Users, Code, Calendar } from "lucide-react";
+import { Clock, Users, Code, Calendar } from "lucide-react";
 import type { Insights } from "@/lib/types";
 
 interface InsightsPanelProps {
@@ -127,63 +127,111 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
         </CardContent>
       </Card>
 
-      {/* Code Patterns */}
+      {/* Language Patterns */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
             <Code className="w-5 h-5 text-green-600" />
-            <CardTitle className="text-lg">Code Patterns</CardTitle>
+            <CardTitle className="text-lg">Language Patterns</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {insights.largestCommit && (
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Largest Commit</p>
-              <p className="text-sm font-medium text-gray-700 mb-1">
-                {insights.largestCommit.author}
-              </p>
-              <p className="text-xs text-gray-500">
-                <span className="text-metric-additions">
-                  +{insights.largestCommit.additions.toLocaleString()}
-                </span>{" "}
-                <span className="text-metric-deletions">
-                  -{insights.largestCommit.deletions.toLocaleString()}
-                </span>
-              </p>
-              <p className="text-xs text-gray-400 font-mono mt-1">
-                {insights.largestCommit.sha.substring(0, 7)}
-              </p>
-            </div>
-          )}
+          {/* Language Breakdown */}
+          {insights.languageBreakdown &&
+            insights.languageBreakdown.length > 0 && (
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Languages Used</p>
 
-          {insights.commonCommitTypes.length > 0 && (
+                {/* Language Bar */}
+                <div className="flex h-2 rounded-full overflow-hidden backdrop-blur-md bg-white/50 border border-white/30 mb-3">
+                  {insights.languageBreakdown.slice(0, 5).map((lang, idx) => (
+                    <div
+                      key={idx}
+                      className="transition-all duration-300"
+                      style={{
+                        backgroundColor: lang.color,
+                        width: `${lang.percentage}%`,
+                      }}
+                      title={`${lang.language}: ${lang.percentage.toFixed(1)}%`}
+                    />
+                  ))}
+                </div>
+
+                {/* Language List */}
+                <div className="space-y-1.5">
+                  {insights.languageBreakdown.slice(0, 5).map((lang, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between text-xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full shadow-sm"
+                          style={{ backgroundColor: lang.color }}
+                        />
+                        <span className="font-medium text-gray-700">
+                          {lang.language}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-500">
+                          {lang.fileCount}{" "}
+                          {lang.fileCount === 1 ? "file" : "files"}
+                        </span>
+                        <span className="font-semibold text-gray-900 min-w-[2.5rem] text-right">
+                          {lang.percentage.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          {/* Most Edited Files */}
+          {insights.mostEditedFiles && insights.mostEditedFiles.length > 0 && (
             <div>
-              <p className="text-sm text-gray-600 mb-2">Common Commit Types</p>
-              <div className="space-y-1">
-                {insights.commonCommitTypes.slice(0, 3).map(type => (
+              <p className="text-sm text-gray-600 mb-2">Most Edited Files</p>
+              <div className="space-y-2">
+                {insights.mostEditedFiles.slice(0, 3).map((file, i) => (
                   <div
-                    key={type.type}
-                    className="flex items-center justify-between"
+                    key={i}
+                    className="p-2 backdrop-blur-md bg-white/50 rounded border border-white/30"
                   >
-                    <span className="text-xs font-medium text-gray-700 capitalize">
-                      {type.type}
-                    </span>
-                    <span className="text-xs text-gray-500">{type.count}</span>
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-xs font-medium text-gray-700 truncate flex-1">
+                        {file.filename.split("/").pop()}
+                      </p>
+                      <span className="text-xs font-bold text-blue-600 ml-2">
+                        {file.edits}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-700">
+                        {file.language}
+                      </span>
+                      <span>
+                        {file.contributors} contributor
+                        {file.contributors !== 1 ? "s" : ""}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {insights.avgCommitMessageLength > 0 && (
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Avg Message Length</p>
-              <p className="text-2xl font-bold text-gray-700">
-                {insights.avgCommitMessageLength}
-              </p>
-              <p className="text-xs text-gray-500">characters</p>
-            </div>
-          )}
+          {/* Fallback when no data */}
+          {(!insights.languageBreakdown ||
+            insights.languageBreakdown.length === 0) &&
+            (!insights.mostEditedFiles ||
+              insights.mostEditedFiles.length === 0) && (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500 italic">
+                  No language data available
+                </p>
+              </div>
+            )}
         </CardContent>
       </Card>
 

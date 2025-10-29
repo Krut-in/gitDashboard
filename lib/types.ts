@@ -263,9 +263,9 @@ export interface Insights {
   mostFrequentCollaborators: { user1: string; user2: string; sharedFiles: number }[];
   soloContributors: string[];
   
-  // Code patterns
-  largestCommit: { sha: string; author: string; additions: number; deletions: number } | null;
-  mostEditedFiles: { filename: string; edits: number; contributors: number }[];
+  // Language patterns
+  languageBreakdown: { language: string; fileCount: number; percentage: number; color: string }[];
+  mostEditedFiles: { filename: string; edits: number; contributors: number; language: string }[];
   
   // Commit message patterns
   commonCommitTypes: { type: string; count: number }[];

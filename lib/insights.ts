@@ -2,10 +2,11 @@
  * Insights Extraction from Commit Data
  * 
  * Analyzes commit patterns to extract meaningful insights for managers.
- * Includes temporal patterns, collaboration patterns, and code quality indicators.
+ * Includes temporal patterns, collaboration patterns, and language patterns.
  */
 
 import type { Insights, UserTimelineData } from "./types";
+import { analyzeLanguageDistribution, getLanguageFromFilename } from "./language-detection";
 
 interface CommitDetails {
   sha: string;
@@ -235,28 +236,40 @@ function calculateAvgMessageLength(commits: CommitDetails[]): number {
 }
 
 /**
- * Find largest commit by changes
+ * Analyze most edited files with their languages
  */
-function findLargestCommit(commits: CommitDetails[]): { sha: string; author: string; additions: number; deletions: number } | null {
-  if (commits.length === 0) return null;
-
-  let largest = commits[0];
-  let maxChanges = commits[0].additions + commits[0].deletions;
-
+function analyzeMostEditedFiles(
+  commits: CommitDetails[],
+  fileContributors: Map<string, Set<string>>
+): { filename: string; edits: number; contributors: number; language: string }[] {
+  const fileEdits = new Map<string, number>();
+  
+  // Count edits per file
   for (const commit of commits) {
-    const changes = commit.additions + commit.deletions;
-    if (changes > maxChanges) {
-      maxChanges = changes;
-      largest = commit;
+    for (const file of commit.files) {
+      fileEdits.set(file, (fileEdits.get(file) || 0) + 1);
     }
   }
-
-  return {
-    sha: largest.sha,
-    author: largest.author,
-    additions: largest.additions,
-    deletions: largest.deletions,
-  };
+  
+  // Build result with language info
+  const results: { filename: string; edits: number; contributors: number; language: string }[] = [];
+  
+  for (const [filename, edits] of Array.from(fileEdits.entries())) {
+    const contributors = fileContributors.get(filename)?.size || 1;
+    const langInfo = getLanguageFromFilename(filename);
+    
+    results.push({
+      filename,
+      edits,
+      contributors,
+      language: langInfo?.language || 'Other'
+    });
+  }
+  
+  // Sort by edit count and take top files
+  results.sort((a, b) => b.edits - a.edits);
+  
+  return results.slice(0, 10);
 }
 
 /**
@@ -272,6 +285,12 @@ export function extractInsights(
   commits: CommitDetails[],
   fileContributors: Map<string, Set<string>> = new Map()
 ): Insights {
+  // Collect all files from commits
+  const allFiles: string[] = [];
+  for (const commit of commits) {
+    allFiles.push(...commit.files);
+  }
+  
   return {
     // Temporal patterns
     mostActiveDay: findMostActiveDay(users),
@@ -282,9 +301,9 @@ export function extractInsights(
     mostFrequentCollaborators: [], // Will be implemented with file-level data
     soloContributors: findSoloContributors(users, fileContributors),
     
-    // Code patterns
-    largestCommit: findLargestCommit(commits),
-    mostEditedFiles: [], // Will be implemented with file-level data
+    // Language patterns
+    languageBreakdown: analyzeLanguageDistribution(allFiles),
+    mostEditedFiles: analyzeMostEditedFiles(commits, fileContributors),
     
     // Commit message patterns
     commonCommitTypes: analyzeCommitTypes(commits),
@@ -311,8 +330,8 @@ export function extractBasicInsights(users: UserTimelineData[]): Insights {
     mostFrequentCollaborators: [],
     soloContributors: [],
     
-    // Code patterns
-    largestCommit: null,
+    // Language patterns
+    languageBreakdown: [],
     mostEditedFiles: [],
     
     // Commit message patterns
