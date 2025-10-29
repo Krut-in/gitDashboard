@@ -126,15 +126,22 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
+      {/* Static Background Orbs - Glassmorphism Effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-48 h-48 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute top-40 right-10 w-48 h-48 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
         {/* Breadcrumb Navigation */}
         <div className="mb-6">
           <Link href={`/dashboard/repo/${owner}/${repo}/branch/${branch}`}>
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 mb-4 backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
+              className="gap-2 mb-4 backdrop-blur-md !bg-gradient-to-r !from-purple-600 !to-blue-600 !text-white hover:!text-white hover:!bg-gradient-to-r hover:!from-purple-600 hover:!to-blue-600 !border-none shadow-lg hover:shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Analysis
@@ -173,16 +180,16 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
 
         {/* Tab Navigation */}
         <div className="mb-6">
-          <div className="flex gap-2 border-b border-gray-200">
+          <div className="flex gap-2 backdrop-blur-md bg-white/40 rounded-lg p-1 border border-white/30 shadow-lg">
             {(["overview", "timeline", "users", "report"] as TabView[]).map(
               tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 font-medium capitalize transition-colors ${
+                  className={`px-4 py-2 font-medium capitalize transition-all duration-300 rounded-md ${
                     activeTab === tab
-                      ? "text-purple-600 border-b-2 border-purple-600"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
                   }`}
                 >
                   {tab}

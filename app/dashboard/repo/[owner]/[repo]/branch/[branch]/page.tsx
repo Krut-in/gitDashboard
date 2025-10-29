@@ -137,7 +137,7 @@ export default function BranchPage({ params }: BranchPageProps) {
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 mb-4 backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
+              className="gap-2 mb-4 backdrop-blur-md !bg-gradient-to-r !from-purple-600 !to-blue-600 !text-white hover:!text-white hover:!bg-gradient-to-r hover:!from-purple-600 hover:!to-blue-600 !border-none shadow-lg hover:shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Branches
