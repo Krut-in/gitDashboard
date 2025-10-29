@@ -68,8 +68,8 @@ export default function HomePage() {
           {/* Left Content */}
           <div className="space-y-6 relative z-10">
             <div className="inline-block">
-              <div className="flex items-center gap-2 px-4 py-2 backdrop-blur-md bg-white/40 rounded-full text-sm text-gray-800 shadow-lg border border-white/30">
-                <Zap className="w-4 h-4 text-orange-500" />
+              <div className="flex items-center gap-2 px-4 py-2 backdrop-blur-md bg-white/40 rounded-full text-sm text-gray-800 shadow-lg border border-white/30 ray-container">
+                <Zap className="w-4 h-4 text-green-500 zap-heartbeat" />
                 <span>Analyze • Visualize • Optimize</span>
               </div>
             </div>
@@ -94,7 +94,7 @@ export default function HomePage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300"
+                  className="backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300 hover-elevate"
                 >
                   <Github className="w-5 h-5" />
                   Get Started
@@ -103,7 +103,7 @@ export default function HomePage() {
               <a href="#how-it-works">
                 <Button
                   size="lg"
-                  className="backdrop-blur-md bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300"
+                  className="backdrop-blur-md bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300 hover-elevate"
                 >
                   Explore Features →
                 </Button>
