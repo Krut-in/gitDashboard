@@ -18,6 +18,7 @@ import { ContributionGantt } from "@/components/charts/ContributionGantt";
 import { UserContributionsSection } from "@/components/UserContributionsSection";
 import { AIManagerReport } from "@/components/AIManagerReport";
 import { InsightsPanel } from "@/components/InsightsPanel";
+import { CommitMessageAnalysisCard } from "@/components/CommitMessageAnalysis";
 import type { AdvancedAnalysisResponse } from "@/lib/types";
 
 interface AdvancedPageProps {
@@ -338,6 +339,13 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
                       </>
                     );
                   })()}
+
+                  {/* Commit Message Quality Analysis */}
+                  {analysisState.data.commitMessageAnalysis && (
+                    <CommitMessageAnalysisCard
+                      data={analysisState.data.commitMessageAnalysis}
+                    />
+                  )}
                 </div>
               )}
 

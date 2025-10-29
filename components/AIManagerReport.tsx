@@ -19,7 +19,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { Button } from "./ui/Button";
-import { CommitMessageAnalysisCard } from "./CommitMessageAnalysis";
 import {
   Sparkles,
   TrendingUp,
@@ -265,11 +264,6 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Commit Message Quality Analysis (Always Visible - Hardcoded Metrics) */}
-      {data.commitMessageAnalysis && (
-        <CommitMessageAnalysisCard data={data.commitMessageAnalysis} />
       )}
 
       {/* AI-Powered Insights */}

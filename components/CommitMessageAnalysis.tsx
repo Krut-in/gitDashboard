@@ -1,6 +1,6 @@
 /**
  * Commit Message Analysis Component
- * 
+ *
  * Displays comprehensive analysis of commit message quality, including:
  * - Length distribution and statistics
  * - Conventional commit type usage
@@ -11,14 +11,23 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
-import { MessageSquare, TrendingUp, Users, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import {
+  MessageSquare,
+  TrendingUp,
+  Users,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+} from "lucide-react";
 import type { CommitMessageAnalysis } from "@/lib/types";
 
 interface CommitMessageAnalysisProps {
   data: CommitMessageAnalysis;
 }
 
-export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) {
+export function CommitMessageAnalysisCard({
+  data,
+}: CommitMessageAnalysisProps) {
   const {
     lengthDistribution,
     typeDistribution,
@@ -29,18 +38,28 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
 
   // Calculate percentages for length distribution
   const lengthPercentages = {
-    short: statistics.totalMessages > 0
-      ? Math.round((lengthDistribution.short / statistics.totalMessages) * 100)
-      : 0,
-    medium: statistics.totalMessages > 0
-      ? Math.round((lengthDistribution.medium / statistics.totalMessages) * 100)
-      : 0,
-    long: statistics.totalMessages > 0
-      ? Math.round((lengthDistribution.long / statistics.totalMessages) * 100)
-      : 0,
-    verbose: statistics.totalMessages > 0
-      ? Math.round((lengthDistribution.verbose / statistics.totalMessages) * 100)
-      : 0,
+    short:
+      statistics.totalMessages > 0
+        ? Math.round(
+            (lengthDistribution.short / statistics.totalMessages) * 100
+          )
+        : 0,
+    medium:
+      statistics.totalMessages > 0
+        ? Math.round(
+            (lengthDistribution.medium / statistics.totalMessages) * 100
+          )
+        : 0,
+    long:
+      statistics.totalMessages > 0
+        ? Math.round((lengthDistribution.long / statistics.totalMessages) * 100)
+        : 0,
+    verbose:
+      statistics.totalMessages > 0
+        ? Math.round(
+            (lengthDistribution.verbose / statistics.totalMessages) * 100
+          )
+        : 0,
   };
 
   // Get top commit types
@@ -75,7 +94,9 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
             <MessageSquare className="w-6 h-6 text-white" />
           </div>
           <div>
-            <CardTitle className="text-xl">Commit Message Quality Analysis</CardTitle>
+            <CardTitle className="text-xl">
+              Commit Message Quality Analysis
+            </CardTitle>
             <p className="text-sm text-gray-600 mt-1">
               Insights into commit message patterns, conventions, and quality
             </p>
@@ -207,9 +228,10 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {topTypes.map(([type, count]) => {
-                const percentage = statistics.totalMessages > 0
-                  ? Math.round((count / statistics.totalMessages) * 100)
-                  : 0;
+                const percentage =
+                  statistics.totalMessages > 0
+                    ? Math.round((count / statistics.totalMessages) * 100)
+                    : 0;
 
                 return (
                   <div
@@ -217,19 +239,27 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${
-                        type === 'feat' ? 'bg-green-500' :
-                        type === 'fix' ? 'bg-red-500' :
-                        type === 'docs' ? 'bg-blue-500' :
-                        type === 'other' ? 'bg-gray-400' :
-                        'bg-purple-500'
-                      }`} />
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          type === "feat"
+                            ? "bg-green-500"
+                            : type === "fix"
+                            ? "bg-red-500"
+                            : type === "docs"
+                            ? "bg-blue-500"
+                            : type === "other"
+                            ? "bg-gray-400"
+                            : "bg-purple-500"
+                        }`}
+                      />
                       <span className="font-medium text-gray-900">
                         {formatTypeLabel(type)}
                       </span>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-semibold text-gray-900">{count}</div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {count}
+                      </div>
                       <div className="text-xs text-gray-500">{percentage}%</div>
                     </div>
                   </div>
@@ -243,7 +273,9 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-indigo-600" />
-            <h3 className="text-lg font-semibold">Contributor Writing Styles</h3>
+            <h3 className="text-lg font-semibold">
+              Contributor Writing Styles
+            </h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -254,9 +286,11 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
                   Verbose ({userCategories.verbose.length})
                 </h4>
                 <div className="space-y-2">
-                  {userCategories.verbose.slice(0, 3).map((user) => (
+                  {userCategories.verbose.slice(0, 3).map(user => (
                     <div key={user.userName} className="text-sm">
-                      <div className="font-medium text-gray-900">{user.userName}</div>
+                      <div className="font-medium text-gray-900">
+                        {user.userName}
+                      </div>
                       <div className="text-xs text-gray-600">
                         Avg: {user.avgLength} chars · {user.commitCount} commits
                       </div>
@@ -283,9 +317,11 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
                   Balanced ({userCategories.balanced.length})
                 </h4>
                 <div className="space-y-2">
-                  {userCategories.balanced.slice(0, 3).map((user) => (
+                  {userCategories.balanced.slice(0, 3).map(user => (
                     <div key={user.userName} className="text-sm">
-                      <div className="font-medium text-gray-900">{user.userName}</div>
+                      <div className="font-medium text-gray-900">
+                        {user.userName}
+                      </div>
                       <div className="text-xs text-gray-600">
                         Avg: {user.avgLength} chars · {user.commitCount} commits
                       </div>
@@ -312,9 +348,11 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
                   Minimalist ({userCategories.minimalist.length})
                 </h4>
                 <div className="space-y-2">
-                  {userCategories.minimalist.slice(0, 3).map((user) => (
+                  {userCategories.minimalist.slice(0, 3).map(user => (
                     <div key={user.userName} className="text-sm">
-                      <div className="font-medium text-gray-900">{user.userName}</div>
+                      <div className="font-medium text-gray-900">
+                        {user.userName}
+                      </div>
                       <div className="text-xs text-gray-600">
                         Avg: {user.avgLength} chars · {user.commitCount} commits
                       </div>
@@ -341,31 +379,33 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-orange-600" />
-              <h3 className="text-lg font-semibold">Quality Patterns Detected</h3>
+              <h3 className="text-lg font-semibold">
+                Quality Patterns Detected
+              </h3>
             </div>
 
             <div className="space-y-2">
-              {patterns.map((pattern) => {
+              {patterns.map(pattern => {
                 const patternInfo = {
-                  'single-char': {
-                    label: 'Single-character commits',
-                    color: 'red',
-                    icon: '🚨',
+                  "single-char": {
+                    label: "Single-character commits",
+                    color: "red",
+                    icon: "🚨",
                   },
-                  'generic': {
-                    label: 'Generic/non-descriptive commits',
-                    color: 'orange',
-                    icon: '⚠️',
+                  generic: {
+                    label: "Generic/non-descriptive commits",
+                    color: "orange",
+                    icon: "⚠️",
                   },
-                  'no-message': {
-                    label: 'Empty commit messages',
-                    color: 'red',
-                    icon: '❌',
+                  "no-message": {
+                    label: "Empty commit messages",
+                    color: "red",
+                    icon: "❌",
                   },
-                  'very-long': {
-                    label: 'Very long commit messages (>200 chars)',
-                    color: 'blue',
-                    icon: '📝',
+                  "very-long": {
+                    label: "Very long commit messages (>200 chars)",
+                    color: "blue",
+                    icon: "📝",
                   },
                 };
 
@@ -375,9 +415,11 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
                   <div
                     key={pattern.type}
                     className={`p-3 rounded-lg border ${
-                      info.color === 'red' ? 'bg-red-50 border-red-200' :
-                      info.color === 'orange' ? 'bg-orange-50 border-orange-200' :
-                      'bg-blue-50 border-blue-200'
+                      info.color === "red"
+                        ? "bg-red-50 border-red-200"
+                        : info.color === "orange"
+                        ? "bg-orange-50 border-orange-200"
+                        : "bg-blue-50 border-blue-200"
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -388,13 +430,15 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
                             {info.label}
                           </div>
                           <div className="text-sm text-gray-600 mt-1">
-                            Found {pattern.count} instance{pattern.count !== 1 ? 's' : ''}
+                            Found {pattern.count} instance
+                            {pattern.count !== 1 ? "s" : ""}
                           </div>
                           {pattern.examples.length > 0 && (
                             <div className="mt-2 text-xs text-gray-700">
                               <div className="font-medium">Example:</div>
                               <div className="italic mt-1">
-                                "{pattern.examples[0].message}" by {pattern.examples[0].author}
+                                "{pattern.examples[0].message}" by{" "}
+                                {pattern.examples[0].author}
                               </div>
                             </div>
                           )}
@@ -416,19 +460,61 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
               <h4 className="font-semibold text-gray-900 mb-2">Key Insights</h4>
               <ul className="space-y-1 text-sm text-gray-700">
                 {statistics.conventionalCommitPercentage >= 70 && (
-                  <li>✅ Great adoption of conventional commit standards ({statistics.conventionalCommitPercentage}%)</li>
+                  <li>
+                    ✅ Great adoption of conventional commit standards (
+                    {statistics.conventionalCommitPercentage}%)
+                  </li>
                 )}
                 {statistics.conventionalCommitPercentage < 50 && (
-                  <li>📌 Consider adopting conventional commit standards (currently {statistics.conventionalCommitPercentage}%)</li>
+                  <>
+                    <li>
+                      📌 Consider adopting conventional commit standards
+                      (currently {statistics.conventionalCommitPercentage}%)
+                    </li>
+                    <li className="ml-5 text-xs text-gray-600 mt-1">
+                      Conventional commits follow a structured format:{" "}
+                      <code className="bg-white px-1 py-0.5 rounded">
+                        type(scope): description
+                      </code>
+                      <br />
+                      Examples:{" "}
+                      <code className="bg-white px-1 py-0.5 rounded">
+                        feat: add user login
+                      </code>
+                      ,{" "}
+                      <code className="bg-white px-1 py-0.5 rounded">
+                        fix: resolve memory leak
+                      </code>
+                      ,{" "}
+                      <code className="bg-white px-1 py-0.5 rounded">
+                        docs: update README
+                      </code>
+                      <br />
+                      This standard improves code history readability, enables
+                      automated changelog generation, and helps teams understand
+                      changes at a glance.
+                    </li>
+                  </>
                 )}
                 {statistics.avgLength < 30 && (
-                  <li>📌 Commit messages are quite brief (avg: {statistics.avgLength} chars) - consider adding more context</li>
+                  <li>
+                    📌 Commit messages are quite brief (avg:{" "}
+                    {statistics.avgLength} chars) - consider adding more context
+                  </li>
                 )}
                 {statistics.avgLength > 100 && (
-                  <li>✅ Detailed commit messages (avg: {statistics.avgLength} chars) provide good context</li>
+                  <li>
+                    ✅ Detailed commit messages (avg: {statistics.avgLength}{" "}
+                    chars) provide good context
+                  </li>
                 )}
-                {patterns.some(p => p.type === 'single-char' || p.type === 'generic') && (
-                  <li>⚠️ Some commits have low-quality messages - encourage descriptive commit messages</li>
+                {patterns.some(
+                  p => p.type === "single-char" || p.type === "generic"
+                ) && (
+                  <li>
+                    ⚠️ Some commits have low-quality messages - encourage
+                    descriptive commit messages
+                  </li>
                 )}
               </ul>
             </div>
@@ -438,4 +524,3 @@ export function CommitMessageAnalysisCard({ data }: CommitMessageAnalysisProps) 
     </Card>
   );
 }
-
