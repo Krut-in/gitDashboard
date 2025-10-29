@@ -76,7 +76,7 @@ export function UserWeeklyBarChart({
     ],
   };
 
-  const options = {
+  const options: any = {
     indexAxis: "y" as const,
     responsive: true,
     maintainAspectRatio: false,
@@ -135,7 +135,7 @@ export function UserWeeklyBarChart({
           text: "← Commits | Net Lines →",
           font: {
             size: 12,
-            weight: "bold" as const,
+            weight: "bold",
           },
         },
       },

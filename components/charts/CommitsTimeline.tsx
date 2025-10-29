@@ -80,7 +80,7 @@ export function CommitsTimeline({ dailyMetrics }: CommitsTimelineProps) {
     };
   }, [aggregatedData]);
 
-  const options = {
+  const options: any = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -97,7 +97,7 @@ export function CommitsTimeline({ dailyMetrics }: CommitsTimelineProps) {
         padding: 12,
         titleFont: {
           size: 14,
-          weight: "bold" as const,
+          weight: "bold",
         },
         bodyFont: {
           size: 13,

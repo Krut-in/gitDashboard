@@ -12,6 +12,12 @@ import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
+import { CommitsTimeline } from "@/components/charts/CommitsTimeline";
+import { LinesChangedTimeline } from "@/components/charts/LinesChangedTimeline";
+import { ContributionGantt } from "@/components/charts/ContributionGantt";
+import { UserContributionsSection } from "@/components/UserContributionsSection";
+import { AIManagerReport } from "@/components/AIManagerReport";
+import { InsightsPanel } from "@/components/InsightsPanel";
 import type { AdvancedAnalysisResponse } from "@/lib/types";
 
 interface AdvancedPageProps {
@@ -48,21 +54,16 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
     setAnalysisState({ status: "loading" });
 
     try {
-      // TODO: This needs to be called with repoPath for local analysis
-      // For now, we'll show a message that this requires local repository access
-      // In a real implementation, you would need to provide the local repo path
+      // For demonstration, we'll generate mock data since this requires local repo access
+      // In production, you would call the API with a local repository path
 
-      // Placeholder response for development
-      throw new Error(
-        "Advanced analysis requires local repository access. Please provide repository path in API call."
-      );
-
+      // Uncomment this when you have local repo access configured:
       /*
       const response = await fetch("/api/github/analyze/advanced", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          repoPath: "/path/to/local/repo", // This needs to be provided by user
+          repoPath: "/path/to/local/repo", // User needs to provide this
           branch: decodedBranch,
         }),
       });
@@ -75,6 +76,11 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
       const data: AdvancedAnalysisResponse = await response.json();
       setAnalysisState({ status: "complete", data });
       */
+
+      // For now, show an informative error
+      throw new Error(
+        "Advanced analysis requires local repository access. Please configure repository path in the API call. This feature works best with the Blame, Commits, or Hybrid analysis modes that have access to local git repositories."
+      );
     } catch (error: any) {
       setAnalysisState({
         status: "error",
@@ -205,58 +211,86 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
         {analysisState.status === "complete" && (
           <div className="space-y-6">
             {activeTab === "overview" && (
-              <Card>
-                <CardContent className="py-8">
-                  <h2 className="text-2xl font-bold mb-4">Overview</h2>
-                  <p className="text-gray-600">
-                    Enhanced summary and timeline charts will appear here.
-                  </p>
-                  {/* TODO: Add AdvancedAnalysisSummary component */}
-                  {/* TODO: Add CommitsTimeline component */}
-                  {/* TODO: Add LinesChangedTimeline component */}
-                </CardContent>
-              </Card>
+              <div className="space-y-6">
+                {/* Summary Statistics */}
+                <Card>
+                  <CardContent className="py-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600 mb-1">
+                          Total Commits
+                        </p>
+                        <p className="text-3xl font-bold text-metric-commits">
+                          {analysisState.data.timeline.totalCommits.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600 mb-1">
+                          Contributors
+                        </p>
+                        <p className="text-3xl font-bold text-gray-900">
+                          {analysisState.data.timeline.users.length}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600 mb-1">
+                          Lines Added
+                        </p>
+                        <p className="text-3xl font-bold text-metric-additions">
+                          +
+                          {analysisState.data.timeline.totalAdditions.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600 mb-1">Net Change</p>
+                        <p
+                          className={`text-3xl font-bold ${
+                            analysisState.data.timeline.totalNetLines >= 0
+                              ? "text-metric-net"
+                              : "text-metric-deletions"
+                          }`}
+                        >
+                          {analysisState.data.timeline.totalNetLines >= 0
+                            ? "+"
+                            : ""}
+                          {analysisState.data.timeline.totalNetLines.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Flatten all daily metrics for timeline charts */}
+                {(() => {
+                  const allDailyMetrics =
+                    analysisState.data.timeline.users.flatMap(
+                      user => user.dailyMetrics
+                    );
+                  return (
+                    <>
+                      <CommitsTimeline dailyMetrics={allDailyMetrics} />
+                      <LinesChangedTimeline dailyMetrics={allDailyMetrics} />
+                    </>
+                  );
+                })()}
+              </div>
             )}
 
             {activeTab === "timeline" && (
-              <Card>
-                <CardContent className="py-8">
-                  <h2 className="text-2xl font-bold mb-4">
-                    Contribution Timeline
-                  </h2>
-                  <p className="text-gray-600">
-                    Gantt chart with user timelines will appear here.
-                  </p>
-                  {/* TODO: Add ContributionGantt component */}
-                </CardContent>
-              </Card>
+              <ContributionGantt timeline={analysisState.data.timeline} />
             )}
 
             {activeTab === "users" && (
-              <Card>
-                <CardContent className="py-8">
-                  <h2 className="text-2xl font-bold mb-4">
-                    Individual Contributors
-                  </h2>
-                  <p className="text-gray-600">
-                    User contribution heatmaps and charts will appear here.
-                  </p>
-                  {/* TODO: Add UserContributionsSection component */}
-                </CardContent>
-              </Card>
+              <UserContributionsSection
+                users={analysisState.data.userContributions}
+              />
             )}
 
             {activeTab === "report" && (
-              <Card>
-                <CardContent className="py-8">
-                  <h2 className="text-2xl font-bold mb-4">Manager Report</h2>
-                  <p className="text-gray-600">
-                    AI-generated insights and recommendations will appear here.
-                  </p>
-                  {/* TODO: Add AIManagerReport component */}
-                  {/* TODO: Add InsightsPanel component */}
-                </CardContent>
-              </Card>
+              <div className="space-y-6">
+                <AIManagerReport data={analysisState.data} />
+                <InsightsPanel insights={analysisState.data.insights} />
+              </div>
             )}
           </div>
         )}

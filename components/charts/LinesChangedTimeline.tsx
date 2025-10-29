@@ -112,7 +112,7 @@ export function LinesChangedTimeline({
     };
   }, [aggregatedData]);
 
-  const options = {
+  const options: any = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -124,7 +124,7 @@ export function LinesChangedTimeline({
           padding: 15,
           font: {
             size: 12,
-            weight: "500" as const,
+            weight: 500,
           },
         },
       },
@@ -138,7 +138,7 @@ export function LinesChangedTimeline({
         padding: 12,
         titleFont: {
           size: 14,
-          weight: "bold" as const,
+          weight: "bold",
         },
         bodyFont: {
           size: 13,
@@ -187,7 +187,7 @@ export function LinesChangedTimeline({
           text: "Lines Changed",
           font: {
             size: 12,
-            weight: "bold" as const,
+            weight: "bold",
           },
         },
       },
