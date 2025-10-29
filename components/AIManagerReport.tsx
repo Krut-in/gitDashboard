@@ -9,9 +9,9 @@
  * - Collaboration patterns and solo contributor identification
  * - Work pattern analysis (weekday vs. weekend, timing)
  * - Actionable recommendations based on data patterns
- * - AI-powered insights using OpenAI GPT-4o
+ * - AI-powered insights using OpenAI GPT-5-mini
  *
- * Uses OpenAI GPT-4o to generate contextual insights and recommendations.
+ * Uses OpenAI GPT-5-mini to generate contextual insights and recommendations.
  */
 
 "use client";
@@ -26,6 +26,8 @@ import {
   AlertCircle,
   CheckCircle,
   Loader2,
+  Info,
+  AlertTriangle,
 } from "lucide-react";
 import type { AdvancedAnalysisResponse } from "@/lib/types";
 
@@ -50,13 +52,21 @@ interface AIInsights {
   predictiveInsights: string[];
 }
 
+interface APIError {
+  error: string;
+  fallback?: boolean;
+  details?: string;
+  suggestion?: string;
+}
+
 export function AIManagerReport({ data }: AIManagerReportProps) {
   const { timeline, insights, metadata } = data;
 
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<APIError | null>(null);
   const [useAI, setUseAI] = useState(false);
+  const [isCached, setIsCached] = useState(false);
 
   // Calculate some metrics for the report
   const avgCommitsPerUser =
@@ -73,7 +83,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
   const codeGrowth =
     timeline.totalAdditions > 0
       ? ((timeline.totalNetLines / timeline.totalAdditions) * 100).toFixed(1)
-      : 0;
+      : "0";
 
   const fetchAIInsights = async () => {
     setIsLoading(true);
@@ -86,16 +96,35 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
         body: JSON.stringify(data),
       });
 
+      const result = await response.json();
+
+      // Handle different error scenarios
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate AI insights");
+        const errorData: APIError = {
+          error: result.error || "Failed to generate AI insights",
+          fallback: result.fallback || false,
+          details: result.details,
+          suggestion: result.suggestion,
+        };
+
+        setError(errorData);
+        setUseAI(false);
+        return;
       }
 
-      const result = await response.json();
+      // Success case
       setAiInsights(result.insights);
+      setIsCached(result.cached || false);
       setUseAI(true);
+      setError(null);
     } catch (err: any) {
-      setError(err.message);
+      console.error("Client-side error:", err);
+      setError({
+        error: "Network error occurred",
+        fallback: true,
+        details: err.message || "Unable to connect to the AI service",
+        suggestion: "Please check your internet connection and try again.",
+      });
       setUseAI(false);
     } finally {
       setIsLoading(false);
@@ -164,6 +193,11 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                     day: "numeric",
                     year: "numeric",
                   })}
+                  {isCached && (
+                    <span className="ml-2 text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                      Cached
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
@@ -171,7 +205,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
             <Button
               onClick={fetchAIInsights}
               disabled={isLoading}
-              className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+              className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
@@ -191,13 +225,47 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
 
       {/* Error State */}
       {error && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-amber-200 bg-amber-50">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-3 text-red-900">
-              <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold">AI Analysis Failed</h3>
-                <p className="text-sm text-red-700">{error}</p>
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-amber-900 mb-2">
+                  {error.error}
+                </h3>
+
+                {error.details && (
+                  <p className="text-sm text-amber-800 mb-3">
+                    <strong>Details:</strong> {error.details}
+                  </p>
+                )}
+
+                {error.suggestion && (
+                  <div className="flex items-start gap-2 p-3 bg-amber-100 rounded-lg mb-3">
+                    <Info className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-amber-900">
+                      <strong>Suggestion:</strong> {error.suggestion}
+                    </p>
+                  </div>
+                )}
+
+                {error.fallback && (
+                  <div className="flex items-center gap-2 text-sm text-amber-700 mt-3">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>
+                      Don't worry! The traditional report is available below.
+                    </span>
+                  </div>
+                )}
+
+                <Button
+                  onClick={() => setError(null)}
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                >
+                  Dismiss
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -277,17 +345,23 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
 
                   <div className="flex-1">
                     <h4 className="font-semibold mb-2">Key Factors:</h4>
-                    <ul className="space-y-1">
-                      {aiInsights.teamHealth.factors.map((factor, i) => (
-                        <li
-                          key={i}
-                          className="text-sm text-gray-700 flex items-start gap-2"
-                        >
-                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                          {factor}
-                        </li>
-                      ))}
-                    </ul>
+                    {aiInsights.teamHealth.factors.length > 0 ? (
+                      <ul className="space-y-1">
+                        {aiInsights.teamHealth.factors.map((factor, i) => (
+                          <li
+                            key={i}
+                            className="text-sm text-gray-700 flex items-start gap-2"
+                          >
+                            <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                            {factor}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">
+                        No specific factors identified
+                      </p>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -304,14 +378,22 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                 </div>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
-                  {aiInsights.strengths.map((strength, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-700">{strength}</span>
-                    </li>
-                  ))}
-                </ul>
+                {aiInsights.strengths.length > 0 ? (
+                  <ul className="space-y-2">
+                    {aiInsights.strengths.map((strength, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-gray-700">
+                          {strength}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">
+                    No specific strengths identified
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -323,75 +405,83 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                 </div>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
-                  {aiInsights.concerns.map((concern, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-700">{concern}</span>
-                    </li>
-                  ))}
-                </ul>
+                {aiInsights.concerns.length > 0 ? (
+                  <ul className="space-y-2">
+                    {aiInsights.concerns.map((concern, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-gray-700">{concern}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">
+                    No major concerns identified
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>
 
           {/* AI Recommendations */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-blue-600" />
-                <CardTitle>AI-Powered Recommendations</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {aiInsights.recommendations.map((rec, i) => (
-                  <div
-                    key={i}
-                    className={`p-4 rounded-lg border ${getPriorityColor(
-                      rec.priority
-                    )}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <AlertCircle
-                        className={`w-5 h-5 flex-shrink-0 mt-0.5 ${getPriorityIcon(
-                          rec.priority
-                        )}`}
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h4
-                            className={`font-semibold ${getPriorityTextColor(
+          {aiInsights.recommendations.length > 0 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                  <CardTitle>AI-Powered Recommendations</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {aiInsights.recommendations.map((rec, i) => (
+                    <div
+                      key={i}
+                      className={`p-4 rounded-lg border ${getPriorityColor(
+                        rec.priority
+                      )}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <AlertCircle
+                          className={`w-5 h-5 flex-shrink-0 mt-0.5 ${getPriorityIcon(
+                            rec.priority
+                          )}`}
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4
+                              className={`font-semibold ${getPriorityTextColor(
+                                rec.priority
+                              )}`}
+                            >
+                              {rec.title}
+                            </h4>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/50 font-medium">
+                              {rec.priority} priority
+                            </span>
+                          </div>
+                          <p
+                            className={`text-sm mb-2 ${getPriorityTextColor(
                               rec.priority
                             )}`}
                           >
-                            {rec.title}
-                          </h4>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-white/50 font-medium">
-                            {rec.priority} priority
-                          </span>
+                            {rec.description}
+                          </p>
+                          <p
+                            className={`text-xs italic ${getPriorityTextColor(
+                              rec.priority
+                            )} opacity-80`}
+                          >
+                            <strong>Expected Impact:</strong> {rec.impact}
+                          </p>
                         </div>
-                        <p
-                          className={`text-sm mb-2 ${getPriorityTextColor(
-                            rec.priority
-                          )}`}
-                        >
-                          {rec.description}
-                        </p>
-                        <p
-                          className={`text-xs italic ${getPriorityTextColor(
-                            rec.priority
-                          )} opacity-80`}
-                        >
-                          <strong>Expected Impact:</strong> {rec.impact}
-                        </p>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Predictive Insights */}
           {aiInsights.predictiveInsights.length > 0 && (
@@ -618,13 +708,21 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
             </CardContent>
           </Card>
 
-          {/* Note about AI */}
-          <div className="text-center text-sm text-gray-500 italic">
-            <p>
-              Click "Generate AI Insights" above for AI-powered analysis and
-              recommendations.
-            </p>
-          </div>
+          {/* CTA for AI */}
+          {!error && (
+            <div className="text-center p-6 backdrop-blur-md bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+              <Sparkles className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+              <p className="text-sm text-gray-700 mb-3">
+                Get deeper insights powered by AI! Click "Generate AI Insights"
+                above for personalized recommendations, team health analysis,
+                and predictive insights.
+              </p>
+              <p className="text-xs text-gray-500">
+                Uses GPT-5-mini to analyze your team's unique patterns and
+                provide actionable advice.
+              </p>
+            </div>
+          )}
         </>
       )}
     </div>

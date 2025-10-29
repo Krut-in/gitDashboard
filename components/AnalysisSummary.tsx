@@ -367,8 +367,78 @@ ${
           <h4 className="text-base font-semibold text-gray-900 mb-2">
             Code Patterns
           </h4>
-          <p className="text-gray-700">
-            The add/remove ratio of{" "}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 border border-blue-100">
+              <p className="text-xs font-medium text-blue-900 mb-1">
+                Add/Remove Ratio
+              </p>
+              <p className="text-2xl font-bold text-blue-700 mb-1">
+                {insights.addRemoveRatio.toFixed(2)}:1
+              </p>
+              <p className="text-xs text-blue-600">
+                {insights.addRemoveRatio > 2
+                  ? "Rapid expansion"
+                  : insights.addRemoveRatio > 1
+                  ? "Balanced growth"
+                  : "Heavy refactoring"}
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-100">
+              <p className="text-xs font-medium text-purple-900 mb-1">
+                Avg Commits/Dev
+              </p>
+              <p className="text-2xl font-bold text-purple-700 mb-1">
+                {insights.avgCommits}
+              </p>
+              <p className="text-xs text-purple-600">
+                {insights.avgCommits > 50
+                  ? "High activity"
+                  : insights.avgCommits > 20
+                  ? "Moderate activity"
+                  : "Focused work"}
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 border border-green-100">
+              <p className="text-xs font-medium text-green-900 mb-1">
+                Code Churn Rate
+              </p>
+              <p className="text-2xl font-bold text-green-700 mb-1">
+                {metadata.totalCommits > 0
+                  ? (
+                      (insights.totalDeletions / metadata.totalCommits) *
+                      100
+                    ).toFixed(0)
+                  : 0}
+                %
+              </p>
+              <p className="text-xs text-green-600">
+                {insights.totalDeletions / metadata.totalCommits > 10
+                  ? "High churn"
+                  : insights.totalDeletions / metadata.totalCommits > 5
+                  ? "Normal churn"
+                  : "Low churn"}
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 border border-orange-100">
+              <p className="text-xs font-medium text-orange-900 mb-1">
+                Dev Velocity
+              </p>
+              <p className="text-2xl font-bold text-orange-700 mb-1">
+                {insights.developmentDays > 0
+                  ? (metadata.totalCommits / insights.developmentDays).toFixed(
+                      1
+                    )
+                  : 0}
+              </p>
+              <p className="text-xs text-orange-600">commits/day</p>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-600 italic">
+            💡 The add/remove ratio of{" "}
             <strong>{insights.addRemoveRatio.toFixed(2)}:1</strong> indicates{" "}
             {insights.addRemoveRatio > 2
               ? "rapid codebase expansion with minimal refactoring."
