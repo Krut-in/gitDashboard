@@ -1,8 +1,28 @@
 /**
  * Advanced Analysis Streaming API Endpoint
  * 
- * Provides real-time progress updates using Server-Sent Events (SSE).
- * Fetches commits from GitHub API with streaming progress indicators.
+ * @module api/github/analyze/advanced/stream
+ * @description Real-time repository analysis with Server-Sent Events (SSE) progress updates
+ * 
+ * @features
+ * - Live progress updates during analysis (0-100%)
+ * - Supports large repositories with pagination
+ * - Language detection and distribution analysis
+ * - Collaboration pattern detection
+ * - Error recovery with detailed error messages
+ * 
+ * @sse-events
+ * - "progress": { type: "progress", message: string, percent: number }
+ * - "complete": { type: "complete", data: AdvancedAnalysisResponse, hasMore: boolean }
+ * - "error": { type: "error", message: string }
+ * 
+ * @performance
+ * - Progress updates every 100 commits processed
+ * - Streaming reduces time-to-first-byte
+ * - Supports repositories with 10,000+ commits
+ * 
+ * @author GitHub Contribution Dashboard Team
+ * @since 1.0.0
  */
 
 import { NextRequest } from "next/server";
@@ -11,7 +31,7 @@ import { createGitHubClient, checkRateLimit } from "@/lib/github";
 import { extractTimelineFromGitHub } from "@/lib/git/timeline";
 import { extractUserMetricsFromCommits } from "@/lib/git/user-metrics";
 import { aggregateAllUsersToWeekly } from "@/lib/aggregation";
-import { extractBasicInsights, extractInsights } from "@/lib/insights";
+import { extractInsights } from "@/lib/insights";
 import { createProgressStream, sendProgress, sendComplete, sendError } from "@/lib/progress-tracker";
 import { GITHUB_API_LIMITS } from "@/lib/constants";
 import { fetchCommitsForBranch } from "@/lib/github-api-commits";

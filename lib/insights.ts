@@ -1,8 +1,24 @@
 /**
  * Insights Extraction from Commit Data
  * 
- * Analyzes commit patterns to extract meaningful insights for managers.
- * Includes temporal patterns, collaboration patterns, and language patterns.
+ * @module insights
+ * @description Analyzes commit data to extract actionable insights for engineering managers:
+ * - Temporal patterns (peak activity times, quiet periods)
+ * - Collaboration patterns (team dynamics, file ownership)
+ * - Language patterns (technology stack, most edited files)
+ * - Work patterns (weekday vs weekend, morning vs evening)
+ * - Commit patterns (conventional commit types, message lengths)
+ * 
+ * @performance
+ * - extractInsights: O(n*m) where n = commits, m = files per commit
+ * - extractBasicInsights: O(n) where n = user timeline entries
+ * 
+ * @usage
+ * Use extractInsights() when you have detailed commit data (includes language analysis)
+ * Use extractBasicInsights() for quick analysis without commit details (no language data)
+ * 
+ * @author GitHub Contribution Dashboard Team
+ * @since 1.0.0
  */
 
 import type { Insights, UserTimelineData } from "./types";
@@ -236,19 +252,42 @@ function calculateAvgMessageLength(commits: CommitDetails[]): number {
 }
 
 /**
- * Analyze most edited files with their languages
+ * Analyze most frequently edited files with language detection
+ * 
+ * @param commits - Array of commit details including modified files
+ * @param fileContributors - Map tracking which developers touched which files
+ * @returns Top 10 most edited files with metadata (sorted by edit count)
+ * 
+ * @performance O(n*m) where n = commits, m = average files per commit
  */
 function analyzeMostEditedFiles(
   commits: CommitDetails[],
   fileContributors: Map<string, Set<string>>
 ): { filename: string; edits: number; contributors: number; language: string }[] {
+  // Input validation
+  if (!Array.isArray(commits) || commits.length === 0) {
+    return [];
+  }
+
   const fileEdits = new Map<string, number>();
   
   // Count edits per file
   for (const commit of commits) {
-    for (const file of commit.files) {
-      fileEdits.set(file, (fileEdits.get(file) || 0) + 1);
+    // Skip commits without files array or with invalid data
+    if (!commit.files || !Array.isArray(commit.files)) {
+      continue;
     }
+
+    for (const file of commit.files) {
+      if (file && typeof file === 'string') {
+        fileEdits.set(file, (fileEdits.get(file) || 0) + 1);
+      }
+    }
+  }
+  
+  // Early return if no files found
+  if (fileEdits.size === 0) {
+    return [];
   }
   
   // Build result with language info
@@ -266,7 +305,7 @@ function analyzeMostEditedFiles(
     });
   }
   
-  // Sort by edit count and take top files
+  // Sort by edit count (descending) and limit to top 10
   results.sort((a, b) => b.edits - a.edits);
   
   return results.slice(0, 10);
