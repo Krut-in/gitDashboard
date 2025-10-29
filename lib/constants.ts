@@ -106,3 +106,13 @@ export const INTENSITY_THRESHOLDS = {
   LINES: 50,
 } as const;
 
+/**
+ * GitHub API limits and pagination settings
+ */
+export const GITHUB_API_LIMITS = {
+  MAX_COMMITS_PER_REQUEST: 5000,
+  COMMITS_PER_PAGE: 100,
+  RATE_LIMIT_WARNING_THRESHOLD: 100,
+  REQUEST_DELAY_MS: 100,
+} as const;
+

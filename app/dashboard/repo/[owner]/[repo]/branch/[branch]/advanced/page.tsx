@@ -36,6 +36,11 @@ type AnalysisState =
 
 type TabView = "overview" | "timeline" | "users" | "report";
 
+interface ProgressState {
+  message: string;
+  percent: number;
+}
+
 export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
   const { owner, repo, branch } = params;
   const decodedBranch = decodeURIComponent(branch);
@@ -44,49 +49,79 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
     status: "idle",
   });
   const [activeTab, setActiveTab] = useState<TabView>("overview");
+  const [progress, setProgress] = useState<ProgressState | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [commitOffset, setCommitOffset] = useState(0);
 
   useEffect(() => {
     // Auto-start analysis on page load
     loadAdvancedAnalysis();
   }, []);
 
-  const loadAdvancedAnalysis = async () => {
+  const loadAdvancedAnalysis = async (loadMore = false) => {
     setAnalysisState({ status: "loading" });
+    setProgress({ message: "Connecting to GitHub API...", percent: 0 });
 
     try {
-      // For demonstration, we'll generate mock data since this requires local repo access
-      // In production, you would call the API with a local repository path
-
-      // Uncomment this when you have local repo access configured:
-      /*
-      const response = await fetch("/api/github/analyze/advanced", {
+      const response = await fetch("/api/github/analyze/advanced/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          repoPath: "/path/to/local/repo", // User needs to provide this
+          owner,
+          repo,
           branch: decodedBranch,
+          offset: loadMore ? commitOffset : 0,
         }),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Advanced analysis failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to start analysis");
       }
 
-      const data: AdvancedAnalysisResponse = await response.json();
-      setAnalysisState({ status: "complete", data });
-      */
+      if (!response.body) {
+        throw new Error("No response body available");
+      }
 
-      // For now, show an informative error
-      throw new Error(
-        "Advanced analysis requires local repository access. Please configure repository path in the API call. This feature works best with the Blame, Commits, or Hybrid analysis modes that have access to local git repositories."
-      );
+      // Process SSE stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.type === "progress") {
+              setProgress({ message: data.message, percent: data.percent });
+            } else if (data.type === "complete") {
+              setAnalysisState({ status: "complete", data: data.result });
+              setHasMore(data.hasMore || false);
+              setCommitOffset(data.nextOffset || 0);
+              setProgress(null);
+            } else if (data.type === "error") {
+              throw new Error(data.message || "Analysis failed");
+            }
+          }
+        }
+      }
     } catch (error: any) {
+      console.error("Analysis error:", error);
       setAnalysisState({
         status: "error",
         message:
           error instanceof Error ? error.message : "Unknown error occurred",
       });
+      setProgress(null);
     }
   };
 
@@ -163,10 +198,27 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
             <CardContent className="py-12">
               <div className="flex flex-col items-center justify-center">
                 <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
-                <p className="text-gray-600">Loading advanced analysis...</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  This may take a few minutes for large repositories
+                <p className="text-gray-600">
+                  {progress?.message || "Loading advanced analysis..."}
                 </p>
+                {progress && (
+                  <>
+                    <div className="w-64 h-2 bg-gray-200 rounded-full mt-4">
+                      <div
+                        className="h-2 bg-purple-600 rounded-full transition-all duration-300"
+                        style={{ width: `${progress.percent}%` }}
+                      />
+                    </div>
+                    <p className="text-sm text-gray-500 mt-2">
+                      {progress.percent}%
+                    </p>
+                  </>
+                )}
+                {!progress && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    This may take a few minutes for large repositories
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -196,11 +248,14 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
                 </h3>
                 <p className="text-gray-600 mb-4">{analysisState.message}</p>
                 <p className="text-sm text-gray-500 mb-6">
-                  Advanced analysis requires local repository access. This
-                  feature works best with the analysis modes that access local
-                  git repositories (Blame, Commits, or Hybrid modes).
+                  Please check your GitHub authentication and repository access.
+                  If the issue persists, the repository may be too large or the
+                  branch may not exist.
                 </p>
-                <Button onClick={loadAdvancedAnalysis} variant="outline">
+                <Button
+                  onClick={() => loadAdvancedAnalysis()}
+                  variant="outline"
+                >
                   Try Again
                 </Button>
               </div>
@@ -209,90 +264,115 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
         )}
 
         {analysisState.status === "complete" && (
-          <div className="space-y-6">
-            {activeTab === "overview" && (
-              <div className="space-y-6">
-                {/* Summary Statistics */}
-                <Card>
-                  <CardContent className="py-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 mb-1">
-                          Total Commits
-                        </p>
-                        <p className="text-3xl font-bold text-metric-commits">
-                          {analysisState.data.timeline.totalCommits.toLocaleString()}
-                        </p>
+          <>
+            <div className="space-y-6">
+              {activeTab === "overview" && (
+                <div className="space-y-6">
+                  {/* Summary Statistics */}
+                  <Card>
+                    <CardContent className="py-6">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600 mb-1">
+                            Total Commits
+                          </p>
+                          <p className="text-3xl font-bold text-metric-commits">
+                            {analysisState.data.timeline.totalCommits.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600 mb-1">
+                            Contributors
+                          </p>
+                          <p className="text-3xl font-bold text-gray-900">
+                            {analysisState.data.timeline.users.length}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600 mb-1">
+                            Lines Added
+                          </p>
+                          <p className="text-3xl font-bold text-metric-additions">
+                            +
+                            {analysisState.data.timeline.totalAdditions.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600 mb-1">
+                            Net Change
+                          </p>
+                          <p
+                            className={`text-3xl font-bold ${
+                              analysisState.data.timeline.totalNetLines >= 0
+                                ? "text-metric-net"
+                                : "text-metric-deletions"
+                            }`}
+                          >
+                            {analysisState.data.timeline.totalNetLines >= 0
+                              ? "+"
+                              : ""}
+                            {analysisState.data.timeline.totalNetLines.toLocaleString()}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 mb-1">
-                          Contributors
-                        </p>
-                        <p className="text-3xl font-bold text-gray-900">
-                          {analysisState.data.timeline.users.length}
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 mb-1">
-                          Lines Added
-                        </p>
-                        <p className="text-3xl font-bold text-metric-additions">
-                          +
-                          {analysisState.data.timeline.totalAdditions.toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 mb-1">Net Change</p>
-                        <p
-                          className={`text-3xl font-bold ${
-                            analysisState.data.timeline.totalNetLines >= 0
-                              ? "text-metric-net"
-                              : "text-metric-deletions"
-                          }`}
-                        >
-                          {analysisState.data.timeline.totalNetLines >= 0
-                            ? "+"
-                            : ""}
-                          {analysisState.data.timeline.totalNetLines.toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
 
-                {/* Flatten all daily metrics for timeline charts */}
-                {(() => {
-                  const allDailyMetrics =
-                    analysisState.data.timeline.users.flatMap(
-                      user => user.dailyMetrics
+                  {/* Flatten all daily metrics for timeline charts */}
+                  {(() => {
+                    const allDailyMetrics =
+                      analysisState.data.timeline.users.flatMap(
+                        user => user.dailyMetrics
+                      );
+                    return (
+                      <>
+                        <CommitsTimeline dailyMetrics={allDailyMetrics} />
+                        <LinesChangedTimeline dailyMetrics={allDailyMetrics} />
+                      </>
                     );
-                  return (
-                    <>
-                      <CommitsTimeline dailyMetrics={allDailyMetrics} />
-                      <LinesChangedTimeline dailyMetrics={allDailyMetrics} />
-                    </>
-                  );
-                })()}
-              </div>
-            )}
+                  })()}
+                </div>
+              )}
 
-            {activeTab === "timeline" && (
-              <ContributionGantt timeline={analysisState.data.timeline} />
-            )}
+              {activeTab === "timeline" && (
+                <ContributionGantt timeline={analysisState.data.timeline} />
+              )}
 
-            {activeTab === "users" && (
-              <UserContributionsSection
-                users={analysisState.data.userContributions}
-              />
-            )}
+              {activeTab === "users" && (
+                <UserContributionsSection
+                  users={analysisState.data.userContributions}
+                />
+              )}
 
-            {activeTab === "report" && (
-              <div className="space-y-6">
-                <AIManagerReport data={analysisState.data} />
-                <InsightsPanel insights={analysisState.data.insights} />
-              </div>
+              {activeTab === "report" && (
+                <div className="space-y-6">
+                  <AIManagerReport data={analysisState.data} />
+                  <InsightsPanel insights={analysisState.data.insights} />
+                </div>
+              )}
+            </div>
+
+            {/* Load More Button */}
+            {hasMore && (
+              <Card className="mt-6">
+                <CardContent className="py-6">
+                  <div className="text-center">
+                    <p className="text-gray-600 mb-4">
+                      This repository has more commits available. You can load
+                      the next 5,000 commits to see more history.
+                    </p>
+                    <Button
+                      onClick={() => loadAdvancedAnalysis(true)}
+                      variant="outline"
+                      className="gap-2"
+                    >
+                      Load Next 5,000 Commits
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             )}
-          </div>
+          </>
         )}
 
         {analysisState.status === "idle" && (

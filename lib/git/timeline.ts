@@ -4,10 +4,14 @@
  * Extracts per-day, per-user contribution data from git log.
  * Uses --no-merges flag to ensure accurate attribution.
  * Supports date range filtering and pagination.
+ * 
+ * UPDATED: Now supports both local git and GitHub API methods.
  */
 
+import { Octokit } from "@octokit/rest";
 import { runGit, ensureGitRepo } from "./runGit";
-import { DATA_LIMITS } from "../constants";
+import { DATA_LIMITS, GITHUB_API_LIMITS } from "../constants";
+import { fetchCommitsForBranch, type CommitData } from "../github-api-commits";
 import type { DailyMetric, UserTimelineData, RepositoryTimeline } from "../types";
 
 export interface TimelineOptions {
@@ -16,9 +20,10 @@ export interface TimelineOptions {
   until?: string;
   branch?: string;
   maxCommits?: number;
+  onProgress?: (message: string, percent: number) => void;
 }
 
-interface CommitData {
+interface LocalCommitData {
   sha: string;
   authorName: string;
   authorEmail: string;
@@ -32,8 +37,8 @@ interface CommitData {
  * Format: hash TAB name TAB email TAB date TAB subject
  * Followed by numstat lines: additions TAB deletions TAB filename
  */
-function parseGitLogTimeline(output: string): CommitData[] {
-  const commits: CommitData[] = [];
+function parseGitLogTimeline(output: string): LocalCommitData[] {
+  const commits: LocalCommitData[] = [];
   const lines = output.split('\n');
   
   let currentCommit: {
@@ -134,7 +139,7 @@ function calculateDateRange(options: TimelineOptions): { since?: string; until?:
 /**
  * Group commits by user and date
  */
-function groupByUserAndDate(commits: CommitData[]): Map<string, Map<string, DailyMetric>> {
+function groupByUserAndDate(commits: (LocalCommitData | CommitData)[]): Map<string, Map<string, DailyMetric>> {
   const userDateMap = new Map<string, Map<string, DailyMetric>>();
 
   for (const commit of commits) {
@@ -178,20 +183,20 @@ function convertToUserTimeline(
 ): UserTimelineData[] {
   const users: UserTimelineData[] = [];
 
-  for (const [userId, dateMap] of userDateMap.entries()) {
-    const dailyMetrics = Array.from(dateMap.values()).sort((a, b) => 
+  for (const [userId, dateMap] of Array.from(userDateMap.entries())) {
+    const dailyMetrics: DailyMetric[] = Array.from(dateMap.values()).sort((a, b) => 
       a.date.localeCompare(b.date)
     );
 
     if (dailyMetrics.length === 0) continue;
 
-    const firstCommitDate = dailyMetrics[0].date;
-    const lastCommitDate = dailyMetrics[dailyMetrics.length - 1].date;
+    const firstCommitDate: string = dailyMetrics[0].date;
+    const lastCommitDate: string = dailyMetrics[dailyMetrics.length - 1].date;
     
-    const totalCommits = dailyMetrics.reduce((sum, m) => sum + m.commits, 0);
-    const totalAdditions = dailyMetrics.reduce((sum, m) => sum + m.additions, 0);
-    const totalDeletions = dailyMetrics.reduce((sum, m) => sum + m.deletions, 0);
-    const totalNetLines = dailyMetrics.reduce((sum, m) => sum + m.netLines, 0);
+    const totalCommits: number = dailyMetrics.reduce((sum, m) => sum + m.commits, 0);
+    const totalAdditions: number = dailyMetrics.reduce((sum, m) => sum + m.additions, 0);
+    const totalDeletions: number = dailyMetrics.reduce((sum, m) => sum + m.deletions, 0);
+    const totalNetLines: number = dailyMetrics.reduce((sum, m) => sum + m.netLines, 0);
 
     users.push({
       userId,
@@ -278,6 +283,81 @@ export async function extractTimeline(
   // For avatar URLs, we'll need to fetch them separately or use GitHub API
   // For now, create empty map (will be populated by API layer)
   const avatarMap = new Map<string, string>();
+  
+  const users = convertToUserTimeline(userDateMap, avatarMap);
+
+  // Calculate repository-level totals
+  const allDates = commits.map(c => c.date).sort();
+  const repoFirstCommit = allDates[0] || new Date().toISOString();
+  const repoLastCommit = allDates[allDates.length - 1] || new Date().toISOString();
+  
+  const totalCommits = commits.length;
+  const totalAdditions = commits.reduce((sum, c) => sum + c.additions, 0);
+  const totalDeletions = commits.reduce((sum, c) => sum + c.deletions, 0);
+  const totalNetLines = totalAdditions - totalDeletions;
+
+  return {
+    repoFirstCommit,
+    repoLastCommit,
+    users,
+    totalCommits,
+    totalAdditions,
+    totalDeletions,
+    totalNetLines,
+  };
+}
+
+/**
+ * Extract timeline data from GitHub API
+ * 
+ * @param octokit - Authenticated Octokit instance
+ * @param owner - Repository owner
+ * @param repo - Repository name
+ * @param branch - Branch name
+ * @param options - Timeline extraction options
+ * @returns Repository timeline with per-user daily metrics
+ */
+export async function extractTimelineFromGitHub(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  branch: string,
+  options: TimelineOptions = {}
+): Promise<RepositoryTimeline> {
+  const dateRange = calculateDateRange(options);
+  
+  // Fetch commits from GitHub API with merge filtering
+  const commits = await fetchCommitsForBranch(octokit, owner, repo, branch, {
+    since: dateRange.since,
+    until: dateRange.until,
+    maxCommits: options.maxCommits || GITHUB_API_LIMITS.MAX_COMMITS_PER_REQUEST,
+    excludeMerges: options.excludeMerges !== false,
+    onProgress: options.onProgress,
+  });
+
+  if (commits.length === 0) {
+    // No commits in range
+    return {
+      repoFirstCommit: new Date().toISOString(),
+      repoLastCommit: new Date().toISOString(),
+      users: [],
+      totalCommits: 0,
+      totalAdditions: 0,
+      totalDeletions: 0,
+      totalNetLines: 0,
+    };
+  }
+
+  // Group commits by user and date
+  const userDateMap = groupByUserAndDate(commits);
+  
+  // For avatar URLs, we can use the GitHub commit author info
+  // Build a map of email -> avatar URL from commit data
+  const avatarMap = new Map<string, string>();
+  for (const commit of commits) {
+    // GitHub API commit data may include author avatar
+    // We'll populate this in the convertToUserTimeline function
+  }
   
   const users = convertToUserTimeline(userDateMap, avatarMap);
 

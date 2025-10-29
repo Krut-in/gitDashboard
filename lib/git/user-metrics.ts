@@ -3,9 +3,13 @@
  * 
  * Extracts detailed contribution metrics for individual users.
  * Used for GitHub-style heatmaps and weekly bar charts.
+ * 
+ * UPDATED: Now supports both local git and GitHub API methods.
  */
 
+import { Octokit } from "@octokit/rest";
 import { runGit, ensureGitRepo } from "./runGit";
+import { fetchCommitsForBranch } from "../github-api-commits";
 import type { UserContribution } from "../types";
 
 export interface UserMetricsOptions {
@@ -167,6 +171,128 @@ export async function extractUserMetrics(
       weeklyStats: [],
     };
   }
+
+  // Calculate lifetime stats
+  const totalCommits = dailyData.reduce((sum, d) => sum + d.commits, 0);
+  const totalAdditions = dailyData.reduce((sum, d) => sum + d.additions, 0);
+  const totalDeletions = dailyData.reduce((sum, d) => sum + d.deletions, 0);
+  const totalNetLines = dailyData.reduce((sum, d) => sum + d.netLines, 0);
+  const firstCommit = dailyData[0].date;
+  const lastCommit = dailyData[dailyData.length - 1].date;
+
+  // Calculate weekly stats
+  const weeklyStats = calculateWeeklyStats(dailyData);
+
+  // Prepare daily metrics by type
+  const dailyCommits = dailyData.map(d => ({ date: d.date, count: d.commits }));
+  const dailyAdditions = dailyData.map(d => ({ date: d.date, count: d.additions }));
+  const dailyDeletions = dailyData.map(d => ({ date: d.date, count: d.deletions }));
+  const dailyNetLines = dailyData.map(d => ({ date: d.date, count: d.netLines }));
+
+  return {
+    userId: userEmail,
+    userName,
+    email: userEmail,
+    avatarUrl,
+    lifetimeStats: {
+      commits: totalCommits,
+      additions: totalAdditions,
+      deletions: totalDeletions,
+      netLines: totalNetLines,
+      firstCommit,
+      lastCommit,
+    },
+    dailyCommits,
+    dailyAdditions,
+    dailyDeletions,
+    dailyNetLines,
+    weeklyStats,
+  };
+}
+
+/**
+ * Extract comprehensive metrics for a single user from GitHub API
+ * 
+ * @param octokit - Authenticated Octokit instance
+ * @param owner - Repository owner
+ * @param repo - Repository name
+ * @param branch - Branch name
+ * @param userName - User's name
+ * @param userEmail - User's email
+ * @param avatarUrl - Optional avatar URL
+ * @param options - Extraction options
+ * @returns Complete user contribution data
+ */
+export async function extractUserMetricsFromGitHub(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  branch: string,
+  userName: string,
+  userEmail: string,
+  avatarUrl?: string,
+  options: UserMetricsOptions = {}
+): Promise<UserContribution> {
+  // Fetch all commits for the branch
+  const allCommits = await fetchCommitsForBranch(octokit, owner, repo, branch, {
+    since: options.since,
+    until: options.until,
+    maxCommits: 10000, // Higher limit for user metrics
+    excludeMerges: true,
+  });
+
+  // Filter commits by this specific user (by email)
+  const userCommits = allCommits.filter(
+    commit => commit.authorEmail.toLowerCase() === userEmail.toLowerCase()
+  );
+
+  if (userCommits.length === 0) {
+    // User has no commits in the specified range
+    return {
+      userId: userEmail,
+      userName,
+      email: userEmail,
+      avatarUrl,
+      lifetimeStats: {
+        commits: 0,
+        additions: 0,
+        deletions: 0,
+        netLines: 0,
+        firstCommit: new Date().toISOString(),
+        lastCommit: new Date().toISOString(),
+      },
+      dailyCommits: [],
+      dailyAdditions: [],
+      dailyDeletions: [],
+      dailyNetLines: [],
+      weeklyStats: [],
+    };
+  }
+
+  // Group commits by date
+  const dailyMap = new Map<string, DailyData>();
+  
+  for (const commit of userCommits) {
+    const date = commit.date.split('T')[0]; // Extract YYYY-MM-DD
+    
+    if (!dailyMap.has(date)) {
+      dailyMap.set(date, {
+        date,
+        commits: 0,
+        additions: 0,
+        deletions: 0,
+        netLines: 0,
+      });
+    }
+    
+    const data = dailyMap.get(date)!;
+    data.commits++;
+    data.additions += commit.additions;
+    data.deletions += commit.deletions;
+    data.netLines += (commit.additions - commit.deletions);
+  }
+
+  const dailyData = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 
   // Calculate lifetime stats
   const totalCommits = dailyData.reduce((sum, d) => sum + d.commits, 0);
