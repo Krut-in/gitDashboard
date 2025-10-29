@@ -80,15 +80,15 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
     setError(null);
 
     try {
-      const response = await fetch('/api/ai/manager-report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/ai/manager-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate AI insights');
+        throw new Error(errorData.error || "Failed to generate AI insights");
       }
 
       const result = await response.json();
@@ -104,28 +104,40 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-50 border-red-200';
-      case 'medium': return 'bg-yellow-50 border-yellow-200';
-      case 'low': return 'bg-blue-50 border-blue-200';
-      default: return 'bg-gray-50 border-gray-200';
+      case "high":
+        return "bg-red-50 border-red-200";
+      case "medium":
+        return "bg-yellow-50 border-yellow-200";
+      case "low":
+        return "bg-blue-50 border-blue-200";
+      default:
+        return "bg-gray-50 border-gray-200";
     }
   };
 
   const getPriorityTextColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-900';
-      case 'medium': return 'text-yellow-900';
-      case 'low': return 'text-blue-900';
-      default: return 'text-gray-900';
+      case "high":
+        return "text-red-900";
+      case "medium":
+        return "text-yellow-900";
+      case "low":
+        return "text-blue-900";
+      default:
+        return "text-gray-900";
     }
   };
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600';
-      case 'medium': return 'text-yellow-600';
-      case 'low': return 'text-blue-600';
-      default: return 'text-gray-600';
+      case "high":
+        return "text-red-600";
+      case "medium":
+        return "text-yellow-600";
+      case "low":
+        return "text-blue-600";
+      default:
+        return "text-gray-600";
     }
   };
 
@@ -141,7 +153,9 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
               </div>
               <div>
                 <CardTitle className="text-2xl">
-                  {useAI && aiInsights ? "AI-Powered Manager Report" : "Manager Summary Report"}
+                  {useAI && aiInsights
+                    ? "AI-Powered Manager Report"
+                    : "Manager Summary Report"}
                 </CardTitle>
                 <p className="text-sm text-gray-600 mt-1">
                   Generated on{" "}
@@ -153,7 +167,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                 </p>
               </div>
             </div>
-            
+
             <Button
               onClick={fetchAIInsights}
               disabled={isLoading}
@@ -167,7 +181,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  {useAI && aiInsights ? 'Regenerate' : 'Generate'} AI Insights
+                  {useAI && aiInsights ? "Regenerate" : "Generate"} AI Insights
                 </>
               )}
             </Button>
@@ -238,7 +252,12 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                         strokeWidth="12"
                         fill="none"
                         strokeDasharray={`${2 * Math.PI * 56}`}
-                        strokeDashoffset={`${2 * Math.PI * 56 * (1 - aiInsights.teamHealth.score / 100)}`}
+                        strokeDashoffset={`${
+                          2 *
+                          Math.PI *
+                          56 *
+                          (1 - aiInsights.teamHealth.score / 100)
+                        }`}
                         className={
                           aiInsights.teamHealth.score >= 80
                             ? "text-green-600"
@@ -255,12 +274,15 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex-1">
                     <h4 className="font-semibold mb-2">Key Factors:</h4>
                     <ul className="space-y-1">
                       {aiInsights.teamHealth.factors.map((factor, i) => (
-                        <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                        <li
+                          key={i}
+                          className="text-sm text-gray-700 flex items-start gap-2"
+                        >
                           <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                           {factor}
                         </li>
@@ -326,23 +348,41 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                 {aiInsights.recommendations.map((rec, i) => (
                   <div
                     key={i}
-                    className={`p-4 rounded-lg border ${getPriorityColor(rec.priority)}`}
+                    className={`p-4 rounded-lg border ${getPriorityColor(
+                      rec.priority
+                    )}`}
                   >
                     <div className="flex items-start gap-3">
-                      <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${getPriorityIcon(rec.priority)}`} />
+                      <AlertCircle
+                        className={`w-5 h-5 flex-shrink-0 mt-0.5 ${getPriorityIcon(
+                          rec.priority
+                        )}`}
+                      />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h4 className={`font-semibold ${getPriorityTextColor(rec.priority)}`}>
+                          <h4
+                            className={`font-semibold ${getPriorityTextColor(
+                              rec.priority
+                            )}`}
+                          >
                             {rec.title}
                           </h4>
                           <span className="text-xs px-2 py-0.5 rounded-full bg-white/50 font-medium">
                             {rec.priority} priority
                           </span>
                         </div>
-                        <p className={`text-sm mb-2 ${getPriorityTextColor(rec.priority)}`}>
+                        <p
+                          className={`text-sm mb-2 ${getPriorityTextColor(
+                            rec.priority
+                          )}`}
+                        >
                           {rec.description}
                         </p>
-                        <p className={`text-xs italic ${getPriorityTextColor(rec.priority)} opacity-80`}>
+                        <p
+                          className={`text-xs italic ${getPriorityTextColor(
+                            rec.priority
+                          )} opacity-80`}
+                        >
                           <strong>Expected Impact:</strong> {rec.impact}
                         </p>
                       </div>
@@ -381,209 +421,210 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
       {!useAI && (
         <>
           {/* Executive Summary */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-green-600" />
-            <CardTitle>Executive Summary</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="prose prose-sm max-w-none">
-            <p className="text-gray-700 leading-relaxed">
-              The repository shows{" "}
-              <strong className="text-gray-900">
-                {timeline.totalCommits} total commits
-              </strong>{" "}
-              from{" "}
-              <strong className="text-gray-900">
-                {timeline.users.length} contributors
-              </strong>{" "}
-              over the analyzed period. With{" "}
-              <strong className="text-metric-additions">
-                +{timeline.totalAdditions.toLocaleString()} lines added
-              </strong>{" "}
-              and{" "}
-              <strong className="text-metric-deletions">
-                -{timeline.totalDeletions.toLocaleString()} lines removed
-              </strong>
-              , the codebase has experienced a net change of{" "}
-              <strong
-                className={
-                  timeline.totalNetLines >= 0
-                    ? "text-metric-net"
-                    : "text-metric-deletions"
-                }
-              >
-                {timeline.totalNetLines >= 0 ? "+" : ""}
-                {timeline.totalNetLines.toLocaleString()} lines
-              </strong>
-              , representing {codeGrowth}% growth.
-            </p>
-            <p className="text-gray-700 leading-relaxed mt-3">
-              Currently, <strong>{activeContributors}</strong> contributors are
-              actively working on the project (activity within the last 30
-              days), indicating{" "}
-              {activeContributors / timeline.users.length > 0.5
-                ? "strong team engagement"
-                : "moderate team engagement"}
-              . The team is most productive on{" "}
-              <strong>{insights.mostActiveDay.day}</strong>, with peak activity
-              occurring during{" "}
-              {insights.weekdayVsWeekend.weekday >
-              insights.weekdayVsWeekend.weekend
-                ? "weekdays"
-                : "weekends"}
-              .
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-green-600" />
+                <CardTitle>Executive Summary</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="prose prose-sm max-w-none">
+                <p className="text-gray-700 leading-relaxed">
+                  The repository shows{" "}
+                  <strong className="text-gray-900">
+                    {timeline.totalCommits} total commits
+                  </strong>{" "}
+                  from{" "}
+                  <strong className="text-gray-900">
+                    {timeline.users.length} contributors
+                  </strong>{" "}
+                  over the analyzed period. With{" "}
+                  <strong className="text-metric-additions">
+                    +{timeline.totalAdditions.toLocaleString()} lines added
+                  </strong>{" "}
+                  and{" "}
+                  <strong className="text-metric-deletions">
+                    -{timeline.totalDeletions.toLocaleString()} lines removed
+                  </strong>
+                  , the codebase has experienced a net change of{" "}
+                  <strong
+                    className={
+                      timeline.totalNetLines >= 0
+                        ? "text-metric-net"
+                        : "text-metric-deletions"
+                    }
+                  >
+                    {timeline.totalNetLines >= 0 ? "+" : ""}
+                    {timeline.totalNetLines.toLocaleString()} lines
+                  </strong>
+                  , representing {codeGrowth}% growth.
+                </p>
+                <p className="text-gray-700 leading-relaxed mt-3">
+                  Currently, <strong>{activeContributors}</strong> contributors
+                  are actively working on the project (activity within the last
+                  30 days), indicating{" "}
+                  {activeContributors / timeline.users.length > 0.5
+                    ? "strong team engagement"
+                    : "moderate team engagement"}
+                  . The team is most productive on{" "}
+                  <strong>{insights.mostActiveDay.day}</strong>, with peak
+                  activity occurring during{" "}
+                  {insights.weekdayVsWeekend.weekday >
+                  insights.weekdayVsWeekend.weekend
+                    ? "weekdays"
+                    : "weekends"}
+                  .
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Top Contributors */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-600" />
-            <CardTitle>Top Contributors & Impact</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {timeline.users
-              .slice(0, 5)
-              .sort((a, b) => b.totalCommits - a.totalCommits)
-              .map((user, index) => (
-                <div
-                  key={user.userId}
-                  className="flex items-center gap-4 p-3 backdrop-blur-md bg-white/50 rounded-lg border border-white/30"
-                >
-                  <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-white font-bold text-sm">
-                    #{index + 1}
+          {/* Top Contributors */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-blue-600" />
+                <CardTitle>Top Contributors & Impact</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {timeline.users
+                  .slice(0, 5)
+                  .sort((a, b) => b.totalCommits - a.totalCommits)
+                  .map((user, index) => (
+                    <div
+                      key={user.userId}
+                      className="flex items-center gap-4 p-3 backdrop-blur-md bg-white/50 rounded-lg border border-white/30"
+                    >
+                      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-white font-bold text-sm">
+                        #{index + 1}
+                      </div>
+
+                      {user.avatarUrl && (
+                        <img
+                          src={user.avatarUrl}
+                          alt={user.userName}
+                          className="w-10 h-10 rounded-full border-2 border-white shadow"
+                        />
+                      )}
+
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900">
+                          {user.userName}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {user.totalCommits} commits •{" "}
+                          <span className="text-metric-additions">
+                            +{user.totalAdditions.toLocaleString()}
+                          </span>{" "}
+                          <span className="text-metric-deletions">
+                            -{user.totalDeletions.toLocaleString()}
+                          </span>{" "}
+                          • Net:{" "}
+                          <span
+                            className={
+                              user.totalNetLines >= 0
+                                ? "text-metric-net"
+                                : "text-metric-deletions"
+                            }
+                          >
+                            {user.totalNetLines >= 0 ? "+" : ""}
+                            {user.totalNetLines.toLocaleString()}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recommendations */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <CardTitle>Recommendations</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {activeContributors / timeline.users.length < 0.5 && (
+                  <div className="flex gap-3 p-3 backdrop-blur-md bg-yellow-50 rounded-lg border border-yellow-200">
+                    <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-yellow-900">
+                        Consider re-engaging inactive contributors
+                      </p>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        Less than half of the team has been active in the last
+                        30 days. Regular check-ins or pair programming sessions
+                        might help.
+                      </p>
+                    </div>
                   </div>
+                )}
 
-                  {user.avatarUrl && (
-                    <img
-                      src={user.avatarUrl}
-                      alt={user.userName}
-                      className="w-10 h-10 rounded-full border-2 border-white shadow"
-                    />
-                  )}
-
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">
-                      {user.userName}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {user.totalCommits} commits •{" "}
-                      <span className="text-metric-additions">
-                        +{user.totalAdditions.toLocaleString()}
-                      </span>{" "}
-                      <span className="text-metric-deletions">
-                        -{user.totalDeletions.toLocaleString()}
-                      </span>{" "}
-                      • Net:{" "}
-                      <span
-                        className={
-                          user.totalNetLines >= 0
-                            ? "text-metric-net"
-                            : "text-metric-deletions"
-                        }
-                      >
-                        {user.totalNetLines >= 0 ? "+" : ""}
-                        {user.totalNetLines.toLocaleString()}
-                      </span>
-                    </p>
+                {avgCommitsPerUser < 10 && (
+                  <div className="flex gap-3 p-3 backdrop-blur-md bg-blue-50 rounded-lg border border-blue-200">
+                    <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-blue-900">
+                        Low commit frequency detected
+                      </p>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Average of {avgCommitsPerUser} commits per contributor.
+                        Consider encouraging smaller, more frequent commits for
+                        better code review and collaboration.
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )}
+
+                {timeline.totalNetLines < 0 && (
+                  <div className="flex gap-3 p-3 backdrop-blur-md bg-purple-50 rounded-lg border border-purple-200">
+                    <CheckCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-purple-900">
+                        Positive code reduction
+                      </p>
+                      <p className="text-sm text-purple-700 mt-1">
+                        The codebase has been streamlined with net negative line
+                        changes. This often indicates good refactoring and
+                        technical debt reduction.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {insights.soloContributors.length > 0 && (
+                  <div className="flex gap-3 p-3 backdrop-blur-md bg-green-50 rounded-lg border border-green-200">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-green-900">
+                        Encourage knowledge sharing
+                      </p>
+                      <p className="text-sm text-green-700 mt-1">
+                        {insights.soloContributors.length} contributor(s) are
+                        working independently. Consider code reviews or pair
+                        programming to improve knowledge distribution.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Note about AI */}
+          <div className="text-center text-sm text-gray-500 italic">
+            <p>
+              Click "Generate AI Insights" above for AI-powered analysis and
+              recommendations.
+            </p>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Recommendations */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <CardTitle>Recommendations</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {activeContributors / timeline.users.length < 0.5 && (
-              <div className="flex gap-3 p-3 backdrop-blur-md bg-yellow-50 rounded-lg border border-yellow-200">
-                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-yellow-900">
-                    Consider re-engaging inactive contributors
-                  </p>
-                  <p className="text-sm text-yellow-700 mt-1">
-                    Less than half of the team has been active in the last 30
-                    days. Regular check-ins or pair programming sessions might
-                    help.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {avgCommitsPerUser < 10 && (
-              <div className="flex gap-3 p-3 backdrop-blur-md bg-blue-50 rounded-lg border border-blue-200">
-                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-blue-900">
-                    Low commit frequency detected
-                  </p>
-                  <p className="text-sm text-blue-700 mt-1">
-                    Average of {avgCommitsPerUser} commits per contributor.
-                    Consider encouraging smaller, more frequent commits for
-                    better code review and collaboration.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {timeline.totalNetLines < 0 && (
-              <div className="flex gap-3 p-3 backdrop-blur-md bg-purple-50 rounded-lg border border-purple-200">
-                <CheckCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-purple-900">
-                    Positive code reduction
-                  </p>
-                  <p className="text-sm text-purple-700 mt-1">
-                    The codebase has been streamlined with net negative line
-                    changes. This often indicates good refactoring and technical
-                    debt reduction.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {insights.soloContributors.length > 0 && (
-              <div className="flex gap-3 p-3 backdrop-blur-md bg-green-50 rounded-lg border border-green-200">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-green-900">
-                    Encourage knowledge sharing
-                  </p>
-                  <p className="text-sm text-green-700 mt-1">
-                    {insights.soloContributors.length} contributor(s) are
-                    working independently. Consider code reviews or pair
-                    programming to improve knowledge distribution.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Note about AI */}
-      <div className="text-center text-sm text-gray-500 italic">
-        <p>
-          Click "Generate AI Insights" above for AI-powered analysis and recommendations.
-        </p>
-      </div>
         </>
       )}
     </div>
