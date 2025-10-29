@@ -169,7 +169,7 @@ Always respond with valid JSON only, no markdown formatting.`
 }
 
 function buildPrompt(data: AdvancedAnalysisResponse): string {
-  const { timeline, insights, metadata } = data;
+  const { timeline, insights, metadata, commitMessageAnalysis } = data;
 
   // Calculate additional metrics
   const avgCommitsPerUser = timeline.users.length > 0 
@@ -216,6 +216,46 @@ ${timeline.users
 
 **File Analysis:**
 - Most Edited Files: ${insights.mostEditedFiles.slice(0, 3).map((f: any) => `${f.filename} (${f.edits} edits)`).join(', ')}
+
+**Commit Message Analysis:**
+- Total Messages Analyzed: ${commitMessageAnalysis.statistics.totalMessages}
+- Average Message Length: ${commitMessageAnalysis.statistics.avgLength} characters
+- Median Message Length: ${commitMessageAnalysis.statistics.medianLength} characters
+- Conventional Commit Usage: ${commitMessageAnalysis.statistics.conventionalCommitPercentage}%
+- Most Common Type: ${commitMessageAnalysis.statistics.mostCommonType}
+
+**Message Length Distribution:**
+- Short (<50 chars): ${commitMessageAnalysis.lengthDistribution.short} (${commitMessageAnalysis.statistics.totalMessages > 0 ? Math.round((commitMessageAnalysis.lengthDistribution.short / commitMessageAnalysis.statistics.totalMessages) * 100) : 0}%)
+- Medium (50-100 chars): ${commitMessageAnalysis.lengthDistribution.medium} (${commitMessageAnalysis.statistics.totalMessages > 0 ? Math.round((commitMessageAnalysis.lengthDistribution.medium / commitMessageAnalysis.statistics.totalMessages) * 100) : 0}%)
+- Long (100-200 chars): ${commitMessageAnalysis.lengthDistribution.long} (${commitMessageAnalysis.statistics.totalMessages > 0 ? Math.round((commitMessageAnalysis.lengthDistribution.long / commitMessageAnalysis.statistics.totalMessages) * 100) : 0}%)
+- Verbose (>200 chars): ${commitMessageAnalysis.lengthDistribution.verbose} (${commitMessageAnalysis.statistics.totalMessages > 0 ? Math.round((commitMessageAnalysis.lengthDistribution.verbose / commitMessageAnalysis.statistics.totalMessages) * 100) : 0}%)
+
+**Contributor Writing Styles:**
+${commitMessageAnalysis.userCategories.verbose.length > 0 ? `- Verbose Writers (${commitMessageAnalysis.userCategories.verbose.length}): ${commitMessageAnalysis.userCategories.verbose.slice(0, 3).map(u => `${u.userName} (avg: ${u.avgLength} chars)`).join(', ')}` : ''}
+${commitMessageAnalysis.userCategories.minimalist.length > 0 ? `- Minimalist Writers (${commitMessageAnalysis.userCategories.minimalist.length}): ${commitMessageAnalysis.userCategories.minimalist.slice(0, 3).map(u => `${u.userName} (avg: ${u.avgLength} chars)`).join(', ')}` : ''}
+${commitMessageAnalysis.userCategories.balanced.length > 0 ? `- Balanced Writers (${commitMessageAnalysis.userCategories.balanced.length}): ${commitMessageAnalysis.userCategories.balanced.slice(0, 3).map(u => `${u.userName} (avg: ${u.avgLength} chars)`).join(', ')}` : ''}
+
+**Commit Message Quality Patterns:**
+${commitMessageAnalysis.patterns.map(p => {
+  const typeLabels: Record<string, string> = {
+    'single-char': 'Single-character commits',
+    'generic': 'Generic/non-descriptive commits',
+    'no-message': 'Empty commit messages',
+    'very-long': 'Very long commit messages (>200 chars)'
+  };
+  return `- ${typeLabels[p.type]}: ${p.count} found${p.examples.length > 0 ? ` (e.g., "${p.examples[0].message}" by ${p.examples[0].author})` : ''}`;
+}).join('\n')}
+
+**Instructions for AI Analysis:**
+Analyze the commit message data above and provide insights about:
+1. Overall sentiment and professionalism of commit messages
+2. Quality assessment - how useful and informative are the messages?
+3. Team's adherence to conventional commit standards
+4. Specific recommendations to improve commit message quality
+5. Comparison to industry best practices
+6. Impact of message quality on team collaboration and code maintainability
+
+Include commit message insights in your strengths, concerns, and recommendations sections where appropriate.
 
 **Response Format (MUST be valid JSON):**
 {

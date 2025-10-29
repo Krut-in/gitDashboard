@@ -16,6 +16,7 @@ export interface CommitData {
   authorName: string;
   authorEmail: string;
   date: string; // ISO string
+  message: string; // Full commit message
   additions: number;
   deletions: number;
   files: string[]; // Array of file paths modified in this commit
@@ -108,6 +109,7 @@ export async function fetchCommitsForBranch(
           authorName: commit.commit.author?.name || 'Unknown',
           authorEmail: (commit.commit.author?.email || '').toLowerCase(),
           date: commit.commit.author?.date || new Date().toISOString(),
+          message: commit.commit.message || '', // Full commit message
           additions: 0, // Will be filled in later
           deletions: 0, // Will be filled in later
           files: [], // Will be filled in later
@@ -329,6 +331,7 @@ export async function fetchCommitsForFile(
           authorName: commit.commit.author?.name || 'Unknown',
           authorEmail: (commit.commit.author?.email || '').toLowerCase(),
           date: commit.commit.author?.date || new Date().toISOString(),
+          message: commit.commit.message || '', // Full commit message
           additions: fileStats?.additions || 0,
           deletions: fileStats?.deletions || 0,
           files: detailedCommit.data.files?.map(f => f.filename) || [],

@@ -31,6 +31,7 @@ import { extractTimelineFromGitHub } from "@/lib/git/timeline";
 import { extractUserMetricsFromCommits } from "@/lib/git/user-metrics";
 import { aggregateAllUsersToWeekly } from "@/lib/aggregation";
 import { extractInsights } from "@/lib/insights";
+import { analyzeCommitMessages } from "@/lib/commit-message-analysis";
 import { GITHUB_API_LIMITS } from "@/lib/constants";
 import { fetchCommitsForBranch } from "@/lib/github-api-commits";
 import type { AdvancedAnalysisResponse } from "@/lib/types";
@@ -184,7 +185,7 @@ async function performAnalysis(
     sha: c.sha,
     author: c.authorName,
     date: c.date,
-    message: '', // Message not needed for insights
+    message: c.message, // Include full message for commit message analysis
     additions: c.additions,
     deletions: c.deletions,
     files: c.files,
@@ -204,11 +205,15 @@ async function performAnalysis(
   // Extract comprehensive insights with language analysis
   const insights = extractInsights(timeline.users, commitDetails, fileContributors);
 
+  // Analyze commit messages for quality, patterns, and conventions
+  const commitMessageAnalysis = analyzeCommitMessages(commits);
+
   // Build response
   return {
     timeline,
     userContributions,
     insights,
+    commitMessageAnalysis,
     metadata: {
       analyzedCommits: timeline.totalCommits,
       dateRange: {

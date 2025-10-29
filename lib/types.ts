@@ -277,12 +277,61 @@ export interface Insights {
 }
 
 /**
+ * Commit message analysis types
+ */
+export interface CommitMessageAnalysis {
+  lengthDistribution: {
+    short: number;
+    medium: number;
+    long: number;
+    verbose: number;
+  };
+  typeDistribution: { [key: string]: number };
+  userCategories: {
+    verbose: Array<{
+      userName: string;
+      avgLength: number;
+      category: 'verbose' | 'minimalist' | 'balanced';
+      commitCount: number;
+      exampleMessages: string[];
+    }>;
+    minimalist: Array<{
+      userName: string;
+      avgLength: number;
+      category: 'verbose' | 'minimalist' | 'balanced';
+      commitCount: number;
+      exampleMessages: string[];
+    }>;
+    balanced: Array<{
+      userName: string;
+      avgLength: number;
+      category: 'verbose' | 'minimalist' | 'balanced';
+      commitCount: number;
+      exampleMessages: string[];
+    }>;
+  };
+  statistics: {
+    totalMessages: number;
+    avgLength: number;
+    medianLength: number;
+    mostCommonType: string;
+    conventionalCommitPercentage: number;
+  };
+  patterns: Array<{
+    type: 'single-char' | 'generic' | 'no-message' | 'very-long';
+    count: number;
+    examples: Array<{ author: string; message: string }>;
+  }>;
+}
+
+/**
  * Advanced analysis response
  */
 export interface AdvancedAnalysisResponse {
   timeline: RepositoryTimeline;
   userContributions: UserContribution[];
   insights: Insights;
+  commitMessageAnalysis: CommitMessageAnalysis;
   metadata: {
     analyzedCommits: number;
     dateRange: {
