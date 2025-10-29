@@ -180,16 +180,16 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
 
         {/* Tab Navigation */}
         <div className="mb-6">
-          <div className="flex gap-2 backdrop-blur-md bg-white/40 rounded-lg p-1 border border-white/30 shadow-lg">
+          <div className="flex gap-3 backdrop-blur-md bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg p-2 border border-white/40 shadow-lg">
             {(["overview", "timeline", "users", "report"] as TabView[]).map(
               tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 font-medium capitalize transition-all duration-300 rounded-md ${
+                  className={`flex-1 px-6 py-3 font-medium capitalize transition-all duration-200 rounded-md cursor-pointer ${
                     activeTab === tab
                       ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-white/60"
                   }`}
                 >
                   {tab}
@@ -277,26 +277,26 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
                 <div className="space-y-6">
                   {/* Summary Statistics */}
                   <Card>
-                    <CardContent className="py-6">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 mb-1">
+                    <CardContent className="py-8">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div className="text-center py-4">
+                          <p className="text-sm text-gray-600 mb-2">
                             Total Commits
                           </p>
                           <p className="text-3xl font-bold text-metric-commits">
                             {analysisState.data.timeline.totalCommits.toLocaleString()}
                           </p>
                         </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 mb-1">
+                        <div className="text-center py-4">
+                          <p className="text-sm text-gray-600 mb-2">
                             Contributors
                           </p>
                           <p className="text-3xl font-bold text-gray-900">
                             {analysisState.data.timeline.users.length}
                           </p>
                         </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 mb-1">
+                        <div className="text-center py-4">
+                          <p className="text-sm text-gray-600 mb-2">
                             Lines Added
                           </p>
                           <p className="text-3xl font-bold text-metric-additions">
@@ -304,8 +304,8 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
                             {analysisState.data.timeline.totalAdditions.toLocaleString()}
                           </p>
                         </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 mb-1">
+                        <div className="text-center py-4">
+                          <p className="text-sm text-gray-600 mb-2">
                             Net Change
                           </p>
                           <p

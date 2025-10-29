@@ -80,9 +80,9 @@ export const METRICS = {
 export type MetricType = typeof METRICS[keyof typeof METRICS];
 
 /**
- * Default time range for initial views (3 months)
+ * Default time range for initial views (1 week)
  */
-export const DEFAULT_TIME_RANGE: TimeRange = TIME_RANGES.QUARTER;
+export const DEFAULT_TIME_RANGE: TimeRange = TIME_RANGES.WEEK;
 
 /**
  * Inactive user threshold (days since last commit)

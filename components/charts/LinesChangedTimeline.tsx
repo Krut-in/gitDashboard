@@ -55,78 +55,105 @@ export function LinesChangedTimeline({
   const [selectedRange, setSelectedRange] =
     useState<TimeRange>(DEFAULT_TIME_RANGE);
 
+  // Track visibility of each data series - Net Lines hidden by default
+  const [visibleLines, setVisibleLines] = useState({
+    added: true,
+    deleted: true,
+    net: false,
+  });
+
   // Aggregate data based on selected time range
   const aggregatedData = useMemo(() => {
     if (dailyMetrics.length === 0) return [];
     return aggregateTimeline(dailyMetrics, selectedRange);
   }, [dailyMetrics, selectedRange]);
 
-  // Prepare chart data
+  // Toggle visibility of a data series
+  const handleLegendClick = (dataKey: "added" | "deleted" | "net") => {
+    setVisibleLines(prev => ({
+      ...prev,
+      [dataKey]: !prev[dataKey],
+    }));
+  };
+
+  // Detect single data point for enhanced visibility
+  const isSingleDataPoint = aggregatedData.length === 1;
+
+  // Prepare chart data - only include visible datasets
   const chartData = useMemo(() => {
+    const datasets = [];
+
+    if (visibleLines.added) {
+      datasets.push({
+        label: "Lines Added",
+        data: aggregatedData.map(d => d.additions),
+        borderColor: METRIC_COLORS.additions.hex,
+        backgroundColor: METRIC_COLORS.additions.rgba(0.05),
+        fill: false,
+        tension: 0.4,
+        pointRadius: isSingleDataPoint ? 8 : 3,
+        pointHoverRadius: isSingleDataPoint ? 10 : 5,
+        pointBackgroundColor: METRIC_COLORS.additions.hex,
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        yAxisID: "y",
+      });
+    }
+
+    if (visibleLines.deleted) {
+      datasets.push({
+        label: "Lines Removed",
+        data: aggregatedData.map(d => d.deletions),
+        borderColor: METRIC_COLORS.deletions.hex,
+        backgroundColor: METRIC_COLORS.deletions.rgba(0.05),
+        fill: false,
+        tension: 0.4,
+        pointRadius: isSingleDataPoint ? 8 : 3,
+        pointHoverRadius: isSingleDataPoint ? 10 : 5,
+        pointBackgroundColor: METRIC_COLORS.deletions.hex,
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        yAxisID: "y",
+      });
+    }
+
+    if (visibleLines.net) {
+      datasets.push({
+        label: "Net Lines",
+        data: aggregatedData.map(d => d.netLines),
+        borderColor: METRIC_COLORS.netLines.hex,
+        backgroundColor: METRIC_COLORS.netLines.rgba(0.2),
+        fill: true,
+        tension: 0.4,
+        pointRadius: isSingleDataPoint ? 8 : 4,
+        pointHoverRadius: isSingleDataPoint ? 10 : 6,
+        pointBackgroundColor: METRIC_COLORS.netLines.hex,
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        yAxisID: "y",
+      });
+    }
+
     return {
       labels: aggregatedData.map(d => d.label),
-      datasets: [
-        {
-          label: "Lines Added",
-          data: aggregatedData.map(d => d.additions),
-          borderColor: METRIC_COLORS.additions.hex,
-          backgroundColor: METRIC_COLORS.additions.rgba(0.05),
-          fill: false,
-          tension: 0.4,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-          pointBackgroundColor: METRIC_COLORS.additions.hex,
-          pointBorderColor: "#fff",
-          pointBorderWidth: 2,
-          yAxisID: "y",
-        },
-        {
-          label: "Lines Removed",
-          data: aggregatedData.map(d => d.deletions),
-          borderColor: METRIC_COLORS.deletions.hex,
-          backgroundColor: METRIC_COLORS.deletions.rgba(0.05),
-          fill: false,
-          tension: 0.4,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-          pointBackgroundColor: METRIC_COLORS.deletions.hex,
-          pointBorderColor: "#fff",
-          pointBorderWidth: 2,
-          yAxisID: "y",
-        },
-        {
-          label: "Net Lines",
-          data: aggregatedData.map(d => d.netLines),
-          borderColor: METRIC_COLORS.netLines.hex,
-          backgroundColor: METRIC_COLORS.netLines.rgba(0.2),
-          fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          pointBackgroundColor: METRIC_COLORS.netLines.hex,
-          pointBorderColor: "#fff",
-          pointBorderWidth: 2,
-          yAxisID: "y",
-        },
-      ],
+      datasets,
     };
-  }, [aggregatedData]);
+  }, [aggregatedData, visibleLines, isSingleDataPoint]);
 
   const options: any = {
     responsive: true,
     maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: isSingleDataPoint ? 80 : 10,
+        right: isSingleDataPoint ? 80 : 10,
+        top: 10,
+        bottom: 10,
+      },
+    },
     plugins: {
       legend: {
-        display: true,
-        position: "top" as const,
-        labels: {
-          usePointStyle: true,
-          padding: 15,
-          font: {
-            size: 12,
-            weight: 500,
-          },
-        },
+        display: false, // We'll use custom legend for better interactivity
       },
       title: {
         display: false,
@@ -236,26 +263,87 @@ export function LinesChangedTimeline({
         </div>
       </CardHeader>
       <CardContent>
+        {/* Custom Interactive Legend */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mb-4 pb-4 border-b border-gray-200">
+          <button
+            onClick={() => handleLegendClick("added")}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200 cursor-pointer ${
+              visibleLines.added
+                ? "opacity-100 hover:bg-gray-50"
+                : "opacity-40 hover:opacity-60"
+            }`}
+            style={{
+              textDecoration: visibleLines.added ? "none" : "line-through",
+            }}
+          >
+            <span
+              className="w-4 h-4 rounded-full"
+              style={{ backgroundColor: METRIC_COLORS.additions.hex }}
+            />
+            <span className="text-sm font-medium text-gray-700">
+              Lines Added
+            </span>
+          </button>
+
+          <button
+            onClick={() => handleLegendClick("deleted")}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200 cursor-pointer ${
+              visibleLines.deleted
+                ? "opacity-100 hover:bg-gray-50"
+                : "opacity-40 hover:opacity-60"
+            }`}
+            style={{
+              textDecoration: visibleLines.deleted ? "none" : "line-through",
+            }}
+          >
+            <span
+              className="w-4 h-4 rounded-full"
+              style={{ backgroundColor: METRIC_COLORS.deletions.hex }}
+            />
+            <span className="text-sm font-medium text-gray-700">
+              Lines Removed
+            </span>
+          </button>
+
+          <button
+            onClick={() => handleLegendClick("net")}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200 cursor-pointer ${
+              visibleLines.net
+                ? "opacity-100 hover:bg-gray-50"
+                : "opacity-40 hover:opacity-60"
+            }`}
+            style={{
+              textDecoration: visibleLines.net ? "none" : "line-through",
+            }}
+          >
+            <span
+              className="w-4 h-4 rounded-full"
+              style={{ backgroundColor: METRIC_COLORS.netLines.hex }}
+            />
+            <span className="text-sm font-medium text-gray-700">Net Lines</span>
+          </button>
+        </div>
+
         <div style={{ height: "400px" }}>
           <Line data={chartData} options={options} />
         </div>
 
         {/* Summary Stats */}
-        <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-          <div className="p-3 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
-            <p className="text-sm text-gray-600">Total Added</p>
+        <div className="mt-6 grid grid-cols-3 gap-4 text-center">
+          <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            <p className="text-sm text-gray-600 mb-2">Total Added</p>
             <p className="text-2xl font-bold text-metric-additions">
               +{totalAdditions.toLocaleString()}
             </p>
           </div>
-          <div className="p-3 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
-            <p className="text-sm text-gray-600">Total Removed</p>
+          <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            <p className="text-sm text-gray-600 mb-2">Total Removed</p>
             <p className="text-2xl font-bold text-metric-deletions">
               -{totalDeletions.toLocaleString()}
             </p>
           </div>
-          <div className="p-3 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
-            <p className="text-sm text-gray-600">Net Change</p>
+          <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            <p className="text-sm text-gray-600 mb-2">Net Change</p>
             <p
               className={`text-2xl font-bold ${
                 totalNet >= 0 ? "text-metric-net" : "text-metric-deletions"

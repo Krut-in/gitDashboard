@@ -58,6 +58,9 @@ export function CommitsTimeline({ dailyMetrics }: CommitsTimelineProps) {
     return aggregateTimeline(dailyMetrics, selectedRange);
   }, [dailyMetrics, selectedRange]);
 
+  // Detect single data point for enhanced visibility
+  const isSingleDataPoint = aggregatedData.length === 1;
+
   // Prepare chart data
   const chartData = useMemo(() => {
     return {
@@ -70,19 +73,27 @@ export function CommitsTimeline({ dailyMetrics }: CommitsTimelineProps) {
           backgroundColor: METRIC_COLORS.commits.rgba(0.1),
           fill: true,
           tension: 0.4,
-          pointRadius: 4,
-          pointHoverRadius: 6,
+          pointRadius: isSingleDataPoint ? 8 : 4,
+          pointHoverRadius: isSingleDataPoint ? 10 : 6,
           pointBackgroundColor: METRIC_COLORS.commits.hex,
           pointBorderColor: "#fff",
           pointBorderWidth: 2,
         },
       ],
     };
-  }, [aggregatedData]);
+  }, [aggregatedData, isSingleDataPoint]);
 
   const options: any = {
     responsive: true,
     maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: isSingleDataPoint ? 80 : 10,
+        right: isSingleDataPoint ? 80 : 10,
+        top: 10,
+        bottom: 10,
+      },
+    },
     plugins: {
       legend: {
         display: false,
@@ -183,21 +194,21 @@ export function CommitsTimeline({ dailyMetrics }: CommitsTimelineProps) {
         </div>
 
         {/* Summary Stats */}
-        <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-          <div className="p-3 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
-            <p className="text-sm text-gray-600">Total Commits</p>
+        <div className="mt-6 grid grid-cols-3 gap-4 text-center">
+          <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            <p className="text-sm text-gray-600 mb-2">Total Commits</p>
             <p className="text-2xl font-bold text-metric-commits">
               {aggregatedData.reduce((sum, d) => sum + d.commits, 0)}
             </p>
           </div>
-          <div className="p-3 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
-            <p className="text-sm text-gray-600">Periods</p>
+          <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            <p className="text-sm text-gray-600 mb-2">Periods</p>
             <p className="text-2xl font-bold text-gray-900">
               {aggregatedData.length}
             </p>
           </div>
-          <div className="p-3 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
-            <p className="text-sm text-gray-600">Avg per Period</p>
+          <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            <p className="text-sm text-gray-600 mb-2">Avg per Period</p>
             <p className="text-2xl font-bold text-gray-900">
               {aggregatedData.length > 0
                 ? Math.round(

@@ -42,10 +42,10 @@ export function TimelineSelector({
           <button
             key={range}
             onClick={() => onRangeChange(range)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${
               selectedRange === range
                 ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
-                : "text-gray-700 hover:text-gray-900 hover:bg-white/50"
+                : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
             }`}
           >
             {rangeLabels[range]}
