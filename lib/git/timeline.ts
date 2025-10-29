@@ -315,6 +315,7 @@ export async function extractTimeline(
  * @param repo - Repository name
  * @param branch - Branch name
  * @param options - Timeline extraction options
+ * @param preFetchedCommits - Optional pre-fetched commits to avoid redundant API calls
  * @returns Repository timeline with per-user daily metrics
  */
 export async function extractTimelineFromGitHub(
@@ -322,18 +323,25 @@ export async function extractTimelineFromGitHub(
   owner: string,
   repo: string,
   branch: string,
-  options: TimelineOptions = {}
+  options: TimelineOptions = {},
+  preFetchedCommits?: CommitData[]
 ): Promise<RepositoryTimeline> {
-  const dateRange = calculateDateRange(options);
-  
-  // Fetch commits from GitHub API with merge filtering
-  const commits = await fetchCommitsForBranch(octokit, owner, repo, branch, {
-    since: dateRange.since,
-    until: dateRange.until,
-    maxCommits: options.maxCommits || GITHUB_API_LIMITS.MAX_COMMITS_PER_REQUEST,
-    excludeMerges: options.excludeMerges !== false,
-    onProgress: options.onProgress,
-  });
+  let commits: CommitData[];
+
+  if (preFetchedCommits && preFetchedCommits.length > 0) {
+    // Use pre-fetched commits for efficiency
+    commits = preFetchedCommits;
+  } else {
+    // Fetch commits from GitHub API with merge filtering
+    const dateRange = calculateDateRange(options);
+    commits = await fetchCommitsForBranch(octokit, owner, repo, branch, {
+      since: dateRange.since,
+      until: dateRange.until,
+      maxCommits: options.maxCommits || GITHUB_API_LIMITS.MAX_COMMITS_PER_REQUEST,
+      excludeMerges: options.excludeMerges !== false,
+      onProgress: options.onProgress,
+    });
+  }
 
   if (commits.length === 0) {
     // No commits in range

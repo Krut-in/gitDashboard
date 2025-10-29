@@ -9,11 +9,12 @@ import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import { createGitHubClient, checkRateLimit } from "@/lib/github";
 import { extractTimelineFromGitHub } from "@/lib/git/timeline";
-import { extractUserMetricsFromGitHub } from "@/lib/git/user-metrics";
+import { extractUserMetricsFromCommits } from "@/lib/git/user-metrics";
 import { aggregateAllUsersToWeekly } from "@/lib/aggregation";
 import { extractBasicInsights } from "@/lib/insights";
 import { createProgressStream, sendProgress, sendComplete, sendError } from "@/lib/progress-tracker";
 import { GITHUB_API_LIMITS } from "@/lib/constants";
+import { fetchCommitsForBranch } from "@/lib/github-api-commits";
 import type { AdvancedAnalysisResponse } from "@/lib/types";
 
 export const runtime = 'nodejs';
@@ -119,7 +120,27 @@ export async function POST(request: NextRequest) {
       try {
         await sendProgress(writer, 'Starting analysis...', 0);
 
-        // Extract timeline with progress updates
+        // Fetch commits once for efficiency (avoids redundant API calls)
+        const commits = await fetchCommitsForBranch(
+          octokit,
+          owner,
+          repo,
+          branch,
+          {
+            since,
+            until,
+            maxCommits: GITHUB_API_LIMITS.MAX_COMMITS_PER_REQUEST,
+            excludeMerges: true,
+            onProgress: async (message, percent) => {
+              // Map commit fetching progress to 0-80%
+              await sendProgress(writer, message, percent * 0.8);
+            },
+          }
+        );
+
+        await sendProgress(writer, 'Processing timeline data...', 82);
+
+        // Extract timeline using pre-fetched commits (no redundant API call)
         const timeline = await extractTimelineFromGitHub(
           octokit,
           owner,
@@ -130,10 +151,8 @@ export async function POST(request: NextRequest) {
             since,
             until,
             maxCommits: GITHUB_API_LIMITS.MAX_COMMITS_PER_REQUEST,
-            onProgress: async (message, percent) => {
-              await sendProgress(writer, message, percent);
-            },
-          }
+          },
+          commits // Pass pre-fetched commits
         );
 
         await sendProgress(writer, 'Aggregating weekly metrics...', 85);
@@ -151,18 +170,13 @@ export async function POST(request: NextRequest) {
           avatarUrl: user.avatarUrl,
         }));
 
-        const userContributions = await Promise.all(
-          userList.map(user =>
-            extractUserMetricsFromGitHub(
-              octokit,
-              owner,
-              repo,
-              branch,
-              user.name,
-              user.email,
-              user.avatarUrl,
-              { since, until }
-            )
+        // OPTIMIZATION: Use pre-fetched commits for all users (no redundant API calls)
+        const userContributions = userList.map(user =>
+          extractUserMetricsFromCommits(
+            commits,
+            user.name,
+            user.email,
+            user.avatarUrl
           )
         );
 

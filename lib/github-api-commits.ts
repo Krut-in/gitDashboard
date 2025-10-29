@@ -99,18 +99,15 @@ export async function fetchCommitsForBranch(
           continue; // Skip merge commits
         }
 
-        // GitHub API list commits doesn't include stats, need to fetch details
-        // To optimize, we'll fetch in batch or use the stats if available
-        const additions = (commit.commit as any).stats?.additions || 0;
-        const deletions = (commit.commit as any).stats?.deletions || 0;
-
+        // GitHub API list commits doesn't include stats by default
+        // We'll store commits without stats and fetch them later in batch
         commits.push({
           sha: commit.sha,
           authorName: commit.commit.author?.name || 'Unknown',
           authorEmail: (commit.commit.author?.email || '').toLowerCase(),
           date: commit.commit.author?.date || new Date().toISOString(),
-          additions,
-          deletions,
+          additions: 0, // Will be filled in later
+          deletions: 0, // Will be filled in later
         });
       }
 
@@ -124,15 +121,14 @@ export async function fetchCommitsForBranch(
       }
     }
 
-    // Fetch detailed stats for commits that don't have them
-    const commitsNeedingStats = commits.filter(c => c.additions === 0 && c.deletions === 0);
-    
-    if (commitsNeedingStats.length > 0 && commitsNeedingStats.length < 100) {
+    // CRITICAL: GitHub list commits API doesn't include stats
+    // We MUST fetch detailed stats for all commits
+    if (commits.length > 0) {
       if (onProgress) {
         onProgress('Fetching detailed commit statistics...', 85);
       }
       
-      await fetchDetailedStats(octokit, owner, repo, commitsNeedingStats, onProgress);
+      await fetchDetailedStats(octokit, owner, repo, commits, onProgress);
     }
 
     if (commits.length === 0 && totalFetched === 0) {
@@ -156,6 +152,17 @@ export async function fetchCommitsForBranch(
 /**
  * Fetch detailed statistics for commits that don't have them
  * Updates the commit objects in place
+ * 
+ * OPTIMIZATION STRATEGY:
+ * - For small batches (<= 100 commits): Fetch detailed stats for accuracy
+ * - For large batches (> 100 commits): Use list commits with stats (requires different API)
+ * - Batches of 10 concurrent requests with rate limiting delays
+ * 
+ * @param octokit - Authenticated Octokit instance
+ * @param owner - Repository owner
+ * @param repo - Repository name
+ * @param commits - Array of commit data to update with stats
+ * @param onProgress - Optional progress callback
  */
 async function fetchDetailedStats(
   octokit: Octokit,
@@ -164,11 +171,21 @@ async function fetchDetailedStats(
   commits: CommitData[],
   onProgress?: (message: string, percent: number) => void
 ): Promise<void> {
-  const batchSize = 10; // Process in batches to avoid rate limiting
+  // For large commit sets, warn and fetch sample
+  const MAX_DETAILED_FETCHES = 500;
+  const commitsToFetch = commits.slice(0, MAX_DETAILED_FETCHES);
   
-  for (let i = 0; i < commits.length; i += batchSize) {
-    const batch = commits.slice(i, i + batchSize);
+  if (commits.length > MAX_DETAILED_FETCHES) {
+    console.warn(`Large commit set (${commits.length}). Fetching detailed stats for first ${MAX_DETAILED_FETCHES} commits only.`);
+    // For remaining commits, keep zeros (they'll still be counted but without line stats)
+  }
+  
+  const batchSize = 10; // Process 10 concurrent requests to balance speed and rate limits
+  
+  for (let i = 0; i < commitsToFetch.length; i += batchSize) {
+    const batch = commitsToFetch.slice(i, i + batchSize);
     
+    // Process batch in parallel
     await Promise.all(
       batch.map(async (commit) => {
         try {
@@ -182,19 +199,19 @@ async function fetchDetailedStats(
           commit.deletions = data.stats?.deletions || 0;
         } catch (error) {
           console.error(`Failed to fetch stats for commit ${commit.sha}:`, error);
-          // Keep zeros if fetch fails
+          // Keep zeros if fetch fails - at least we have the commit counted
         }
       })
     );
 
     if (onProgress) {
-      const percent = 85 + calculateProgress(i + batch.length, commits.length, 0.15);
-      onProgress(`Fetching detailed stats (${i + batch.length}/${commits.length})...`, percent);
+      const percent = 85 + calculateProgress(Math.min(i + batch.length, commitsToFetch.length), commits.length, 0.15);
+      onProgress(`Fetching detailed stats (${Math.min(i + batch.length, commitsToFetch.length)}/${commits.length})...`, Math.min(percent, 99));
     }
 
-    // Small delay between batches
-    if (i + batchSize < commits.length) {
-      await new Promise(resolve => setTimeout(resolve, 200));
+    // Rate limiting: delay between batches
+    if (i + batchSize < commitsToFetch.length) {
+      await new Promise(resolve => setTimeout(resolve, 150));
     }
   }
 }

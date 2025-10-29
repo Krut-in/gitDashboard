@@ -213,36 +213,23 @@ export async function extractUserMetrics(
 /**
  * Extract comprehensive metrics for a single user from GitHub API
  * 
- * @param octokit - Authenticated Octokit instance
- * @param owner - Repository owner
- * @param repo - Repository name
- * @param branch - Branch name
+ * IMPORTANT: This function expects pre-fetched commits to avoid redundant API calls.
+ * When analyzing multiple users, fetch commits once and pass to this function for each user.
+ * 
+ * @param commits - Pre-fetched commit data from GitHub API
  * @param userName - User's name
  * @param userEmail - User's email
  * @param avatarUrl - Optional avatar URL
- * @param options - Extraction options
  * @returns Complete user contribution data
  */
-export async function extractUserMetricsFromGitHub(
-  octokit: Octokit,
-  owner: string,
-  repo: string,
-  branch: string,
+export function extractUserMetricsFromCommits(
+  commits: Array<{ authorEmail: string; authorName: string; date: string; additions: number; deletions: number }>,
   userName: string,
   userEmail: string,
-  avatarUrl?: string,
-  options: UserMetricsOptions = {}
-): Promise<UserContribution> {
-  // Fetch all commits for the branch
-  const allCommits = await fetchCommitsForBranch(octokit, owner, repo, branch, {
-    since: options.since,
-    until: options.until,
-    maxCommits: 10000, // Higher limit for user metrics
-    excludeMerges: true,
-  });
-
+  avatarUrl?: string
+): UserContribution {
   // Filter commits by this specific user (by email)
-  const userCommits = allCommits.filter(
+  const userCommits = commits.filter(
     commit => commit.authorEmail.toLowerCase() === userEmail.toLowerCase()
   );
 
@@ -330,6 +317,43 @@ export async function extractUserMetricsFromGitHub(
     dailyNetLines,
     weeklyStats,
   };
+}
+
+/**
+ * Extract comprehensive metrics for a single user from GitHub API
+ * 
+ * DEPRECATED: Use extractUserMetricsFromCommits with pre-fetched commits for better performance.
+ * This function is kept for backward compatibility but fetches commits individually.
+ * 
+ * @param octokit - Authenticated Octokit instance
+ * @param owner - Repository owner
+ * @param repo - Repository name
+ * @param branch - Branch name
+ * @param userName - User's name
+ * @param userEmail - User's email
+ * @param avatarUrl - Optional avatar URL
+ * @param options - Extraction options
+ * @returns Complete user contribution data
+ */
+export async function extractUserMetricsFromGitHub(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  branch: string,
+  userName: string,
+  userEmail: string,
+  avatarUrl?: string,
+  options: UserMetricsOptions = {}
+): Promise<UserContribution> {
+  // Fetch all commits for the branch
+  const allCommits = await fetchCommitsForBranch(octokit, owner, repo, branch, {
+    since: options.since,
+    until: options.until,
+    maxCommits: 10000, // Higher limit for user metrics
+    excludeMerges: true,
+  });
+
+  return extractUserMetricsFromCommits(allCommits, userName, userEmail, avatarUrl);
 }
 
 /**

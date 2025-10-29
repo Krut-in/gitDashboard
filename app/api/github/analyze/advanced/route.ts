@@ -12,10 +12,11 @@ import { unstable_cache } from 'next/cache';
 import { getSession } from "@/lib/auth";
 import { createGitHubClient, checkRateLimit } from "@/lib/github";
 import { extractTimelineFromGitHub } from "@/lib/git/timeline";
-import { extractUserMetricsFromGitHub } from "@/lib/git/user-metrics";
+import { extractUserMetricsFromCommits } from "@/lib/git/user-metrics";
 import { aggregateAllUsersToWeekly } from "@/lib/aggregation";
 import { extractBasicInsights } from "@/lib/insights";
 import { GITHUB_API_LIMITS } from "@/lib/constants";
+import { fetchCommitsForBranch } from "@/lib/github-api-commits";
 import type { AdvancedAnalysisResponse } from "@/lib/types";
 
 export const maxDuration = 300; // 5 minutes for large repositories
@@ -105,6 +106,9 @@ export async function POST(request: NextRequest) {
 
 /**
  * Perform the actual analysis (cacheable function)
+ * 
+ * OPTIMIZATION: Fetches commits once and reuses for all user metrics extraction.
+ * This reduces GitHub API calls significantly for repositories with multiple contributors.
  */
 async function performAnalysis(
   octokit: any,
@@ -114,13 +118,28 @@ async function performAnalysis(
   since?: string,
   until?: string
 ): Promise<AdvancedAnalysisResponse> {
-  // Extract timeline data from GitHub API
-  const timeline = await extractTimelineFromGitHub(octokit, owner, repo, branch, {
-    excludeMerges: true,
+  // Fetch commits once for efficiency (avoids redundant API calls)
+  const commits = await fetchCommitsForBranch(octokit, owner, repo, branch, {
     since,
     until,
     maxCommits: GITHUB_API_LIMITS.MAX_COMMITS_PER_REQUEST,
+    excludeMerges: true,
   });
+
+  // Extract timeline data using pre-fetched commits (no redundant API call)
+  const timeline = await extractTimelineFromGitHub(
+    octokit,
+    owner,
+    repo,
+    branch,
+    {
+      excludeMerges: true,
+      since,
+      until,
+      maxCommits: GITHUB_API_LIMITS.MAX_COMMITS_PER_REQUEST,
+    },
+    commits // Pass pre-fetched commits
+  );
 
   // Aggregate weekly metrics for all users
   const usersWithWeekly = aggregateAllUsersToWeekly(timeline.users);
@@ -134,18 +153,13 @@ async function performAnalysis(
   }));
 
   // Extract detailed user contribution data for heatmaps
-  const userContributions = await Promise.all(
-    userList.map(user =>
-      extractUserMetricsFromGitHub(
-        octokit,
-        owner,
-        repo,
-        branch,
-        user.name,
-        user.email,
-        user.avatarUrl,
-        { since, until }
-      )
+  // IMPORTANT: Uses pre-fetched commits for efficiency (no redundant API calls)
+  const userContributions = userList.map(user =>
+    extractUserMetricsFromCommits(
+      commits,
+      user.name,
+      user.email,
+      user.avatarUrl
     )
   );
 

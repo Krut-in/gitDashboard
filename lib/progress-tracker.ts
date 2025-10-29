@@ -50,7 +50,7 @@ export function createProgressStream() {
  * @param percent - Progress percentage (0-100)
  */
 export async function sendProgress(
-  writer: WritableStreamDefaultWriter<ProgressUpdate>,
+  writer: WritableStreamDefaultWriter<StreamUpdate>,
   message: string,
   percent: number
 ): Promise<void> {
@@ -74,7 +74,7 @@ export async function sendProgress(
  * @param nextOffset - Offset for next batch of commits
  */
 export async function sendComplete(
-  writer: WritableStreamDefaultWriter<CompleteUpdate>,
+  writer: WritableStreamDefaultWriter<StreamUpdate>,
   result: any,
   hasMore?: boolean,
   nextOffset?: number
@@ -99,7 +99,7 @@ export async function sendComplete(
  * @param code - Optional error code
  */
 export async function sendError(
-  writer: WritableStreamDefaultWriter<ErrorUpdate>,
+  writer: WritableStreamDefaultWriter<StreamUpdate>,
   message: string,
   code?: string
 ): Promise<void> {
