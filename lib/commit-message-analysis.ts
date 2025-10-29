@@ -289,7 +289,7 @@ export function analyzeCommitMessages(commits: CommitData[]): CommitMessageAnaly
     balanced: [],
   };
 
-  for (const [userName, data] of userMessages.entries()) {
+  Array.from(userMessages.entries()).forEach(([userName, data]) => {
     const avgLength = data.messages.length > 0
       ? Math.round(data.totalLength / data.messages.length)
       : 0;
@@ -310,7 +310,7 @@ export function analyzeCommitMessages(commits: CommitData[]): CommitMessageAnaly
     };
 
     userCategories[category].push(userStyle);
-  }
+  });
 
   // Sort user categories by commit count (descending)
   userCategories.verbose.sort((a, b) => b.commitCount - a.commitCount);
