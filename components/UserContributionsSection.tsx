@@ -23,9 +23,8 @@ export function UserContributionsSection({
   users,
 }: UserContributionsSectionProps) {
   // Track which user is expanded (by userId)
-  const [expandedUserId, setExpandedUserId] = useState<string | null>(
-    users.length > 0 ? users[0].userId : null
-  );
+  // Initialize as null so all contributors are collapsed by default
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   const handleToggle = (userId: string) => {
     setExpandedUserId(expandedUserId === userId ? null : userId);
