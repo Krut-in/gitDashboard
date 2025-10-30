@@ -8,6 +8,7 @@
 
 import { signIn } from "@/lib/auth";
 import { Button } from "@/components/ui/Button";
+import { ECGBadge } from "@/components/ECGBadge";
 import {
   Github,
   BarChart3,
@@ -67,12 +68,7 @@ export default function HomePage() {
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left Content */}
           <div className="space-y-6 relative z-10">
-            <div className="inline-block">
-              <div className="flex items-center gap-2 px-4 py-2 backdrop-blur-md bg-white/40 rounded-full text-sm text-gray-800 shadow-lg border border-white/30 ray-container">
-                <Zap className="w-4 h-4 text-green-500 zap-heartbeat" />
-                <span>Analyze • Visualize • Optimize</span>
-              </div>
-            </div>
+            <ECGBadge />
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
               Effortlessly Organize and Simplify Your GitHub Analytics
