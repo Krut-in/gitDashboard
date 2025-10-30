@@ -9,6 +9,8 @@
 import { signIn } from "@/lib/auth";
 import { Button } from "@/components/ui/Button";
 import { ECGBadge } from "@/components/ECGBadge";
+import { RotatingFeatureCards } from "@/components/RotatingFeatureCards";
+import { featureCards } from "@/lib/feature-cards-data";
 import {
   Github,
   BarChart3,
@@ -221,47 +223,10 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 relative z-10">
-            {/* Feature 1 */}
-            <div className="text-center backdrop-blur-md bg-white/40 rounded-2xl p-6 border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <GitBranch className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Branch Analysis
-              </h3>
-              <p className="text-sm text-gray-700">
-                Deep dive into any branch with commit history and contributor
-                stats
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="text-center backdrop-blur-md bg-white/40 rounded-2xl p-6 border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <BarChart3 className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Visual Charts
-              </h3>
-              <p className="text-sm text-gray-700">
-                Beautiful, interactive charts for commits and activity heatmaps
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="text-center backdrop-blur-md bg-white/40 rounded-2xl p-6 border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <TrendingUp className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Export Reports
-              </h3>
-              <p className="text-sm text-gray-700">
-                Generate and download CSV reports for detailed analytics
-              </p>
-            </div>
-          </div>
+          <RotatingFeatureCards
+            features={featureCards}
+            rotationInterval={15000}
+          />
         </div>
       </section>
 
