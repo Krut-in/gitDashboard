@@ -9,10 +9,17 @@
  * - AppError: Base application error with code and status
  * - GitHubAPIError: Specialized error for GitHub API operations
  * 
+ * All GitHub API-specific error handling is consolidated here to eliminate
+ * code duplication and ensure consistent error responses across the application.
+ * 
+ * @module lib/errors
+ * @author GitHub Contribution Dashboard Team
+ * @since 1.0.0
+ * 
  * @example
  * ```typescript
  * try {
- *   // operation
+ *   await fetchData();
  * } catch (error) {
  *   const errorResponse = toErrorResponse(error);
  *   return NextResponse.json(errorResponse, { status: errorResponse.status });
@@ -213,4 +220,91 @@ export function logError(error: unknown, context?: string): void {
       status: errorResponse.status,
     });
   }
+}
+
+/**
+ * Handle errors during commit fetching operations
+ * Converts various error types into GitHubAPIError with appropriate status codes
+ * Consolidates all GitHub API error handling logic
+ * 
+ * @param error - Error object from GitHub API or fetch operation
+ * @throws {GitHubAPIError} Standardized error with status code and error code
+ * @returns never - Always throws
+ * 
+ * @example
+ * ```typescript
+ * try {
+ *   const response = await octokit.repos.listCommits({...});
+ * } catch (error) {
+ *   handleGitHubAPIError(error);
+ * }
+ * ```
+ */
+export function handleGitHubAPIError(error: unknown): never {
+  if (error instanceof GitHubAPIError) {
+    throw error;
+  }
+
+  const apiError = error as any;
+
+  // Rate limit exceeded
+  if (apiError.status === 403 && apiError.message?.includes('rate limit')) {
+    throw new GitHubAPIError(
+      'GitHub API rate limit exceeded. Please try again later.',
+      403,
+      'RATE_LIMIT_EXCEEDED'
+    );
+  }
+
+  // Repository not found
+  if (apiError.status === 404) {
+    throw new GitHubAPIError(
+      'Repository or branch not found. Please check the repository name and branch.',
+      404,
+      'NOT_FOUND'
+    );
+  }
+
+  // No access to repository
+  if (apiError.status === 403) {
+    throw new GitHubAPIError(
+      'Access denied. You may not have permission to access this repository.',
+      403,
+      'FORBIDDEN'
+    );
+  }
+
+  // Authentication failed
+  if (apiError.status === 401) {
+    throw new GitHubAPIError(
+      'GitHub authentication failed. Please sign in again.',
+      401,
+      'UNAUTHORIZED'
+    );
+  }
+
+  // Invalid request
+  if (apiError.status === 422) {
+    throw new GitHubAPIError(
+      apiError.message || 'Invalid request parameters',
+      422,
+      'VALIDATION_ERROR'
+    );
+  }
+
+  // Network or timeout error
+  if (apiError.name === 'AbortError' || apiError.code === 'ETIMEDOUT') {
+    throw new GitHubAPIError(
+      'Request timed out. The repository might be too large or the connection is slow.',
+      408,
+      'TIMEOUT'
+    );
+  }
+
+  // Generic error
+  throw new GitHubAPIError(
+    apiError.message || 'Failed to fetch data from GitHub API',
+    apiError.status || 500,
+    'GITHUB_API_ERROR'
+  );
 }

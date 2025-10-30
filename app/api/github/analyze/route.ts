@@ -29,42 +29,14 @@ import {
   serializeCommitTimes,
   serializeFilesByAuthor,
   serializeMerges,
-  GitHubCommit,
 } from '@/lib/analysis';
 import { AnalysisRequest, AnalysisResponse } from '@/lib/types';
 import { computeBlameAttribution } from '@/lib/git/blame';
 import { computeCommitStats } from '@/lib/git/commits';
 import { fetchCommitsForBranch } from '@/lib/github-api-commits';
+import { convertToGitHubCommits } from '@/lib/commit-converter';
 import { Octokit } from '@octokit/rest';
 import type { AnalysisConfig } from '@/lib/analysis-modes';
-
-/**
- * Convert CommitData to GitHubCommit format for analysis
- * Maps the simplified CommitData from github-api-commits to the full GitHubCommit format
- */
-function convertToGitHubCommits(
-  commits: Array<{ sha: string; authorName: string; authorEmail: string; date: string; additions: number; deletions: number }>
-): GitHubCommit[] {
-  return commits.map(commit => ({
-    sha: commit.sha,
-    commit: {
-      author: {
-        name: commit.authorName,
-        email: commit.authorEmail,
-        date: commit.date,
-      },
-      message: '', // Not available in simplified format
-    },
-    author: null,
-    stats: {
-      additions: commit.additions,
-      deletions: commit.deletions,
-      total: commit.additions + commit.deletions,
-    },
-    files: [],
-    parents: [], // Single parent assumed (non-merge commits)
-  }));
-}
 
 export async function POST(request: NextRequest) {
   try {

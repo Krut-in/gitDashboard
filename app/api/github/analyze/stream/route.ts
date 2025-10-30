@@ -23,42 +23,12 @@
 import { NextRequest } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { createGitHubClient, checkRateLimit } from '@/lib/github';
-import { fetchCommitsForBranch, type CommitData } from '@/lib/github-api-commits';
-import { analyzeCommits, type GitHubCommit } from '@/lib/analysis';
+import { fetchCommitsForBranch } from '@/lib/github-api-commits';
+import { analyzeCommits } from '@/lib/analysis';
 import { createProgressStream, sendProgress, sendComplete, sendError } from '@/lib/progress-tracker';
+import { convertToGitHubCommits } from '@/lib/commit-converter';
 import { GITHUB_API_LIMITS } from '@/lib/constants';
 import type { AnalysisResponse } from '@/lib/types';
-
-/**
- * Convert CommitData to GitHubCommit format for analysis
- * Maps the simplified CommitData from github-api-commits to the full GitHubCommit format
- */
-function convertToGitHubCommits(commits: CommitData[]): GitHubCommit[] {
-  return commits.map(commit => ({
-    sha: commit.sha,
-    commit: {
-      author: {
-        name: commit.authorName,
-        email: commit.authorEmail,
-        date: commit.date,
-      },
-      message: commit.message,
-    },
-    author: null,
-    stats: {
-      additions: commit.additions,
-      deletions: commit.deletions,
-      total: commit.additions + commit.deletions,
-    },
-    files: commit.files.map(f => ({ 
-      filename: f,
-      additions: 0,
-      deletions: 0,
-      changes: 0,
-    })),
-    parents: [], // Single parent assumed (non-merge commits)
-  }));
-}
 
 export const runtime = 'nodejs';
 export const maxDuration = 300; // 5 minutes for large repositories

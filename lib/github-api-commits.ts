@@ -7,7 +7,7 @@
  */
 
 import { Octokit } from '@octokit/rest';
-import { handleCommitFetchError, handleEmptyRepository, handleOnlyMergeCommits } from './api-errors';
+import { handleGitHubAPIError, GitHubAPIError } from './errors';
 import { calculateProgress } from './progress-tracker';
 import { GITHUB_API_LIMITS } from './constants';
 
@@ -137,11 +137,19 @@ export async function fetchCommitsForBranch(
     }
 
     if (commits.length === 0 && totalFetched === 0) {
-      handleEmptyRepository(owner, repo);
+      throw new GitHubAPIError(
+        `Repository ${owner}/${repo} has no commits`,
+        404,
+        'EMPTY_REPOSITORY'
+      );
     }
 
     if (commits.length === 0 && totalFetched > 0) {
-      handleOnlyMergeCommits();
+      throw new GitHubAPIError(
+        'No non-merge commits found in the specified date range',
+        404,
+        'NO_VALID_COMMITS'
+      );
     }
 
     if (onProgress) {
@@ -150,7 +158,7 @@ export async function fetchCommitsForBranch(
 
     return commits;
   } catch (error) {
-    return handleCommitFetchError(error);
+    return handleGitHubAPIError(error);
   }
 }
 
@@ -254,7 +262,7 @@ export async function fetchCommitStats(
       })),
     };
   } catch (error) {
-    return handleCommitFetchError(error);
+    return handleGitHubAPIError(error);
   }
 }
 
@@ -349,7 +357,7 @@ export async function fetchCommitsForFile(
 
     return commits;
   } catch (error) {
-    return handleCommitFetchError(error);
+    return handleGitHubAPIError(error);
   }
 }
 
