@@ -259,7 +259,7 @@ export default function BranchPage({ params }: BranchPageProps) {
                       {progress ? `${Math.round(progress.percent)}%` : "0%"}
                     </span>
                   </div>
-                  
+
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                     <div
