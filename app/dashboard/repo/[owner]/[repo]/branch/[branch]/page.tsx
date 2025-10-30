@@ -41,6 +41,11 @@ type AnalysisState =
   | { status: "complete"; data: AnalysisResponse }
   | { status: "error"; message: string };
 
+interface ProgressState {
+  message: string;
+  percent: number;
+}
+
 export default function BranchPage({ params }: BranchPageProps) {
   const { owner, repo, branch } = params;
   const decodedBranch = decodeURIComponent(branch);
@@ -53,52 +58,72 @@ export default function BranchPage({ params }: BranchPageProps) {
     until: "",
     filterBots: true,
   });
+  const [progress, setProgress] = useState<ProgressState | null>(null);
 
   const startAnalysis = async () => {
     setAnalysisState({ status: "analyzing", startTime: Date.now() });
-
-    // Set a longer timeout for large repositories (10 minutes)
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutes
+    setProgress({ message: "Connecting to GitHub API...", percent: 0 });
 
     try {
-      const response = await fetch("/api/github/analyze", {
+      const response = await fetch("/api/github/analyze/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           owner,
           repo,
           branch: decodedBranch,
-          ...filters,
+          since: filters.since || undefined,
+          until: filters.until || undefined,
+          filterBots: filters.filterBots,
         }),
-        signal: controller.signal,
       });
 
-      clearTimeout(timeoutId);
-
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Analysis failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Analysis failed");
       }
 
-      const data: AnalysisResponse = await response.json();
-      setAnalysisState({ status: "complete", data });
-    } catch (error: any) {
-      if (error.name === "AbortError") {
-        setAnalysisState({
-          status: "error",
-          message:
-            "Analysis timed out. This repository may be too large. Try using date filters to reduce the scope.",
-        });
-      } else {
-        setAnalysisState({
-          status: "error",
-          message:
-            error instanceof Error ? error.message : "Unknown error occurred",
-        });
+      if (!response.body) {
+        throw new Error("No response body available");
       }
-    } finally {
-      clearTimeout(timeoutId);
+
+      // Process SSE stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.type === "progress") {
+              setProgress({ message: data.message, percent: data.percent });
+            } else if (data.type === "complete") {
+              setAnalysisState({ status: "complete", data: data.result });
+              setProgress(null);
+            } else if (data.type === "error") {
+              throw new Error(data.message || "Analysis failed");
+            }
+          }
+        }
+      }
+    } catch (error: any) {
+      console.error("Analysis error:", error);
+      setAnalysisState({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+      setProgress(null);
     }
   };
 
@@ -222,7 +247,42 @@ export default function BranchPage({ params }: BranchPageProps) {
         </div>
         {/* Analysis Progress */}
         {analysisState.status === "analyzing" && (
-          <AnalysisLoader startTime={analysisState.startTime} />
+          <>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">
+                      Analyzing Repository...
+                    </h3>
+                    <span className="text-sm text-gray-500">
+                      {progress ? `${Math.round(progress.percent)}%` : "0%"}
+                    </span>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 h-full transition-all duration-300"
+                      style={{ width: `${progress?.percent || 0}%` }}
+                    />
+                  </div>
+
+                  {/* Progress Message */}
+                  {progress && (
+                    <p className="text-sm text-gray-600 flex items-center gap-2">
+                      <Spinner className="w-4 h-4" />
+                      {progress.message}
+                    </p>
+                  )}
+
+                  <p className="text-xs text-gray-500">
+                    This may take a few minutes for large repositories...
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </>
         )}
         {/* Error State */}
         {analysisState.status === "error" && (

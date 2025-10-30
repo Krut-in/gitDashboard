@@ -1,184 +1,273 @@
 /**
- * GitHub Analysis Stream API Route
+ * Branch Analysis Streaming API Endpoint
  * 
- * GET /api/github/analyze/stream
+ * POST /api/github/analyze/stream
  * Server-Sent Events endpoint for streaming analysis progress.
  * Provides real-time updates during long-running analysis operations.
+ * Excludes merge commits for cleaner contributor stats.
  * 
- * Query parameters:
+ * Request body:
  * - owner: Repository owner (required)
  * - repo: Repository name (required)
  * - branch: Branch name (required)
+ * - since: Optional start date filter
+ * - until: Optional end date filter
+ * - filterBots: Boolean to filter bot commits (default: true)
  * 
  * SSE Event format:
- * data: {"type":"progress","percent":50,"message":"Processing...","currentPage":5,"totalPages":10}
+ * data: {"type":"progress","percent":50,"message":"Processing..."}
+ * data: {"type":"complete","result":{...}}
+ * data: {"type":"error","message":"Error occurred"}
  */
 
 import { NextRequest } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { createGitHubClient, checkRateLimit } from '@/lib/github';
-import { ProgressEmitter, formatSSE, createKeepAlive } from '@/lib/progress-tracker';
+import { fetchCommitsForBranch, type CommitData } from '@/lib/github-api-commits';
+import { analyzeCommits, type GitHubCommit } from '@/lib/analysis';
+import { createProgressStream, sendProgress, sendComplete, sendError } from '@/lib/progress-tracker';
 import { GITHUB_API_LIMITS } from '@/lib/constants';
+import type { AnalysisResponse } from '@/lib/types';
 
-const COMMITS_PER_PAGE = GITHUB_API_LIMITS.COMMITS_PER_PAGE;
-const KEEP_ALIVE_INTERVAL = 15000; // 15 seconds
+/**
+ * Convert CommitData to GitHubCommit format for analysis
+ * Maps the simplified CommitData from github-api-commits to the full GitHubCommit format
+ */
+function convertToGitHubCommits(commits: CommitData[]): GitHubCommit[] {
+  return commits.map(commit => ({
+    sha: commit.sha,
+    commit: {
+      author: {
+        name: commit.authorName,
+        email: commit.authorEmail,
+        date: commit.date,
+      },
+      message: commit.message,
+    },
+    author: null,
+    stats: {
+      additions: commit.additions,
+      deletions: commit.deletions,
+      total: commit.additions + commit.deletions,
+    },
+    files: commit.files.map(f => ({ 
+      filename: f,
+      additions: 0,
+      deletions: 0,
+      changes: 0,
+    })),
+    parents: [], // Single parent assumed (non-merge commits)
+  }));
+}
 
-export async function GET(request: NextRequest) {
+export const runtime = 'nodejs';
+export const maxDuration = 300; // 5 minutes for large repositories
+
+interface RequestBody {
+  owner: string;
+  repo: string;
+  branch: string;
+  since?: string;
+  until?: string;
+  filterBots?: boolean;
+}
+
+export async function POST(request: NextRequest) {
   try {
-    // Authenticate user
-    const session = await getSession();
-    if (!session) {
-      return new Response('Unauthorized', { status: 401 });
-    }
-
-    // Parse query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const owner = searchParams.get('owner');
-    const repo = searchParams.get('repo');
-    const branch = searchParams.get('branch');
+    const body: RequestBody = await request.json();
+    const { owner, repo, branch, since, until, filterBots = true } = body;
 
     // Validate required parameters
     if (!owner || !repo || !branch) {
-      return new Response('Missing required parameters', { status: 400 });
+      const encoder = new TextEncoder();
+      const errorStream = new ReadableStream({
+        start(controller) {
+          const errorData = JSON.stringify({
+            type: 'error',
+            message: 'owner, repo, and branch are required',
+            code: 'MISSING_PARAMS',
+          });
+          controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+          controller.close();
+        },
+      });
+      return new Response(errorStream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
     }
 
-    // Create GitHub client
+    // Get authenticated session
+    const session = await getSession();
+    if (!session) {
+      const encoder = new TextEncoder();
+      const errorStream = new ReadableStream({
+        start(controller) {
+          const errorData = JSON.stringify({
+            type: 'error',
+            message: 'Authentication required',
+            code: 'UNAUTHORIZED',
+          });
+          controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+          controller.close();
+        },
+      });
+      return new Response(errorStream, {
+        status: 401,
+        headers: {
+          'Content-Type': 'text/event-stream',
+        },
+      });
+    }
+
     const octokit = createGitHubClient(session.accessToken);
 
-    // Create readable stream for SSE
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      async start(controller) {
-        const progress = new ProgressEmitter();
-        let keepAliveTimer: NodeJS.Timeout | null = null;
+    // Check rate limits
+    const { remaining } = await checkRateLimit(octokit);
+    if (remaining < GITHUB_API_LIMITS.RATE_LIMIT_WARNING_THRESHOLD) {
+      const encoder = new TextEncoder();
+      const errorStream = new ReadableStream({
+        start(controller) {
+          const errorData = JSON.stringify({
+            type: 'error',
+            message: `GitHub API rate limit low (${remaining} remaining). Please try again later.`,
+            code: 'RATE_LIMIT_LOW',
+          });
+          controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+          controller.close();
+        },
+      });
+      return new Response(errorStream, {
+        status: 429,
+        headers: {
+          'Content-Type': 'text/event-stream',
+        },
+      });
+    }
 
-        // Send progress events to client
-        progress.on((event) => {
-          try {
-            controller.enqueue(encoder.encode(formatSSE(event)));
-          } catch (error) {
-            console.error('Error sending SSE event:', error);
+    // Create progress stream
+    const progressStream = createProgressStream();
+    const writer = progressStream.writable.getWriter();
+
+    // Process analysis in the background
+    (async () => {
+      try {
+        await sendProgress(writer, 'Starting analysis...', 0);
+
+        // Fetch commits with progress updates and EXCLUDE merge commits
+        const commits = await fetchCommitsForBranch(
+          octokit,
+          owner,
+          repo,
+          branch,
+          {
+            since,
+            until,
+            maxCommits: 5000,
+            excludeMerges: true, // ✅ EXCLUDE MERGE COMMITS
+            onProgress: async (message, percent) => {
+              // Map commit fetching progress to 0-70%
+              await sendProgress(writer, message, percent * 0.7);
+            },
           }
+        );
+
+        await sendProgress(writer, 'Analyzing contributions...', 75);
+
+        // Convert CommitData to GitHubCommit format
+        const githubCommits = convertToGitHubCommits(commits);
+
+        // Analyze commits (filter bots if requested)
+        const analysis = analyzeCommits(githubCommits, { 
+          includeBots: !filterBots 
         });
 
-        // Keep-alive to prevent connection timeout
-        keepAliveTimer = setInterval(() => {
-          try {
-            controller.enqueue(encoder.encode(createKeepAlive()));
-          } catch (error) {
-            console.error('Error sending keep-alive:', error);
-          }
-        }, KEEP_ALIVE_INTERVAL);
+        await sendProgress(writer, 'Generating exports...', 90);
 
-        try {
-          progress.progress(0, 'Starting analysis...');
+        // Generate CSV and text exports - using simple serialization
+        const contributorsCSV = analysis.contributors
+          .map(c => `${c.name},${c.email || 'N/A'},${c.commitCount},${c.additions},${c.deletions}`)
+          .join('\n');
+        
+        const commitMessagesText = analysis.commitMessages
+          .map(cm => `${cm.date} - ${cm.author}: ${cm.message}`)
+          .join('\n');
+        
+        const commitTimesText = analysis.commitTimes
+          .map(ct => `${ct.date},${ct.sha},${ct.author}`)
+          .join('\n');
 
-          // Estimate total pages
-          let totalPages = 1;
-          let page = 1;
-          let processedCommits = 0;
+        const exports = {
+          contributorsCSV: 'Name,Email,Commits,Additions,Deletions\n' + contributorsCSV,
+          commitMessagesText,
+          commitTimesText,
+          filesByAuthorText: '', // Not tracked in basic analysis
+          mergesText: '', // Merges excluded
+        };
 
-          while (true) {
-            // Check rate limit
-            const { remaining } = await checkRateLimit(octokit);
-            if (remaining < 50) {
-              progress.error('Approaching rate limit. Please try again later.');
-              break;
-            }
+        await sendProgress(writer, 'Finalizing results...', 95);
 
-            progress.progress(
-              Math.min(95, (page / (totalPages + 1)) * 100),
-              `Fetching commits page ${page}...`,
-              {
-                currentPage: page,
-                totalPages,
-                processedCommits,
-              }
-            );
+        // Build final response
+        const result: AnalysisResponse = {
+          contributors: analysis.contributors,
+          commitMessages: analysis.commitMessages,
+          commitTimes: analysis.commitTimes,
+          filesByAuthor: analysis.filesByAuthor || [],
+          merges: analysis.merges || [],
+          warnings: analysis.warnings || [],
+          metadata: {
+            totalCommits: analysis.metadata.totalCommits,
+            analyzedCommits: analysis.metadata.analyzedCommits,
+            totalContributors: analysis.metadata.totalContributors,
+            dateRange: analysis.metadata.dateRange,
+          },
+          exports,
+        };
 
-            try {
-              const { data } = await octokit.repos.listCommits({
-                owner,
-                repo,
-                sha: branch,
-                page,
-                per_page: COMMITS_PER_PAGE,
-              });
+        await sendProgress(writer, 'Complete!', 100);
 
-              if (data.length === 0) {
-                break;
-              }
+        // Send complete event with data
+        await sendComplete(writer, result);
 
-              processedCommits += data.length;
+      } catch (error: any) {
+        console.error('Analysis error:', error);
+        await sendError(writer, error instanceof Error ? error.message : 'Unknown error occurred');
+      }
+    })();
 
-              // Update total pages estimate
-              if (data.length === COMMITS_PER_PAGE) {
-                totalPages = page + 1;
-              }
-
-              page++;
-
-              // Limit to 100 pages
-              if (page > 100) {
-                progress.progress(
-                  95,
-                  'Reached page limit, finalizing...',
-                  {
-                    currentPage: page,
-                    totalPages,
-                    processedCommits,
-                  }
-                );
-                break;
-              }
-            } catch (error: any) {
-              if (error.status === 409) {
-                // Empty repository
-                progress.progress(100, 'No commits found');
-                break;
-              }
-              throw error;
-            }
-          }
-
-          progress.complete(`Analysis complete. Processed ${processedCommits} commits.`);
-        } catch (error: any) {
-          console.error('Stream analysis error:', error);
-          progress.error(error.message || 'Analysis failed');
-        } finally {
-          if (keepAliveTimer) {
-            clearInterval(keepAliveTimer);
-          }
-          progress.cleanup();
-          
-          // Close the stream after a short delay
-          setTimeout(() => {
-            try {
-              controller.close();
-            } catch (error) {
-              console.error('Error closing controller:', error);
-            }
-          }, 1000);
-        }
-      },
-
-      cancel() {
-        console.log('Client disconnected from SSE stream');
-      },
-    });
-
-    return new Response(stream, {
+    // Return the readable stream
+    return new Response(progressStream.readable, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
-        'X-Accel-Buffering': 'no', // Disable buffering for Nginx
       },
     });
+
   } catch (error: any) {
-    console.error('SSE setup error:', error);
-    return new Response(error.message || 'Internal Server Error', {
+    console.error('Request error:', error);
+    
+    const encoder = new TextEncoder();
+    const errorStream = new ReadableStream({
+      start(controller) {
+        const errorData = JSON.stringify({
+          type: 'error',
+          message: error instanceof Error ? error.message : 'Unknown error occurred',
+          code: 'REQUEST_ERROR',
+        });
+        controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+        controller.close();
+      },
+    });
+
+    return new Response(errorStream, {
       status: 500,
+      headers: {
+        'Content-Type': 'text/event-stream',
+      },
     });
   }
 }
