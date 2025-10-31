@@ -162,7 +162,7 @@ export default function BranchPage({ params }: BranchPageProps) {
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 mb-4 backdrop-blur-md !bg-gradient-to-r !from-purple-600 !to-blue-600 !text-white hover:!text-white hover:!bg-gradient-to-r hover:!from-purple-600 hover:!to-blue-600 !border-none shadow-lg hover:shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300"
+              className="gap-2 mb-4 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:text-white hover:from-purple-700 hover:to-blue-700 border-none shadow-lg hover:shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Branches
@@ -172,9 +172,9 @@ export default function BranchPage({ params }: BranchPageProps) {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             {owner} / {repo}
           </h1>
-          <p className="text-lg text-gray-600 mb-4">
+          <p className="text-lg text-gray-600 mb-6">
             Branch:{" "}
-            <code className="backdrop-blur-md bg-white/50 px-3 py-1 rounded-lg border border-white/30">
+            <code className="backdrop-blur-md bg-white/40 px-3 py-1 rounded-lg border border-white/30">
               {decodedBranch}
             </code>
           </p>
@@ -182,12 +182,14 @@ export default function BranchPage({ params }: BranchPageProps) {
           {/* Analysis Controls */}
           {analysisState.status === "idle" && (
             <Card>
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold mb-4">Analysis Options</h3>
+              <CardContent className="py-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Analysis Options
+                </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Since Date (Optional)
                     </label>
                     <input
@@ -196,12 +198,12 @@ export default function BranchPage({ params }: BranchPageProps) {
                       onChange={e =>
                         setFilters({ ...filters, since: e.target.value })
                       }
-                      className="w-full px-3 py-2 backdrop-blur-md bg-white/50 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 backdrop-blur-md bg-white/40 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Until Date (Optional)
                     </label>
                     <input
@@ -210,12 +212,12 @@ export default function BranchPage({ params }: BranchPageProps) {
                       onChange={e =>
                         setFilters({ ...filters, until: e.target.value })
                       }
-                      className="w-full px-3 py-2 backdrop-blur-md bg-white/50 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 backdrop-blur-md bg-white/40 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                     />
                   </div>
 
                   <div className="flex items-end">
-                    <label className="flex items-center gap-2 cursor-pointer backdrop-blur-md bg-white/30 px-3 py-2 rounded-lg border border-white/20">
+                    <label className="flex items-center gap-2 cursor-pointer backdrop-blur-md bg-white/40 px-3 py-2 rounded-lg border border-white/30 hover:bg-white/50 transition-all">
                       <input
                         type="checkbox"
                         checked={filters.filterBots}
@@ -236,7 +238,7 @@ export default function BranchPage({ params }: BranchPageProps) {
 
                 <Button
                   onClick={startAnalysis}
-                  className="gap-2 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  className="gap-2 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-purple-500/50 transition-all duration-300"
                 >
                   <Play className="w-4 h-4" />
                   Start Analysis
@@ -247,69 +249,67 @@ export default function BranchPage({ params }: BranchPageProps) {
         </div>
         {/* Analysis Progress */}
         {analysisState.status === "analyzing" && (
-          <>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      Analyzing Repository...
-                    </h3>
-                    <span className="text-sm text-gray-500">
-                      {progress ? `${Math.round(progress.percent)}%` : "0%"}
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 h-full transition-all duration-300"
-                      style={{ width: `${progress?.percent || 0}%` }}
-                    />
-                  </div>
-
-                  {/* Progress Message */}
-                  {progress && (
-                    <p className="text-sm text-gray-600 flex items-center gap-2">
-                      <Spinner className="w-4 h-4" />
-                      {progress.message}
-                    </p>
-                  )}
-
-                  <p className="text-xs text-gray-500">
-                    This may take a few minutes for large repositories...
-                  </p>
+          <Card>
+            <CardContent className="py-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Analyzing Repository...
+                  </h3>
+                  <span className="text-sm font-medium text-gray-600">
+                    {progress ? `${Math.round(progress.percent)}%` : "0%"}
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
-          </>
+
+                {/* Progress Bar */}
+                <div className="w-full backdrop-blur-sm bg-white/40 border border-white/20 rounded-full h-2.5 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 h-full transition-all duration-300 ease-out"
+                    style={{ width: `${progress?.percent || 0}%` }}
+                  />
+                </div>
+
+                {/* Progress Message */}
+                {progress && (
+                  <p className="text-sm text-gray-600 flex items-center gap-2">
+                    <Spinner className="w-4 h-4" />
+                    {progress.message}
+                  </p>
+                )}
+
+                <p className="text-xs text-gray-500">
+                  This may take a few minutes for large repositories...
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         )}
         {/* Error State */}
         {analysisState.status === "error" && (
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3 text-red-600">
-                <AlertCircle className="w-6 h-6" />
+            <CardContent className="py-6">
+              <div className="flex items-center gap-3 text-red-600 mb-4">
+                <AlertCircle className="w-6 h-6 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold">Analysis Failed</h3>
+                  <h3 className="font-semibold text-lg">Analysis Failed</h3>
                   <p className="text-sm">{analysisState.message}</p>
                 </div>
               </div>
               <Button
                 onClick={() => setAnalysisState({ status: "idle" })}
                 variant="outline"
-                className="mt-4"
+                size="sm"
               >
                 Try Again
               </Button>
             </CardContent>
           </Card>
-        )}{" "}
+        )}
         {/* Results */}
         {analysisState.status === "complete" && (
           <div className="space-y-6">
             {/* Export Actions */}
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-4 justify-end">
               <Button
                 onClick={() => handleDownloadCSV("contributors")}
                 variant="outline"
@@ -341,9 +341,9 @@ export default function BranchPage({ params }: BranchPageProps) {
             {/* Advanced Analysis Link */}
             <Card>
               <CardContent className="py-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       Want deeper insights?
                     </h3>
                     <p className="text-sm text-gray-600">
@@ -353,8 +353,9 @@ export default function BranchPage({ params }: BranchPageProps) {
                   </div>
                   <Link
                     href={`/dashboard/repo/${owner}/${repo}/branch/${branch}/advanced`}
+                    className="flex-shrink-0"
                   >
-                    <Button className="gap-2 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                    <Button className="gap-2 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-purple-500/50 transition-all duration-300">
                       View Advanced Analysis →
                     </Button>
                   </Link>
