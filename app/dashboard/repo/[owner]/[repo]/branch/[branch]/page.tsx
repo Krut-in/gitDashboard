@@ -17,6 +17,9 @@ import { ArrowLeft, Download, Play, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
+import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { AnalysisLoader } from "@/components/AnalysisLoader";
 import { ProgressPanel } from "@/components/ProgressPanel";
 import { NetLinesBar } from "@/components/charts/NetLinesBar";
@@ -61,6 +64,12 @@ export default function BranchPage({ params }: BranchPageProps) {
   const [progress, setProgress] = useState<ProgressState | null>(null);
 
   const startAnalysis = async () => {
+    // Prevent multiple simultaneous analysis runs
+    if (analysisState.status === "analyzing") {
+      console.warn("Analysis already in progress");
+      return;
+    }
+
     setAnalysisState({ status: "analyzing", startTime: Date.now() });
     setProgress({ message: "Connecting to GitHub API...", percent: 0 });
 
@@ -103,15 +112,23 @@ export default function BranchPage({ params }: BranchPageProps) {
 
         for (const line of lines) {
           if (line.startsWith("data: ")) {
-            const data = JSON.parse(line.slice(6));
+            try {
+              const data = JSON.parse(line.slice(6));
 
-            if (data.type === "progress") {
-              setProgress({ message: data.message, percent: data.percent });
-            } else if (data.type === "complete") {
-              setAnalysisState({ status: "complete", data: data.result });
-              setProgress(null);
-            } else if (data.type === "error") {
-              throw new Error(data.message || "Analysis failed");
+              if (data.type === "progress") {
+                setProgress({
+                  message: data.message || "Processing...",
+                  percent: typeof data.percent === "number" ? data.percent : 0,
+                });
+              } else if (data.type === "complete") {
+                setAnalysisState({ status: "complete", data: data.result });
+                setProgress(null);
+              } else if (data.type === "error") {
+                throw new Error(data.message || "Analysis failed");
+              }
+            } catch (parseError) {
+              console.error("Failed to parse SSE data:", parseError);
+              // Continue processing other messages instead of failing completely
             }
           }
         }
@@ -128,22 +145,39 @@ export default function BranchPage({ params }: BranchPageProps) {
   };
 
   const handleDownloadCSV = (type: "contributors" | "commits") => {
-    if (analysisState.status !== "complete") return;
+    if (analysisState.status !== "complete") {
+      console.warn("Cannot download CSV: Analysis not complete");
+      return;
+    }
 
-    const csv =
-      type === "contributors"
-        ? analysisState.data.exports.contributorsCSV
-        : analysisState.data.exports.commitTimesText;
+    try {
+      const csv =
+        type === "contributors"
+          ? analysisState.data.exports.contributorsCSV
+          : analysisState.data.exports.commitTimesText;
 
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${owner}-${repo}-${decodedBranch}-${type}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+      if (!csv || typeof csv !== "string") {
+        console.error("Invalid CSV data");
+        return;
+      }
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${owner}-${repo}-${decodedBranch}-${type}.csv`;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup with delay to ensure download starts
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (error) {
+      console.error("Failed to download CSV:", error);
+    }
   };
 
   return (
@@ -159,11 +193,7 @@ export default function BranchPage({ params }: BranchPageProps) {
         {/* Header */}
         <div className="mb-6">
           <Link href={`/dashboard/repo/${owner}/${repo}`}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 mb-4 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:text-white hover:from-purple-700 hover:to-blue-700 border-none shadow-lg hover:shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300"
-            >
+            <Button variant="gradient" size="sm" className="gap-2 mb-4">
               <ArrowLeft className="w-4 h-4" />
               Back to Branches
             </Button>
@@ -173,52 +203,56 @@ export default function BranchPage({ params }: BranchPageProps) {
             {owner} / {repo}
           </h1>
           <p className="text-lg text-gray-600 mb-6">
-            Branch:{" "}
-            <code className="backdrop-blur-md bg-white/40 px-3 py-1 rounded-lg border border-white/30">
-              {decodedBranch}
-            </code>
+            Branch: <Badge variant="code">{decodedBranch}</Badge>
           </p>
 
           {/* Analysis Controls */}
           {analysisState.status === "idle" && (
             <Card>
-              <CardContent className="py-6">
+              <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Analysis Options
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="since-date"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Since Date (Optional)
                     </label>
-                    <input
+                    <Input
+                      id="since-date"
                       type="date"
                       value={filters.since}
                       onChange={e =>
                         setFilters({ ...filters, since: e.target.value })
                       }
-                      className="w-full px-3 py-2 backdrop-blur-md bg-white/40 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="until-date"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Until Date (Optional)
                     </label>
-                    <input
+                    <Input
+                      id="until-date"
                       type="date"
                       value={filters.until}
                       onChange={e =>
                         setFilters({ ...filters, until: e.target.value })
                       }
-                      className="w-full px-3 py-2 backdrop-blur-md bg-white/40 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                     />
                   </div>
 
                   <div className="flex items-end">
-                    <label className="flex items-center gap-2 cursor-pointer backdrop-blur-md bg-white/40 px-3 py-2 rounded-lg border border-white/30 hover:bg-white/50 transition-all">
+                    <label className="flex items-center gap-2 cursor-pointer backdrop-blur-md bg-white/40 px-4 py-2.5 rounded-lg border border-white/30 hover:bg-white/50 focus-within:ring-2 focus-within:ring-ring transition-all">
                       <input
+                        id="filter-bots"
                         type="checkbox"
                         checked={filters.filterBots}
                         onChange={e =>
@@ -227,9 +261,9 @@ export default function BranchPage({ params }: BranchPageProps) {
                             filterBots: e.target.checked,
                           })
                         }
-                        className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                        className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-2 focus:ring-ring"
                       />
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm font-medium text-gray-700">
                         Filter bot commits
                       </span>
                     </label>
@@ -238,9 +272,11 @@ export default function BranchPage({ params }: BranchPageProps) {
 
                 <Button
                   onClick={startAnalysis}
-                  className="gap-2 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-purple-500/50 transition-all duration-300"
+                  variant="gradient"
+                  className="gap-2"
+                  aria-label="Start repository analysis"
                 >
-                  <Play className="w-4 h-4" />
+                  <Play className="w-4 h-4" aria-hidden="true" />
                   Start Analysis
                 </Button>
               </CardContent>
@@ -250,7 +286,7 @@ export default function BranchPage({ params }: BranchPageProps) {
         {/* Analysis Progress */}
         {analysisState.status === "analyzing" && (
           <Card>
-            <CardContent className="py-6">
+            <CardContent className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">
@@ -262,17 +298,22 @@ export default function BranchPage({ params }: BranchPageProps) {
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full backdrop-blur-sm bg-white/40 border border-white/20 rounded-full h-2.5 overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 h-full transition-all duration-300 ease-out"
-                    style={{ width: `${progress?.percent || 0}%` }}
-                  />
-                </div>
+                <ProgressBar
+                  value={progress?.percent || 0}
+                  max={100}
+                  variant="default"
+                  size="default"
+                  barStyle="gradient"
+                />
 
                 {/* Progress Message */}
                 {progress && (
-                  <p className="text-sm text-gray-600 flex items-center gap-2">
-                    <Spinner className="w-4 h-4" />
+                  <p
+                    className="text-sm text-gray-600 flex items-center gap-2"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <Spinner className="w-4 h-4" aria-hidden="true" />
                     {progress.message}
                   </p>
                 )}
@@ -287,7 +328,7 @@ export default function BranchPage({ params }: BranchPageProps) {
         {/* Error State */}
         {analysisState.status === "error" && (
           <Card>
-            <CardContent className="py-6">
+            <CardContent className="p-6">
               <div className="flex items-center gap-3 text-red-600 mb-4">
                 <AlertCircle className="w-6 h-6 flex-shrink-0" />
                 <div>
@@ -340,7 +381,7 @@ export default function BranchPage({ params }: BranchPageProps) {
 
             {/* Advanced Analysis Link */}
             <Card>
-              <CardContent className="py-6">
+              <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -355,7 +396,7 @@ export default function BranchPage({ params }: BranchPageProps) {
                     href={`/dashboard/repo/${owner}/${repo}/branch/${branch}/advanced`}
                     className="flex-shrink-0"
                   >
-                    <Button className="gap-2 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-purple-500/50 transition-all duration-300">
+                    <Button variant="gradient" className="gap-2">
                       View Advanced Analysis →
                     </Button>
                   </Link>

@@ -12,6 +12,7 @@ import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { CommitsTimeline } from "@/components/charts/CommitsTimeline";
 import { LinesChangedTimeline } from "@/components/charts/LinesChangedTimeline";
 import { ContributionGantt } from "@/components/charts/ContributionGantt";
@@ -60,6 +61,12 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
   }, []);
 
   const loadAdvancedAnalysis = async (loadMore = false) => {
+    // Prevent multiple simultaneous analysis runs
+    if (analysisState.status === "loading") {
+      console.warn("Analysis already in progress");
+      return;
+    }
+
     setAnalysisState({ status: "loading" });
     setProgress({ message: "Connecting to GitHub API...", percent: 0 });
 
@@ -100,17 +107,25 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
 
         for (const line of lines) {
           if (line.startsWith("data: ")) {
-            const data = JSON.parse(line.slice(6));
+            try {
+              const data = JSON.parse(line.slice(6));
 
-            if (data.type === "progress") {
-              setProgress({ message: data.message, percent: data.percent });
-            } else if (data.type === "complete") {
-              setAnalysisState({ status: "complete", data: data.result });
-              setHasMore(data.hasMore || false);
-              setCommitOffset(data.nextOffset || 0);
-              setProgress(null);
-            } else if (data.type === "error") {
-              throw new Error(data.message || "Analysis failed");
+              if (data.type === "progress") {
+                setProgress({
+                  message: data.message || "Processing...",
+                  percent: typeof data.percent === "number" ? data.percent : 0,
+                });
+              } else if (data.type === "complete") {
+                setAnalysisState({ status: "complete", data: data.result });
+                setHasMore(data.hasMore || false);
+                setCommitOffset(data.nextOffset || 0);
+                setProgress(null);
+              } else if (data.type === "error") {
+                throw new Error(data.message || "Analysis failed");
+              }
+            } catch (parseError) {
+              console.error("Failed to parse SSE data:", parseError);
+              // Continue processing other messages instead of failing completely
             }
           }
         }
@@ -139,11 +154,7 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
         {/* Breadcrumb Navigation */}
         <div className="mb-6">
           <Link href={`/dashboard/repo/${owner}/${repo}/branch/${branch}`}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 mb-4 backdrop-blur-md !bg-gradient-to-r !from-purple-600 !to-blue-600 !text-white hover:!text-white hover:!bg-gradient-to-r hover:!from-purple-600 hover:!to-blue-600 !border-none shadow-lg hover:shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300"
-            >
+            <Button variant="gradient" size="sm" className="gap-2 mb-4">
               <ArrowLeft className="w-4 h-4" />
               Back to Analysis
             </Button>
@@ -203,24 +214,30 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
         {/* Content Area */}
         {analysisState.status === "loading" && (
           <Card>
-            <CardContent className="py-12">
+            <CardContent className="p-12">
               <div className="flex flex-col items-center justify-center">
-                <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
-                <p className="text-gray-600">
+                <Loader2
+                  className="w-12 h-12 text-purple-600 animate-spin mb-4"
+                  aria-hidden="true"
+                />
+                <p
+                  className="text-gray-600 mb-4"
+                  role="status"
+                  aria-live="polite"
+                >
                   {progress?.message || "Loading advanced analysis..."}
                 </p>
                 {progress && (
-                  <>
-                    <div className="w-64 h-2 bg-gray-200 rounded-full mt-4">
-                      <div
-                        className="h-2 bg-purple-600 rounded-full transition-all duration-300"
-                        style={{ width: `${progress.percent}%` }}
-                      />
-                    </div>
-                    <p className="text-sm text-gray-500 mt-2">
-                      {progress.percent}%
-                    </p>
-                  </>
+                  <div className="w-64">
+                    <ProgressBar
+                      value={progress.percent}
+                      max={100}
+                      variant="solid"
+                      size="default"
+                      barStyle="solid"
+                      showLabel
+                    />
+                  </div>
                 )}
                 {!progress && (
                   <p className="text-sm text-gray-500 mt-2">
@@ -234,7 +251,7 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
 
         {analysisState.status === "error" && (
           <Card>
-            <CardContent className="py-12">
+            <CardContent className="p-12">
               <div className="text-center">
                 <div className="inline-block p-4 bg-red-100 rounded-full mb-4">
                   <svg
@@ -278,7 +295,7 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
                 <div className="space-y-6">
                   {/* Summary Statistics */}
                   <Card>
-                    <CardContent className="py-8">
+                    <CardContent className="p-8">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div className="text-center py-4">
                           <p className="text-sm text-gray-600 mb-2">
