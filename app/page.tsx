@@ -27,13 +27,13 @@ import {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-sky-50 to-teal-50 relative overflow-hidden">
       {/* Animated Background Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-64 h-64 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-6000"></div>
+        <div className="absolute top-20 left-10 w-64 h-64 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-64 h-64 bg-amber-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-64 h-64 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-sky-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-6000"></div>
       </div>
 
       {/* Navigation */}
@@ -92,7 +92,7 @@ export default function HomePage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300 hover-elevate"
+                  className="backdrop-blur-md bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300 hover-elevate"
                 >
                   <Github className="w-5 h-5" />
                   Get Started
@@ -101,7 +101,7 @@ export default function HomePage() {
               <a href="#how-it-works">
                 <Button
                   size="lg"
-                  className="backdrop-blur-md bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300 hover-elevate"
+                  className="backdrop-blur-md bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300 hover-elevate"
                 >
                   Explore Features →
                 </Button>
@@ -111,9 +111,9 @@ export default function HomePage() {
             {/* Trust Indicators */}
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2">
-                <div className="w-8 h-8 rounded-full bg-blue-500 border-2 border-white"></div>
-                <div className="w-8 h-8 rounded-full bg-green-500 border-2 border-white"></div>
                 <div className="w-8 h-8 rounded-full bg-orange-500 border-2 border-white"></div>
+                <div className="w-8 h-8 rounded-full bg-sky-500 border-2 border-white"></div>
+                <div className="w-8 h-8 rounded-full bg-teal-500 border-2 border-white"></div>
               </div>
               <div className="text-sm">
                 <div className="font-semibold text-gray-900">50k Downloads</div>
@@ -132,7 +132,7 @@ export default function HomePage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full shadow-lg"></div>
+                      <div className="w-10 h-10 bg-gradient-to-br from-orange-600 to-amber-600 rounded-full shadow-lg"></div>
                       <div>
                         <div className="text-sm font-semibold text-gray-900">
                           Repository Overview
@@ -142,7 +142,7 @@ export default function HomePage() {
                         </div>
                       </div>
                     </div>
-                    <div className="w-2 h-2 bg-green-500 rounded-full shadow-lg"></div>
+                    <div className="w-2 h-2 bg-teal-500 rounded-full shadow-lg"></div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -175,7 +175,7 @@ export default function HomePage() {
                         style={{ height: "70%" }}
                       ></div>
                       <div
-                        className="flex-1 bg-gradient-to-t from-purple-600 to-blue-600 rounded-sm shadow-lg"
+                        className="flex-1 bg-gradient-to-t from-orange-600 to-sky-500 rounded-sm shadow-lg"
                         style={{ height: "100%" }}
                       ></div>
                       <div
@@ -195,8 +195,8 @@ export default function HomePage() {
             {/* Floating Card */}
             <div className="absolute -bottom-6 -left-6 backdrop-blur-md bg-white/50 rounded-2xl shadow-xl p-4 border border-white/60">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6 text-teal-600" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-900">
@@ -235,7 +235,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+              <div className="w-8 h-8 bg-gradient-to-br from-orange-600 to-amber-600 rounded-lg flex items-center justify-center shadow-lg">
                 <Github className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">GitDash</span>
@@ -247,7 +247,7 @@ export default function HomePage() {
                   href="https://www.linkedin.com/in/krutin31"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 font-semibold text-gray-900 hover:text-blue-600 transition-colors duration-300"
+                  className="flex items-center gap-1 font-semibold text-gray-900 hover:text-sky-600 transition-colors duration-300"
                 >
                   <Linkedin className="w-4 h-4" />
                   Krutin Rathod
