@@ -414,9 +414,11 @@ ${
                 %
               </p>
               <p className="text-xs text-green-600">
-                {insights.totalAdditions > 0 && insights.totalDeletions / insights.totalAdditions > 0.5
+                {insights.totalAdditions > 0 &&
+                insights.totalDeletions / insights.totalAdditions > 0.5
                   ? "High churn"
-                  : insights.totalAdditions > 0 && insights.totalDeletions / insights.totalAdditions > 0.2
+                  : insights.totalAdditions > 0 &&
+                    insights.totalDeletions / insights.totalAdditions > 0.2
                   ? "Normal churn"
                   : "Low churn"}
               </p>
