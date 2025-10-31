@@ -405,18 +405,18 @@ ${
                 Code Churn Rate
               </p>
               <p className="text-2xl font-bold text-green-700 mb-1">
-                {metadata.totalCommits > 0
+                {insights.totalAdditions > 0
                   ? (
-                      (insights.totalDeletions / metadata.totalCommits) *
+                      (insights.totalDeletions / insights.totalAdditions) *
                       100
                     ).toFixed(0)
                   : 0}
                 %
               </p>
               <p className="text-xs text-green-600">
-                {insights.totalDeletions / metadata.totalCommits > 10
+                {insights.totalAdditions > 0 && insights.totalDeletions / insights.totalAdditions > 0.5
                   ? "High churn"
-                  : insights.totalDeletions / metadata.totalCommits > 5
+                  : insights.totalAdditions > 0 && insights.totalDeletions / insights.totalAdditions > 0.2
                   ? "Normal churn"
                   : "Low churn"}
               </p>
