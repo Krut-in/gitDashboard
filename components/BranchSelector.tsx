@@ -154,13 +154,13 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
       <div
         className={`flex items-center justify-between p-4 backdrop-blur-md border rounded-xl hover:shadow-lg transition-all cursor-pointer ${
           isMain
-            ? "bg-gradient-to-r from-purple-100/80 to-blue-100/80 border-purple-300/50 hover:from-purple-100 hover:to-blue-100"
+            ? "bg-gradient-to-r from-orange-100/80 to-sky-100/80 border-orange-300/50 hover:from-orange-100 hover:to-sky-100"
             : "bg-white/50 border-white/30 hover:bg-white/70"
         }`}
       >
         <div className="flex items-center gap-3">
           {isMain ? (
-            <Star className="w-5 h-5 text-purple-600 fill-purple-600" />
+            <Star className="w-5 h-5 text-orange-600 fill-orange-600" />
           ) : (
             <GitBranch className="w-5 h-5 text-gray-500" />
           )}
@@ -168,13 +168,13 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
             <div className="flex items-center gap-2">
               <p
                 className={`font-medium ${
-                  isMain ? "text-purple-900" : "text-gray-900"
+                  isMain ? "text-orange-900" : "text-gray-900"
                 }`}
               >
                 {branch.name}
               </p>
               {isMain && (
-                <span className="text-xs bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded-full">
+                <span className="text-xs bg-gradient-to-r from-orange-600 to-sky-600 text-white px-2 py-0.5 rounded-full">
                   Default
                 </span>
               )}
@@ -216,7 +216,7 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
             {mainBranch && (
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                  <Star className="w-4 h-4 text-purple-600" />
+                  <Star className="w-4 h-4 text-orange-600" />
                   Default Branch
                 </h3>
                 {renderBranchCard(mainBranch, true)}
@@ -280,7 +280,7 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
                                 size="sm"
                                 className={`min-w-[40px] ${
                                   currentPage === pageNum
-                                    ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
+                                    ? "backdrop-blur-md bg-gradient-to-r from-orange-600 to-orange-700"
                                     : "backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
                                 }`}
                               >

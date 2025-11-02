@@ -91,7 +91,7 @@ export function AnalysisLoader({ startTime }: AnalysisLoaderProps) {
 
         {/* Current Stage Message */}
         <div className="flex items-center justify-center gap-3 mb-6">
-          <CurrentIcon className="w-6 h-6 text-purple-600" />
+          <CurrentIcon className="w-6 h-6 text-orange-600" />
           <p className="text-lg font-medium text-gray-900">
             {STAGES[currentStage].message}
           </p>
@@ -99,9 +99,9 @@ export function AnalysisLoader({ startTime }: AnalysisLoaderProps) {
 
         {/* Progress Bar */}
         <div className="mb-4">
-          <div className="w-full bg-purple-100 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-orange-100 rounded-full h-3 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-500 ease-out rounded-full"
+              className="h-full bg-gradient-to-r from-orange-600 to-sky-600 transition-all duration-500 ease-out rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -123,7 +123,7 @@ export function AnalysisLoader({ startTime }: AnalysisLoaderProps) {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   index <= currentStage
-                    ? "bg-gradient-to-r from-purple-600 to-blue-600"
+                    ? "bg-gradient-to-r from-orange-600 to-sky-600"
                     : "bg-gray-300"
                 }`}
               >

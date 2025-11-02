@@ -119,7 +119,7 @@ export function GanttRow({
           return (
             <div
               key={index}
-              className="border-r border-gray-100 hover:ring-2 hover:ring-purple-400 transition-shadow cursor-pointer"
+              className="border-r border-gray-100 hover:ring-2 hover:ring-teal-400 transition-shadow cursor-pointer"
               style={{
                 width: `${cellWidth}px`,
                 height: `${cellHeight}px`,

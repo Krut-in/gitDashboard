@@ -110,24 +110,22 @@ function FeatureCard({ feature, cardKey }: FeatureCardProps) {
   // Map Tailwind color names to actual color values
   const getColorValue = (colorName: string): string => {
     const colorMap: Record<string, string> = {
-      "purple-500": "#a855f7",
-      "blue-500": "#3b82f6",
-      "pink-500": "#ec4899",
       "orange-500": "#f97316",
-      "green-500": "#22c55e",
+      "orange-600": "#ea580c",
+      "sky-500": "#0ea5e9",
+      "sky-600": "#0284c7",
+      "teal-400": "#2dd4bf",
       "teal-500": "#14b8a6",
-      "cyan-500": "#06b6d4",
-      "indigo-500": "#6366f1",
-      "green-400": "#4ade80",
-      "emerald-500": "#10b981",
-      "violet-500": "#8b5cf6",
-      "fuchsia-500": "#d946ef",
+      "teal-600": "#0d9488",
       "amber-500": "#f59e0b",
+      "cyan-500": "#06b6d4",
+      "emerald-500": "#10b981",
+      "blue-500": "#3b82f6",
+      "green-500": "#22c55e",
       "yellow-500": "#eab308",
       "red-500": "#ef4444",
-      "rose-500": "#f43f5e",
     };
-    return colorMap[colorName] || "#a855f7"; // Default to purple
+    return colorMap[colorName] || "#f97316"; // Default to orange
   };
 
   const gradientStyle = {

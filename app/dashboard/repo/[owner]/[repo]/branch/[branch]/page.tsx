@@ -181,12 +181,12 @@ export default function BranchPage({ params }: BranchPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
-      {/* Static Background Orbs - No Animation for Performance */}
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-sky-50 to-teal-50 relative overflow-hidden">
+      {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-48 h-48 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute top-40 right-10 w-48 h-48 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute top-20 left-10 w-48 h-48 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute top-40 right-10 w-48 h-48 bg-amber-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
@@ -261,7 +261,7 @@ export default function BranchPage({ params }: BranchPageProps) {
                             filterBots: e.target.checked,
                           })
                         }
-                        className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-2 focus:ring-ring"
+                        className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-2 focus:ring-ring"
                       />
                       <span className="text-sm font-medium text-gray-700">
                         Filter bot commits

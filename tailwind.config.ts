@@ -46,7 +46,7 @@ const config: Config = {
         'metric-commits': '#f97316', // orange-500
         'metric-additions': '#22c55e', // green-500
         'metric-deletions': '#ef4444', // red-500
-        'metric-net': '#ec4899', // pink-500
+        'metric-net': '#f59e0b', // amber-500
       },
       borderRadius: {
         lg: 'var(--radius)',

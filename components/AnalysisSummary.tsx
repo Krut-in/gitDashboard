@@ -288,14 +288,14 @@ ${
             </p>
           </div>
 
-          <div className="bg-purple-50 rounded-lg p-4">
+          <div className="bg-teal-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-5 h-5 text-purple-600" />
-              <h4 className="text-sm font-medium text-purple-900">
+              <Users className="w-5 h-5 text-teal-600" />
+              <h4 className="text-sm font-medium text-teal-900">
                 Contributors
               </h4>
             </div>
-            <p className="text-2xl font-bold text-purple-900">
+            <p className="text-2xl font-bold text-teal-900">
               {metadata.totalContributors}
             </p>
           </div>
@@ -368,7 +368,7 @@ ${
             Code Patterns
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 border border-blue-100">
+            <div className="bg-gradient-to-br from-sky-50 to-cyan-50 rounded-lg p-3 border border-sky-100">
               <p className="text-xs font-medium text-blue-900 mb-1">
                 Add/Remove Ratio
               </p>
@@ -384,14 +384,14 @@ ${
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-100">
-              <p className="text-xs font-medium text-purple-900 mb-1">
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-3 border border-amber-100">
+              <p className="text-xs font-medium text-amber-900 mb-1">
                 Avg Commits/Dev
               </p>
-              <p className="text-2xl font-bold text-purple-700 mb-1">
+              <p className="text-2xl font-bold text-orange-700 mb-1">
                 {insights.avgCommits}
               </p>
-              <p className="text-xs text-purple-600">
+              <p className="text-xs text-amber-600">
                 {insights.avgCommits > 50
                   ? "High activity"
                   : insights.avgCommits > 20

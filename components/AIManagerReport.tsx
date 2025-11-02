@@ -171,8 +171,8 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
-                <Sparkles className="w-6 h-6 text-white" />
+              <div className="p-2 backdrop-blur-md bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
                 <CardTitle className="text-2xl">
@@ -199,7 +199,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
             <Button
               onClick={fetchAIInsights}
               disabled={isLoading}
-              className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="gap-2 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
@@ -273,7 +273,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-600" />
+                <Sparkles className="w-5 h-5 text-amber-600" />
                 <CardTitle>AI Executive Summary</CardTitle>
               </div>
             </CardHeader>
@@ -482,7 +482,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purple-600" />
+                  <Sparkles className="w-5 h-5 text-amber-600" />
                   <CardTitle>Predictive Insights</CardTitle>
                 </div>
               </CardHeader>
@@ -490,7 +490,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                 <ul className="space-y-2">
                   {aiInsights.predictiveInsights.map((insight, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <TrendingUp className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <TrendingUp className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-gray-700">{insight}</span>
                     </li>
                   ))}

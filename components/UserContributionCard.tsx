@@ -128,7 +128,7 @@ export function UserContributionCard({
               <ContributionHeatmap
                 title="Net Lines"
                 dailyData={user.dailyNetLines}
-                colorScheme="pink"
+                colorScheme="amber"
                 firstCommitDate={lifetimeStats.firstCommit}
                 lastCommitDate={lifetimeStats.lastCommit}
               />

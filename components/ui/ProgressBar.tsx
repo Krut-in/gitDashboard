@@ -32,10 +32,10 @@ const progressBarVariants = cva(
   {
     variants: {
       barStyle: {
-        gradient: "bg-gradient-to-r from-purple-600 to-blue-600",
+        gradient: "bg-gradient-to-r from-orange-600 to-orange-700",
         solid: "bg-primary",
-        success: "bg-green-500",
-        warning: "bg-yellow-500",
+        success: "bg-teal-500",
+        warning: "bg-amber-500",
         danger: "bg-red-500",
       },
     },

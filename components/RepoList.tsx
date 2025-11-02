@@ -146,7 +146,7 @@ export function RepoList() {
                 placeholder="Search repositories..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 backdrop-blur-md bg-white/50 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder:text-gray-500 placeholder:font-medium"
+                className="w-full pl-10 pr-4 py-2 backdrop-blur-md bg-white/50 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-500 placeholder:font-medium"
                 aria-label="Search repositories"
               />
             </div>
@@ -161,7 +161,7 @@ export function RepoList() {
                 size="sm"
                 className={
                   filterPrivate === "all"
-                    ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
+                    ? "backdrop-blur-md bg-gradient-to-r from-orange-600 to-orange-700"
                     : "backdrop-blur-md bg-white/40 border-white/30"
                 }
                 aria-pressed={filterPrivate === "all"}
@@ -174,7 +174,7 @@ export function RepoList() {
                 size="sm"
                 className={
                   filterPrivate === "public"
-                    ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
+                    ? "backdrop-blur-md bg-gradient-to-r from-orange-600 to-orange-700"
                     : "backdrop-blur-md bg-white/40 border-white/30"
                 }
                 aria-pressed={filterPrivate === "public"}
@@ -187,7 +187,7 @@ export function RepoList() {
                 size="sm"
                 className={
                   filterPrivate === "private"
-                    ? "backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600"
+                    ? "backdrop-blur-md bg-gradient-to-r from-orange-600 to-orange-700"
                     : "backdrop-blur-md bg-white/40 border-white/30"
                 }
                 aria-pressed={filterPrivate === "private"}
@@ -252,7 +252,7 @@ export function RepoList() {
                           {repo.language && (
                             <span className="flex items-center gap-1">
                               <span
-                                className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"
+                                className="w-3 h-3 rounded-full bg-gradient-to-r from-orange-500 to-sky-500"
                                 aria-hidden="true"
                               ></span>
                               {repo.language}

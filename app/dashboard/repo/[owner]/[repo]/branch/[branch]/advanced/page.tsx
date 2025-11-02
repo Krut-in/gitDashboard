@@ -142,12 +142,12 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
-      {/* Static Background Orbs - Glassmorphism Effect */}
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-sky-50 to-teal-50 relative overflow-hidden">
+      {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-48 h-48 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute top-40 right-10 w-48 h-48 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute top-20 left-10 w-48 h-48 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute top-40 right-10 w-48 h-48 bg-amber-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
@@ -200,7 +200,7 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
                   onClick={() => setActiveTab(tab)}
                   className={`flex-1 px-6 py-3 font-medium capitalize transition-all duration-200 rounded-md cursor-pointer ${
                     activeTab === tab
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
+                      ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
                       : "text-gray-600 hover:text-gray-900 hover:bg-white/60"
                   }`}
                 >
@@ -217,7 +217,7 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
             <CardContent className="p-12">
               <div className="flex flex-col items-center justify-center">
                 <Loader2
-                  className="w-12 h-12 text-purple-600 animate-spin mb-4"
+                  className="w-12 h-12 text-orange-600 animate-spin mb-4"
                   aria-hidden="true"
                 />
                 <p

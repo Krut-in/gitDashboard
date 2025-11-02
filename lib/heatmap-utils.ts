@@ -87,18 +87,18 @@ export function getHeatmapIntensity(value: number, maxValue: number): number {
  * Get color class for heatmap intensity
  * 
  * @param intensity - Intensity level (0-4)
- * @param colorScheme - Color scheme name (green, orange, red, pink)
+ * @param colorScheme - Color scheme name (green, orange, red, amber)
  * @returns Tailwind CSS class name
  */
 export function getHeatmapColorClass(
   intensity: number,
-  colorScheme: "green" | "orange" | "red" | "pink"
+  colorScheme: "green" | "orange" | "red" | "amber"
 ): string {
   const schemes = {
     green: ["bg-gray-100", "bg-green-200", "bg-green-400", "bg-green-600", "bg-green-800"],
     orange: ["bg-gray-100", "bg-orange-200", "bg-orange-400", "bg-orange-600", "bg-orange-800"],
     red: ["bg-gray-100", "bg-red-200", "bg-red-400", "bg-red-600", "bg-red-800"],
-    pink: ["bg-gray-100", "bg-pink-200", "bg-pink-400", "bg-pink-600", "bg-pink-800"],
+    amber: ["bg-gray-100", "bg-amber-200", "bg-amber-400", "bg-amber-600", "bg-amber-800"],
   };
   
   return schemes[colorScheme][intensity] || schemes[colorScheme][0];

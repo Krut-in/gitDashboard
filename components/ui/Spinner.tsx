@@ -31,10 +31,10 @@ export function Spinner({
       aria-label="Loading"
     >
       <div
-        className={`${sizeClasses[size]} border-purple-200 border-t-purple-600 rounded-full animate-spin`}
+        className={`${sizeClasses[size]} border-orange-200 border-t-orange-600 rounded-full animate-spin`}
         style={{
-          borderRightColor: "rgb(147 51 234)",
-          borderBottomColor: "rgb(59 130 246)",
+          borderRightColor: "rgb(234 88 12)",
+          borderBottomColor: "rgb(14 165 233)",
         }}
       />
     </div>

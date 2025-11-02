@@ -19,16 +19,13 @@ export const metadata = {
 
 export default function RepositoriesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
-      {/* Static Background Orbs - Optimized for Performance */}
-      <div
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        aria-hidden="true"
-        role="presentation"
-      >
-        <div className="absolute top-20 left-10 w-48 h-48 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 will-change-transform"></div>
-        <div className="absolute top-40 right-10 w-48 h-48 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 will-change-transform"></div>
-        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 will-change-transform"></div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-sky-50 to-teal-50 relative overflow-hidden">
+      {/* Animated background orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Decorative background orbs for visual appeal */}
+        <div className="absolute top-20 left-10 w-48 h-48 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 will-change-transform"></div>
+        <div className="absolute top-40 right-10 w-48 h-48 bg-amber-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 will-change-transform"></div>
+        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 will-change-transform"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">

@@ -90,8 +90,8 @@ export function CommitMessageAnalysisCard({
     <Card className="border-2">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <div className="p-2 backdrop-blur-md bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg">
-            <MessageSquare className="w-6 h-6 text-white" />
+          <div className="p-2 backdrop-blur-md bg-gradient-to-r from-sky-600 to-teal-600 rounded-lg">
+            <MessageSquare className="w-5 h-5 text-white" />
           </div>
           <div>
             <CardTitle className="text-xl">
@@ -121,9 +121,9 @@ export function CommitMessageAnalysisCard({
             </div>
           </div>
 
-          <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+          <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-100 rounded-lg border border-amber-200">
             <div className="text-sm text-gray-600 mb-1">Conventional</div>
-            <div className="text-2xl font-bold text-purple-900">
+            <div className="text-2xl font-bold text-orange-900">
               {statistics.conventionalCommitPercentage}%
             </div>
           </div>
@@ -139,7 +139,7 @@ export function CommitMessageAnalysisCard({
         {/* Length Distribution */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-indigo-600" />
+            <TrendingUp className="w-5 h-5 text-sky-600" />
             <h3 className="text-lg font-semibold">Length Distribution</h3>
           </div>
 
@@ -210,7 +210,7 @@ export function CommitMessageAnalysisCard({
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div
-                  className="bg-gradient-to-r from-purple-400 to-purple-500 h-2.5 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-orange-400 to-amber-500 h-2.5 rounded-full transition-all duration-500"
                   style={{ width: `${lengthPercentages.verbose}%` }}
                 />
               </div>
@@ -249,7 +249,7 @@ export function CommitMessageAnalysisCard({
                             ? "bg-blue-500"
                             : type === "other"
                             ? "bg-gray-400"
-                            : "bg-purple-500"
+                            : "bg-amber-500"
                         }`}
                       />
                       <span className="font-medium text-gray-900">
@@ -272,7 +272,7 @@ export function CommitMessageAnalysisCard({
         {/* Contributor Writing Styles */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-600" />
+            <Users className="w-5 h-5 text-sky-600" />
             <h3 className="text-lg font-semibold">
               Contributor Writing Styles
             </h3>
@@ -281,8 +281,8 @@ export function CommitMessageAnalysisCard({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Verbose Writers */}
             {userCategories.verbose.length > 0 && (
-              <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                <h4 className="font-semibold text-purple-900 mb-2">
+              <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                <h4 className="font-semibold text-amber-900 mb-2">
                   Verbose ({userCategories.verbose.length})
                 </h4>
                 <div className="space-y-2">
@@ -453,9 +453,9 @@ export function CommitMessageAnalysisCard({
         )}
 
         {/* Key Insights */}
-        <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+        <div className="p-4 bg-gradient-to-r from-sky-50 to-teal-50 rounded-lg border border-sky-200">
           <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-indigo-600 mt-0.5" />
+            <Info className="w-5 h-5 text-sky-600 mt-0.5" />
             <div>
               <h4 className="font-semibold text-gray-900 mb-2">Key Insights</h4>
               <ul className="space-y-1 text-sm text-gray-700">

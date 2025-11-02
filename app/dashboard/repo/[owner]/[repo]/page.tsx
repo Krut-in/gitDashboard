@@ -23,12 +23,12 @@ export default function RepoPage({ params }: RepoPageProps) {
   const { owner, repo } = params;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-sky-50 to-teal-50 relative overflow-hidden">
       {/* Static Background Orbs - No Animation for Performance */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-48 h-48 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute top-40 right-10 w-48 h-48 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute top-20 left-10 w-48 h-48 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute top-40 right-10 w-48 h-48 bg-amber-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
@@ -37,7 +37,7 @@ export default function RepoPage({ params }: RepoPageProps) {
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 mb-4 backdrop-blur-md !bg-gradient-to-r !from-purple-600 !to-blue-600 !text-white hover:!text-white hover:!bg-gradient-to-r hover:!from-purple-600 hover:!to-blue-600 !border-none shadow-lg hover:shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300"
+              className="gap-2 mb-4 backdrop-blur-md !bg-gradient-to-r !from-orange-600 !to-orange-700 !text-white hover:!text-white hover:!bg-gradient-to-r hover:!from-orange-700 hover:!to-orange-800 !border-none shadow-lg hover:shadow-orange-500/50 hover:scale-[1.02] transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Repositories

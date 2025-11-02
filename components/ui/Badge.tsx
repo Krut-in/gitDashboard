@@ -16,10 +16,10 @@ const badgeVariants = cva(
         default:
           "backdrop-blur-md bg-white/60 border border-white/30 text-gray-900",
         primary:
-          "bg-gradient-to-r from-purple-600 to-blue-600 text-white border-none",
+          "bg-gradient-to-r from-orange-600 to-orange-700 text-white border-none",
         secondary: "bg-secondary text-secondary-foreground border border-input",
-        success: "bg-green-100 text-green-800 border border-green-200",
-        warning: "bg-yellow-100 text-yellow-800 border border-yellow-200",
+        success: "bg-teal-100 text-teal-800 border border-teal-200",
+        warning: "bg-amber-100 text-amber-800 border border-amber-200",
         danger: "bg-red-100 text-red-800 border border-red-200",
         outline: "border border-input text-gray-700 hover:bg-accent",
         code: "backdrop-blur-md bg-white/40 border border-white/30 text-gray-900 font-mono",

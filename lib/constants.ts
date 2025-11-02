@@ -35,12 +35,12 @@ export const METRIC_COLORS = {
     rgba: (alpha: number) => `rgba(239, 68, 68, ${alpha})`,
   },
   netLines: {
-    primary: 'pink-500',
-    light: 'pink-100',
-    dark: 'pink-700',
-    hex: '#ec4899',
-    rgb: 'rgb(236, 72, 153)',
-    rgba: (alpha: number) => `rgba(236, 72, 153, ${alpha})`,
+    primary: 'amber-500',
+    light: 'amber-100',
+    dark: 'amber-700',
+    hex: '#f59e0b',
+    rgb: 'rgb(245, 158, 11)',
+    rgba: (alpha: number) => `rgba(245, 158, 11, ${alpha})`,
   },
 } as const;
 
