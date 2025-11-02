@@ -1,492 +1,126 @@
 # GitHub Contribution Dashboard
 
-A production-ready Next.js application for comprehensive GitHub contribution analysis. Track contributors, visualize activity patterns, export data, and generate manager-ready reports for any repository branch.
+Fast, reliable GitHub contribution insights without spreadsheets or manual triage. This Next.js app unifies GitHub API data with local git analysis to surface who owns what, when teams ship, and where the codebase is trending. Get clear visuals for activity and ownership, plus an optional AI Manager Report that turns raw metrics into concise, action-oriented summaries.
 
-## ✨ Features
+## Why this exists (pain points)
 
-### Authentication & Security
+- GitHub’s UI and CLI scatter commit info across pages and commands—great for details, hard for trends.
+- Attributing ownership is noisy: merge commits, squashed histories, and email aliases skew the story.
+- Managers need a narrative (“what changed, who’s stuck, where to improve”) without hand-built reports.
 
-- ✅ Secure GitHub OAuth authentication via Auth.js v5
-- ✅ Protected routes with middleware
-- ✅ JWT-based session management
-- ✅ Automatic token refresh
+## Our approach
 
-### Repository Analysis
+- Combine GitHub data with local git modes for accuracy and speed.
+- Aggregate activity into timelines and heatmaps to reveal patterns at a glance.
+- Provide an optional AI Manager Report for narrative recommendations and risks.
+- Stream progress for large repos and handle rate limits gracefully with caching and backoffs.
 
-- ✅ List all accessible repositories (public & private)
-- ✅ Search and filter repositories by name, visibility, and language
-- ✅ View all branches for selected repository
-- ✅ **Main branch pinned at top** with quick access
-- ✅ **Paginated branch list** (10 branches per page)
-- ✅ Protected branch indicators
-- ✅ Smart branch sorting (main/master first, then alphabetical)
+## Key features
 
-### Contribution Analytics
+- GitHub OAuth (NextAuth) and secure token handling
+  - `lib/auth.ts`, `app/api/auth/[...nextauth]/route.ts`
+- Analysis modes via API (`app/api/github/analyze/route.ts`):
+  - blame: line-level ownership via `lib/git/blame.ts`
+  - commits: activity via `lib/git/commits.ts`
+  - github-api: metadata via `lib/github-api-commits.ts`
+  - hybrid: combine sources for completeness
+  - legacy commit analysis: `lib/analysis.ts`
+- Advanced analysis (non-stream and stream):
+  - `app/api/github/analyze/advanced/route.ts`
+  - `app/api/github/analyze/advanced/stream/route.ts` (SSE + progress updates)
+- AI Manager Report (OpenAI) with caching and graceful fallbacks
+  - `app/api/ai/manager-report/route.ts`, `lib/openai.ts`
+- Exports: CSV/text for contributors, messages, times, and files
+- Robust error handling and rate-limit checks in `lib/github.ts` with shared constants
 
-- ✅ **Comprehensive Contributor Metrics**:
-  - Commit counts and commit dates
-  - Lines added, deleted, and net changes
-  - Active days and contribution periods
-  - Merge commit tracking
-  - Bot filtering capability
-- ✅ **Smart Deduplication**:
+## Visualizations (what you see)
 
-  - GitHub ID-based matching
-  - Email-based matching (with normalization)
-  - Name-based fallback
-  - Handles noreply emails correctly
+Components live under `components/charts/`:
 
-- ✅ **Date Range Filtering**:
-  - Analyze specific time periods
-  - Automatic date range detection
-  - First and last commit tracking
+- Commits timeline (`CommitsTimeline.tsx`), Lines changed timeline (`LinesChangedTimeline.tsx`)
+- Net lines bar (`NetLinesBar.tsx`), Add/remove stacked (`AddRemoveStacked.tsx`)
+- Activity and contribution heatmaps (`ActivityHeatmap.tsx`, `ContributionHeatmap.tsx`)
+- Contribution Gantt (`ContributionGantt.tsx` + `GanttRow.tsx`, `GanttTooltip.tsx`)
+- User weekly bar (`UserWeeklyBarChart.tsx`)
+- Metric toggle and timeline selector (`MetricToggle.tsx`, `TimelineSelector.tsx`)
 
-### Visualizations
+Repository and branch dashboards are in `app/dashboard/repo/[owner]/[repo]` and `.../branch/[branch]` with an advanced view for deeper dives.
 
-- ✅ **Net Lines Bar Chart**: Top contributors by code impact
-- ✅ **Add/Remove Stacked Chart**: Addition vs deletion patterns
-- ✅ **Commits Over Time**: Activity timeline
-- ✅ **Activity Heatmap**: Weekly patterns and hourly distribution
-- ✅ Interactive sortable contributor table
-- ✅ Inactive contributor highlighting (>30 days)
+## How it works (architecture)
 
-### Reports & Exports
+- Auth: GitHub OAuth → JWT session with encrypted access token → client session (`lib/auth.ts`).
+- Data pipeline: fetch commits (Octokit + `lib/github-api-commits.ts`) → convert (`lib/commit-converter.ts`) → analyze (`lib/analysis.ts`).
+- Advanced paths: extract timeline (`lib/git/timeline.ts`), user metrics (`lib/git/user-metrics.ts`), insights (`lib/insights.ts`), and commit message analysis (`lib/commit-message-analysis.ts`).
+- Real-time: SSE endpoints stream progress and partial results from `app/api/github/analyze/advanced/stream/route.ts`.
+- AI: `POST` analysis payload → OpenAI via `lib/openai.ts` → structured JSON narrative with caching and safe fallbacks.
 
-- ✅ **Manager-Readable Summary**:
-  - Executive overview with key metrics
-  - Top contributor highlights
-  - Inactive developer alerts
-  - Code pattern analysis
-  - Actionable recommendations
-- ✅ **CSV Exports**:
+## Getting started
 
-  - Contributors with full statistics
-  - Commit times and dates
-  - Downloadable for Excel/Sheets
+Prereqs
+- Node 18+
+- GitHub OAuth App (Client ID/Secret)
+- Optional: OpenAI API key for AI Manager Report
 
-- ✅ **Markdown Export**:
-  - Complete analysis report
-  - Ready for documentation/sharing
-
-### User Experience
-
-- ✅ Modern, responsive UI with Tailwind CSS
-- ✅ Real-time loading states and progress indicators
-- ✅ Error handling with user-friendly messages
-- ✅ Breadcrumb navigation
-- ✅ Mobile-friendly design
-
-### Developer Experience
-
-- ✅ TypeScript with strict mode
-- ✅ Comprehensive unit tests (Jest)
-- ✅ Zod schema validation
-- ✅ ESLint and code quality checks
-- ✅ Modular architecture
-- ✅ Extensive inline documentation
-
-## 🛠 Tech Stack
-
-| Category           | Technology                 |
-| ------------------ | -------------------------- |
-| **Framework**      | Next.js 14 (App Router)    |
-| **Language**       | TypeScript (strict mode)   |
-| **Authentication** | Auth.js v5 (NextAuth)      |
-| **Styling**        | Tailwind CSS               |
-| **GitHub API**     | Octokit REST API v20       |
-| **Validation**     | Zod v3.22                  |
-| **Testing**        | Jest + ts-jest             |
-| **Charts**         | Chart.js + react-chartjs-2 |
-| **Icons**          | Lucide React               |
-| **Date Utils**     | date-fns                   |
-
-## 📋 Prerequisites
-
-- Node.js 18+ or 20+
-- npm, yarn, or pnpm
-- GitHub account
-- GitHub OAuth App credentials
-
-## 🚀 Setup Instructions
-
-### 1. Create a GitHub OAuth App
-
-1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
-2. Click "New OAuth App"
-3. Fill in the application details:
-   - **Application name**: GitHub Contribution Dashboard
-   - **Homepage URL**: `http://localhost:3000`
-   - **Authorization callback URL**: `http://localhost:3000/api/auth/callback/github`
-4. Click "Register application"
-5. Note down your **Client ID**
-6. Generate a new **Client Secret** and note it down
-
-### 2. Install Dependencies
-
-```bash
-cd gitDashboard
-npm install
-```
-
-### 3. Configure Environment Variables
-
-Create `.env.local`:
-
-```bash
-cp .env.example .env.local
-```
-
-Add your credentials to `.env.local`:
+Environment variables (`.env.local`)
 
 ```env
-GITHUB_CLIENT_ID=your_github_client_id_here
-GITHUB_CLIENT_SECRET=your_github_client_secret_here
-NEXTAUTH_SECRET=your_random_secret_here
-NEXTAUTH_URL=http://localhost:3000
+GITHUB_CLIENT_ID=your_github_oauth_app_client_id
+GITHUB_CLIENT_SECRET=your_github_oauth_app_secret
+AUTH_SECRET=your_random_secret_string
+# Optional for AI Manager Report
+OPENAI_API_KEY=your_openai_key
 ```
 
-Generate `NEXTAUTH_SECRET`:
+Install and run
 
 ```bash
-openssl rand -base64 32
-```
-
-### 4. Run Development Server
-
-```bash
+npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Then sign in with GitHub and open the dashboard at `/dashboard/analyze`.
 
-### 5. Run Tests
+## Usage walkthrough
 
-```bash
-npm test
-```
+1) Pick repository/branch
+- Use the repositories page to select a repo (`app/dashboard/repositories/page.tsx`) and branch picker (`components/BranchSelector.tsx`).
 
-### 6. Build for Production
+2) Run analysis and watch progress
+- Kick off via the dashboard; large repos stream progress via SSE. You’ll see steps and partial metrics in real time.
 
-```bash
-npm run build
-npm run start
-```
+3) Explore visuals and toggle perspectives
+- Switch metrics (lines, net, commits), select time ranges, and use the timeline selector to focus on windows that matter.
 
-## 📁 Project Structure
+4) Generate the AI Manager Report (optional)
+- Sends summarized analysis to OpenAI and returns an action-oriented narrative with risks and recommendations. Works only when `OPENAI_API_KEY` is configured; otherwise a graceful fallback message is shown.
 
-```
-gitDashboard/
-├── app/
-│   ├── (auth)/
-│   │   └── sign-in/              # Sign-in page
-│   ├── api/
-│   │   ├── auth/[...nextauth]/   # Auth.js routes
-│   │   └── github/
-│   │       ├── repos/            # Repository list API
-│   │       ├── branches/         # Branch list API
-│   │       └── analyze/          # Analysis API & SSE
-│   ├── dashboard/
-│   │   ├── repositories/         # Repo selection page
-│   │   └── repo/[owner]/[repo]/
-│   │       ├── page.tsx          # Branch selection
-│   │       └── branch/[branch]/  # Analysis results
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx                  # Landing page
-├── components/
-│   ├── ui/                       # Reusable UI (Button, Card, Spinner)
-│   ├── charts/                   # Chart components
-│   │   ├── NetLinesBar.tsx
-│   │   ├── AddRemoveStacked.tsx
-│   │   ├── CommitsOverTime.tsx
-│   │   └── ActivityHeatmap.tsx
-│   ├── RepoList.tsx              # Repository selector
-│   ├── BranchSelector.tsx        # Branch selector
-│   ├── ContributorsTable.tsx     # Sortable table
-│   ├── ProgressPanel.tsx         # SSE progress display
-│   ├── AnalysisSummary.tsx       # Manager report
-│   └── NavBar.tsx
-├── lib/
-│   ├── auth.ts                   # Auth.js config
-│   ├── github.ts                 # GitHub API client
-│   ├── analysis.ts               # Core analysis engine
-│   ├── date.ts                   # Date utilities
-│   ├── format.ts                 # Display formatting
-│   ├── progress.ts               # SSE emitter
-│   ├── types.ts                  # TypeScript types
-│   ├── errors.ts                 # Error handling
-│   └── safe-fetch.ts             # Fetch wrapper
-├── __tests__/                    # Jest unit tests
-├── middleware.ts                 # Route protection
-├── next.config.mjs
-├── tailwind.config.ts
-├── tsconfig.json
-└── package.json
-```
+5) Export
+- Download CSV/text for contributors, commit messages/times, and impacted files.
 
-## 🔧 API Documentation
+## Notes and limits
 
-### Authentication
+- Rate limits: The GitHub API is respected, with proactive checks and backoff. Large repos may take longer; streaming keeps the UI responsive.
+- Local git modes: Some modes use local repos and require a `repoPath` to be available to the server runtime.
+- Privacy: OAuth tokens are session-scoped (JWT) and used only for your requests. AI is fully optional and off by default.
+- Accuracy: Blame-based ownership avoids merge-commit inflation and honors `.mailmap` and blame-ignore configs where applicable.
 
-All API routes require authentication. Requests must include valid session cookies from Auth.js.
+## Roadmap and extensibility
 
-### GET `/api/github/repos`
+- Add PR/Issues metrics and cross-link activity to review throughput.
+- Persist results and cache for faster re-runs (self-hosted DB/Redis).
+- Enrich AI insights with trend detection and goal tracking.
+- More charts and team-rollup views; per-directory ownership breakdowns.
 
-List accessible repositories for authenticated user.
+## Scripts and project hints
 
-**Query Parameters:**
+- Dev: `npm run dev`
+- Type-check: `npm run type-check`
+- Lint: `npm run lint`
+- Test: `npm test` (see `__tests__/` for examples like `analysis.test.ts`, `date.test.ts`)
 
-- `page` (optional): Page number (default: 1)
-- `per_page` (optional): Results per page (default: 30, max: 100)
-- `visibility` (optional): `all`, `public`, or `private`
+## License
 
-**Response:**
-
-```json
-[
-  {
-    "id": 123456,
-    "name": "my-repo",
-    "full_name": "username/my-repo",
-    "owner": { "login": "username" },
-    "private": false,
-    "description": "Project description",
-    "language": "TypeScript",
-    "stargazers_count": 42,
-    "forks_count": 7,
-    "updated_at": "2024-01-15T10:30:00Z",
-    "html_url": "https://github.com/username/my-repo"
-  }
-]
-```
-
-### GET `/api/github/branches`
-
-List branches for a repository.
-
-**Query Parameters:**
-
-- `owner` (required): Repository owner
-- `repo` (required): Repository name
-- `page` (optional): Page number
-- `per_page` (optional): Results per page
-
-**Response:**
-
-```json
-[
-  {
-    "name": "main",
-    "commit": {
-      "sha": "abc123...",
-      "url": "https://..."
-    },
-    "protected": true
-  }
-]
-```
-
-### POST `/api/github/analyze`
-
-Run contribution analysis for a branch.
-
-**Request Body:**
-
-```json
-{
-  "owner": "username",
-  "repo": "my-repo",
-  "branch": "main",
-  "since": "2024-01-01", // Optional
-  "until": "2024-12-31", // Optional
-  "filterBots": true // Optional (default: true)
-}
-```
-
-**Response:**
-
-```json
-{
-  "contributors": [
-    {
-      "name": "John Doe",
-      "email": "john@example.com",
-      "githubLogin": "johndoe",
-      "githubId": 123456,
-      "avatarUrl": "https://...",
-      "commitCount": 150,
-      "additions": 5000,
-      "deletions": 1200,
-      "netLines": 3800,
-      "firstCommitDate": "2024-01-05T...",
-      "lastCommitDate": "2024-12-20T...",
-      "activeDays": 85,
-      "isMergeCommitter": false
-    }
-  ],
-  "commitMessages": [...],
-  "commitTimes": [
-    {
-      "date": "2024-01-15T10:30:00Z",
-      "timestamp": 1705318200000,
-      "author": "John Doe"
-    }
-  ],
-  "metadata": {
-    "totalCommits": 500,
-    "analyzedCommits": 485,
-    "totalContributors": 12,
-    "dateRange": {
-      "start": "2024-01-01T...",
-      "end": "2024-12-31T..."
-    }
-  },
-  "exports": {
-    "contributorsCSV": "name,email,...",
-    "commitTimesText": "...",
-    ...
-  },
-  "warnings": []
-}
-```
-
-## 📊 Usage Guide
-
-### 1. Sign In
-
-Click "Sign in with GitHub" on the homepage.
-
-### 2. Select Repository
-
-Browse or search for a repository in the dashboard.
-
-### 3. Choose Branch
-
-Select the branch you want to analyze.
-
-### 4. Configure Analysis (Optional)
-
-- Set date range (since/until)
-- Toggle bot filtering
-
-### 5. Run Analysis
-
-Click "Start Analysis" and wait for results.
-
-### 6. View Results
-
-- Charts: Visual patterns and trends
-- Table: Sortable contributor statistics
-- Summary: Manager-ready report
-
-### 7. Export Data
-
-- Download Contributors CSV
-- Download Commits CSV
-- Download Summary Markdown
-
-## ⚠️ Known Limitations
-
-### GitHub API Rate Limits
-
-- **Authenticated**: 5,000 requests/hour
-- **Unauthenticated**: 60 requests/hour
-- Large repositories (>1000 commits) may take time
-- The app checks rate limits before analysis
-
-### Performance Considerations
-
-- Analysis time scales with commit count
-- **Extended timeout (10 minutes)** for large repositories
-- Repos with >10,000 commits may still timeout - use date filters
-- Consider using date range filters for large repos
-- Pagination is automatic but affects performance
-- Branch pagination (10 per page) improves load times
-
-### Data Accuracy
-
-- Bot detection is heuristic-based (may have false positives/negatives)
-- Contribution stats depend on commit metadata accuracy
-- Squash merges may affect individual contribution tracking
-- Private emails (`noreply@github.com`) are handled but limit deduplication
-
-### Technical Limitations
-
-- No real-time collaboration (single-user sessions)
-- No database (all analysis is on-demand)
-- CSV exports are limited to browser memory
-- Server-side rendering requires auth cookies
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. Push code to GitHub
-2. Import project in [Vercel](https://vercel.com)
-3. Add environment variables:
-   - `GITHUB_CLIENT_ID`
-   - `GITHUB_CLIENT_SECRET`
-   - `NEXTAUTH_SECRET`
-   - `NEXTAUTH_URL` (your production URL)
-4. Update GitHub OAuth App callback URL to production URL
-5. Deploy
-
-**Note**: Vercel Edge Runtime has limitations. SSE routes may need serverless functions.
-
-### Docker
-
-```dockerfile
-# Dockerfile example
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
-```bash
-docker build -t github-dashboard .
-docker run -p 3000:3000 --env-file .env.local github-dashboard
-```
-
-### Other Platforms
-
-- **Netlify**: Use Next.js adapter
-- **AWS**: Amplify or ECS
-- **Self-hosted**: PM2 + nginx reverse proxy
-
-## 🧪 Testing
-
-Run unit tests:
-
-```bash
-npm test
-```
-
-Run with coverage:
-
-```bash
-npm run test:coverage
-```
-
-Test files are in `__tests__/`:
-
-- `date.test.ts`: Date parsing and formatting
-- `analysis.test.ts`: Deduplication and aggregation logic
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Run `npm run build` to verify
-6. Submit a pull request
-
-## 📄 License
+MIT — see LICENSE.
 
 MIT License - see LICENSE file for details.
 

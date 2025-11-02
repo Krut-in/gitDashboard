@@ -1,0 +1,385 @@
+/**
+ * Insights Extraction from Commit Data
+ * 
+ * @module insights
+ * @description Analyzes commit data to extract actionable insights for engineering managers:
+ * - Temporal patterns (peak activity times, quiet periods)
+ * - Collaboration patterns (team dynamics, file ownership)
+ * - Language patterns (technology stack, most edited files)
+ * - Work patterns (weekday vs weekend, morning vs evening)
+ * - Commit patterns (conventional commit types, message lengths)
+ * 
+ * @performance
+ * - extractInsights: O(n*m) where n = commits, m = files per commit
+ * - extractBasicInsights: O(n) where n = user timeline entries
+ * 
+ * @usage
+ * Use extractInsights() when you have detailed commit data (includes language analysis)
+ * Use extractBasicInsights() for quick analysis without commit details (no language data)
+ * 
+ * @author GitHub Contribution Dashboard Team
+ * @since 1.0.0
+ */
+
+import type { Insights, UserTimelineData } from "./types";
+import { analyzeLanguageDistribution, getLanguageFromFilename } from "./language-detection";
+
+interface CommitDetails {
+  sha: string;
+  author: string;
+  date: string;
+  message: string;
+  additions: number;
+  deletions: number;
+  files: string[];
+}
+
+/**
+ * Extract day of week from ISO date string
+ */
+function getDayOfWeek(dateStr: string): number {
+  return new Date(dateStr).getDay();
+}
+
+/**
+ * Extract hour from ISO date string
+ */
+function getHour(dateStr: string): number {
+  return new Date(dateStr).getHours();
+}
+
+/**
+ * Check if date is weekend
+ */
+function isWeekend(dateStr: string): boolean {
+  const day = getDayOfWeek(dateStr);
+  return day === 0 || day === 6;
+}
+
+/**
+ * Parse commit type from conventional commit message
+ */
+function parseCommitType(message: string): string {
+  const match = message.match(/^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?:/i);
+  return match ? match[1].toLowerCase() : 'other';
+}
+
+/**
+ * Find most active day based on commit count
+ */
+function findMostActiveDay(users: UserTimelineData[]): { day: string; commits: number } {
+  const dayCount = new Map<string, number>();
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  for (const user of users) {
+    for (const metric of user.dailyMetrics) {
+      const dayOfWeek = getDayOfWeek(metric.date);
+      const dayName = dayNames[dayOfWeek];
+      dayCount.set(dayName, (dayCount.get(dayName) || 0) + metric.commits);
+    }
+  }
+
+  let mostActiveDay = 'Monday';
+  let maxCommits = 0;
+
+  for (const [day, commits] of Array.from(dayCount.entries())) {
+    if (commits > maxCommits) {
+      maxCommits = commits;
+      mostActiveDay = day;
+    }
+  }
+
+  return { day: mostActiveDay, commits: maxCommits };
+}
+
+/**
+ * Find most active hour based on commit timestamps
+ */
+function findMostActiveHour(commits: CommitDetails[]): { hour: number; commits: number } {
+  const hourCount = new Map<number, number>();
+
+  for (const commit of commits) {
+    const hour = getHour(commit.date);
+    hourCount.set(hour, (hourCount.get(hour) || 0) + 1);
+  }
+
+  let mostActiveHour = 9;
+  let maxCommits = 0;
+
+  for (const [hour, commits] of Array.from(hourCount.entries())) {
+    if (commits > maxCommits) {
+      maxCommits = commits;
+      mostActiveHour = hour;
+    }
+  }
+
+  return { hour: mostActiveHour, commits: maxCommits };
+}
+
+/**
+ * Find quietest period (longest gap without commits)
+ */
+function findQuietestPeriod(users: UserTimelineData[]): { start: string; end: string } | null {
+  const allDates: string[] = [];
+
+  for (const user of users) {
+    for (const metric of user.dailyMetrics) {
+      allDates.push(metric.date);
+    }
+  }
+
+  if (allDates.length === 0) return null;
+
+  const uniqueDates = Array.from(new Set(allDates)).sort();
+  
+  let maxGapStart = '';
+  let maxGapEnd = '';
+  let maxGapDays = 0;
+
+  for (let i = 0; i < uniqueDates.length - 1; i++) {
+    const current = new Date(uniqueDates[i]);
+    const next = new Date(uniqueDates[i + 1]);
+    const gapDays = Math.floor((next.getTime() - current.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (gapDays > maxGapDays) {
+      maxGapDays = gapDays;
+      maxGapStart = uniqueDates[i];
+      maxGapEnd = uniqueDates[i + 1];
+    }
+  }
+
+  if (maxGapDays <= 1) return null;
+
+  return { start: maxGapStart, end: maxGapEnd };
+}
+
+/**
+ * Find solo contributors (users who don't share files with others)
+ */
+function findSoloContributors(
+  users: UserTimelineData[],
+  fileContributors: Map<string, Set<string>>
+): string[] {
+  const soloContributors: string[] = [];
+
+  for (const user of users) {
+    let hasSharedFiles = false;
+
+    for (const contributors of Array.from(fileContributors.values())) {
+      if (contributors.has(user.userName) && contributors.size > 1) {
+        hasSharedFiles = true;
+        break;
+      }
+    }
+
+    if (!hasSharedFiles && user.totalCommits > 0) {
+      soloContributors.push(user.userName);
+    }
+  }
+
+  return soloContributors;
+}
+
+/**
+ * Calculate weekday vs weekend commit distribution
+ */
+function calculateWeekdayVsWeekend(users: UserTimelineData[]): { weekday: number; weekend: number } {
+  let weekdayCommits = 0;
+  let weekendCommits = 0;
+
+  for (const user of users) {
+    for (const metric of user.dailyMetrics) {
+      if (isWeekend(metric.date)) {
+        weekendCommits += metric.commits;
+      } else {
+        weekdayCommits += metric.commits;
+      }
+    }
+  }
+
+  return { weekday: weekdayCommits, weekend: weekendCommits };
+}
+
+/**
+ * Calculate morning vs evening commit distribution
+ */
+function calculateMorningVsEvening(commits: CommitDetails[]): { morning: number; evening: number } {
+  let morningCommits = 0;
+  let eveningCommits = 0;
+
+  for (const commit of commits) {
+    const hour = getHour(commit.date);
+    if (hour >= 6 && hour < 18) {
+      morningCommits++;
+    } else {
+      eveningCommits++;
+    }
+  }
+
+  return { morning: morningCommits, evening: eveningCommits };
+}
+
+/**
+ * Parse commit types from commit messages
+ */
+function analyzeCommitTypes(commits: CommitDetails[]): { type: string; count: number }[] {
+  const typeCount = new Map<string, number>();
+
+  for (const commit of commits) {
+    const type = parseCommitType(commit.message);
+    typeCount.set(type, (typeCount.get(type) || 0) + 1);
+  }
+
+  return Array.from(typeCount.entries())
+    .map(([type, count]) => ({ type, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5); // Top 5 types
+}
+
+/**
+ * Calculate average commit message length
+ */
+function calculateAvgMessageLength(commits: CommitDetails[]): number {
+  if (commits.length === 0) return 0;
+
+  const totalLength = commits.reduce((sum, commit) => {
+    // Get first line of commit message
+    const firstLine = commit.message.split('\n')[0];
+    return sum + firstLine.length;
+  }, 0);
+
+  return Math.round(totalLength / commits.length);
+}
+
+/**
+ * Analyze most frequently edited files with language detection
+ * 
+ * @param commits - Array of commit details including modified files
+ * @param fileContributors - Map tracking which developers touched which files
+ * @returns Top 10 most edited files with metadata (sorted by edit count)
+ * 
+ * @performance O(n*m) where n = commits, m = average files per commit
+ */
+function analyzeMostEditedFiles(
+  commits: CommitDetails[],
+  fileContributors: Map<string, Set<string>>
+): { filename: string; edits: number; contributors: number; language: string }[] {
+  // Input validation
+  if (!Array.isArray(commits) || commits.length === 0) {
+    return [];
+  }
+
+  const fileEdits = new Map<string, number>();
+  
+  // Count edits per file
+  for (const commit of commits) {
+    // Skip commits without files array or with invalid data
+    if (!commit.files || !Array.isArray(commit.files)) {
+      continue;
+    }
+
+    for (const file of commit.files) {
+      if (file && typeof file === 'string') {
+        fileEdits.set(file, (fileEdits.get(file) || 0) + 1);
+      }
+    }
+  }
+  
+  // Early return if no files found
+  if (fileEdits.size === 0) {
+    return [];
+  }
+  
+  // Build result with language info
+  const results: { filename: string; edits: number; contributors: number; language: string }[] = [];
+  
+  for (const [filename, edits] of Array.from(fileEdits.entries())) {
+    const contributors = fileContributors.get(filename)?.size || 1;
+    const langInfo = getLanguageFromFilename(filename);
+    
+    results.push({
+      filename,
+      edits,
+      contributors,
+      language: langInfo?.language || 'Other'
+    });
+  }
+  
+  // Sort by edit count (descending) and limit to top 10
+  results.sort((a, b) => b.edits - a.edits);
+  
+  return results.slice(0, 10);
+}
+
+/**
+ * Extract comprehensive insights from timeline data and commit details
+ * 
+ * @param users - User timeline data
+ * @param commits - Detailed commit information
+ * @param fileContributors - Map of files to contributors
+ * @returns Insights object with patterns and metrics
+ */
+export function extractInsights(
+  users: UserTimelineData[],
+  commits: CommitDetails[],
+  fileContributors: Map<string, Set<string>> = new Map()
+): Insights {
+  // Collect all files from commits
+  const allFiles: string[] = [];
+  for (const commit of commits) {
+    allFiles.push(...commit.files);
+  }
+  
+  return {
+    // Temporal patterns
+    mostActiveDay: findMostActiveDay(users),
+    mostActiveHour: findMostActiveHour(commits),
+    quietestPeriod: findQuietestPeriod(users),
+    
+    // Collaboration patterns
+    mostFrequentCollaborators: [], // Will be implemented with file-level data
+    soloContributors: findSoloContributors(users, fileContributors),
+    
+    // Language patterns
+    languageBreakdown: analyzeLanguageDistribution(allFiles),
+    mostEditedFiles: analyzeMostEditedFiles(commits, fileContributors),
+    
+    // Commit message patterns
+    commonCommitTypes: analyzeCommitTypes(commits),
+    avgCommitMessageLength: calculateAvgMessageLength(commits),
+    
+    // Work patterns
+    weekdayVsWeekend: calculateWeekdayVsWeekend(users),
+    morningVsEvening: calculateMorningVsEvening(commits),
+  };
+}
+
+/**
+ * Extract insights from simplified user timeline data only
+ * (when detailed commit info is not available)
+ */
+export function extractBasicInsights(users: UserTimelineData[]): Insights {
+  return {
+    // Temporal patterns
+    mostActiveDay: findMostActiveDay(users),
+    mostActiveHour: { hour: 10, commits: 0 }, // Default value
+    quietestPeriod: findQuietestPeriod(users),
+    
+    // Collaboration patterns
+    mostFrequentCollaborators: [],
+    soloContributors: [],
+    
+    // Language patterns
+    languageBreakdown: [],
+    mostEditedFiles: [],
+    
+    // Commit message patterns
+    commonCommitTypes: [],
+    avgCommitMessageLength: 0,
+    
+    // Work patterns
+    weekdayVsWeekend: calculateWeekdayVsWeekend(users),
+    morningVsEvening: { morning: 0, evening: 0 },
+  };
+}
+

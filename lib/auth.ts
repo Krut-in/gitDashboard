@@ -11,11 +11,24 @@ import GitHub from 'next-auth/providers/github';
 import type { NextAuthConfig } from 'next-auth';
 import { UserSession } from './types';
 
+// Validate required environment variables
+if (!process.env.GITHUB_CLIENT_ID) {
+  throw new Error('GITHUB_CLIENT_ID environment variable is required');
+}
+
+if (!process.env.GITHUB_CLIENT_SECRET) {
+  throw new Error('GITHUB_CLIENT_SECRET environment variable is required');
+}
+
+if (!process.env.AUTH_SECRET) {
+  throw new Error('AUTH_SECRET environment variable is required');
+}
+
 export const authConfig: NextAuthConfig = {
   providers: [
     GitHub({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
       authorization: {
         params: {
           scope: 'repo read:user user:email',
@@ -49,8 +62,10 @@ export const authConfig: NextAuthConfig = {
   session: {
     strategy: 'jwt',
   },
-  // Trust host for Vercel deployment
+  // Trust host for development and production deployments
   trustHost: true,
+  // Explicitly set the base path for OAuth callbacks
+  basePath: '/api/auth',
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);

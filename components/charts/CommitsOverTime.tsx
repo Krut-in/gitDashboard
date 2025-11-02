@@ -22,6 +22,7 @@ import {
 } from "chart.js";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { formatDateShort } from "@/lib/format";
+import { METRIC_COLORS } from "@/lib/constants";
 
 ChartJS.register(
   CategoryScale,
@@ -63,8 +64,8 @@ export function CommitsOverTime({ commitTimes }: CommitsOverTimeProps) {
       {
         label: "Commits",
         data: commitCounts,
-        borderColor: "rgb(59, 130, 246)",
-        backgroundColor: "rgba(59, 130, 246, 0.1)",
+        borderColor: METRIC_COLORS.commits.rgb,
+        backgroundColor: METRIC_COLORS.commits.rgba(0.1),
         fill: true,
         tension: 0.4,
         pointRadius: 3,

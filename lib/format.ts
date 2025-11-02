@@ -140,18 +140,30 @@ export function formatSHA(sha: string, length: number = 7): string {
 
 /**
  * Get color for a value in a range (for heatmaps)
- * Returns a Tailwind color class
+ * Returns a Tailwind color class using Sunset Code theme (teal)
+ * 
+ * @param value - The numeric value to get color for
+ * @param max - The maximum value in the dataset for normalization
+ * @returns Tailwind CSS color class (bg-gray-100 for 0, bg-teal-200 to bg-teal-600 for values)
+ * 
+ * Color progression (Sunset Code theme):
+ * - 0% activity: bg-gray-100 (neutral)
+ * - <20%: bg-teal-200 (low activity)
+ * - 20-40%: bg-teal-300
+ * - 40-60%: bg-teal-400
+ * - 60-80%: bg-teal-500
+ * - >80%: bg-teal-600 (high activity)
  */
 export function getHeatmapColor(value: number, max: number): string {
   if (max === 0) return 'bg-gray-100';
   
   const ratio = value / max;
   if (ratio === 0) return 'bg-gray-100';
-  if (ratio < 0.2) return 'bg-green-200';
-  if (ratio < 0.4) return 'bg-green-300';
-  if (ratio < 0.6) return 'bg-green-400';
-  if (ratio < 0.8) return 'bg-green-500';
-  return 'bg-green-600';
+  if (ratio < 0.2) return 'bg-teal-200';
+  if (ratio < 0.4) return 'bg-teal-300';
+  if (ratio < 0.6) return 'bg-teal-400';
+  if (ratio < 0.8) return 'bg-teal-500';
+  return 'bg-teal-600';
 }
 
 /**
@@ -171,10 +183,10 @@ export function getActivityStatus(lastCommitDate: string | null): {
   const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
 
   if (diffDays <= 7) {
-    return { status: 'active', label: 'Active', color: 'text-green-600' };
+    return { status: 'active', label: 'Active', color: 'text-teal-600' };
   }
   if (diffDays <= 30) {
-    return { status: 'recent', label: 'Recent', color: 'text-blue-600' };
+    return { status: 'recent', label: 'Recent', color: 'text-sky-600' };
   }
   return { status: 'inactive', label: 'Inactive', color: 'text-orange-600' };
 }

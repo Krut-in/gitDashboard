@@ -20,6 +20,7 @@ import {
 } from "chart.js";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { formatNumber } from "@/lib/format";
+import { METRIC_COLORS } from "@/lib/constants";
 
 ChartJS.register(
   CategoryScale,
@@ -57,15 +58,15 @@ export function AddRemoveStacked({
       {
         label: "Additions",
         data: topContributors.map(c => c.additions),
-        backgroundColor: "rgba(34, 197, 94, 0.8)",
-        borderColor: "rgb(34, 197, 94)",
+        backgroundColor: METRIC_COLORS.additions.rgba(0.8),
+        borderColor: METRIC_COLORS.additions.rgb,
         borderWidth: 1,
       },
       {
         label: "Deletions",
         data: topContributors.map(c => c.deletions),
-        backgroundColor: "rgba(239, 68, 68, 0.8)",
-        borderColor: "rgb(239, 68, 68)",
+        backgroundColor: METRIC_COLORS.deletions.rgba(0.8),
+        borderColor: METRIC_COLORS.deletions.rgb,
         borderWidth: 1,
       },
     ],

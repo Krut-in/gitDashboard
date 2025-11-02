@@ -134,11 +134,11 @@ export function ActivityHeatmap({ commitTimes }: ActivityHeatmapProps) {
           <span className="text-sm text-gray-600">Less</span>
           <div className="flex gap-1">
             <div className="w-4 h-4 bg-gray-100 rounded"></div>
-            <div className="w-4 h-4 bg-green-200 rounded"></div>
-            <div className="w-4 h-4 bg-green-300 rounded"></div>
-            <div className="w-4 h-4 bg-green-400 rounded"></div>
-            <div className="w-4 h-4 bg-green-500 rounded"></div>
-            <div className="w-4 h-4 bg-green-600 rounded"></div>
+            <div className="w-4 h-4 bg-teal-200 rounded"></div>
+            <div className="w-4 h-4 bg-teal-300 rounded"></div>
+            <div className="w-4 h-4 bg-teal-400 rounded"></div>
+            <div className="w-4 h-4 bg-teal-500 rounded"></div>
+            <div className="w-4 h-4 bg-teal-600 rounded"></div>
           </div>
           <span className="text-sm text-gray-600">More</span>
         </div>

@@ -92,8 +92,10 @@ export async function checkRateLimit(
 
 /**
  * Handle GitHub API errors and convert to AppError
+ * @deprecated Use handleGitHubAPIError from errors.ts instead
  */
 export function handleGitHubError(error: unknown): never {
+  // This function is deprecated - use handleGitHubAPIError from errors.ts
   if (error instanceof Error) {
     const githubError = error as any;
     

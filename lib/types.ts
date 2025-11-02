@@ -157,3 +157,187 @@ export interface AnalysisResponse {
     mergesText: string;
   };
 }
+
+/**
+ * Daily metric data for a single user on a specific date
+ */
+export interface DailyMetric {
+  date: string; // ISO date string (YYYY-MM-DD)
+  userId: string;
+  userName: string;
+  commits: number;
+  additions: number;
+  deletions: number;
+  netLines: number;
+}
+
+/**
+ * Aggregated weekly metric data
+ */
+export interface WeeklyMetric {
+  weekStart: string; // ISO date string for Monday of the week
+  weekLabel: string; // e.g., "Week of May 5, 2024"
+  commits: number;
+  additions: number;
+  deletions: number;
+  netLines: number;
+}
+
+/**
+ * Complete timeline data for a single user
+ */
+export interface UserTimelineData {
+  userId: string;
+  userName: string;
+  email?: string;
+  avatarUrl?: string;
+  firstCommitDate: string;
+  lastCommitDate: string;
+  dailyMetrics: DailyMetric[];
+  weeklyMetrics: WeeklyMetric[];
+  totalCommits: number;
+  totalAdditions: number;
+  totalDeletions: number;
+  totalNetLines: number;
+}
+
+/**
+ * Repository timeline data for all users
+ */
+export interface RepositoryTimeline {
+  repoFirstCommit: string;
+  repoLastCommit: string;
+  users: UserTimelineData[];
+  totalCommits: number;
+  totalAdditions: number;
+  totalDeletions: number;
+  totalNetLines: number;
+}
+
+/**
+ * Aggregated timeline data by time period
+ */
+export interface AggregatedTimeline {
+  date: string; // Start date of the period
+  label: string; // Human-readable label
+  commits: number;
+  additions: number;
+  deletions: number;
+  netLines: number;
+  topContributor?: string;
+}
+
+/**
+ * User contribution data for heatmap visualization
+ */
+export interface UserContribution {
+  userId: string;
+  userName: string;
+  email?: string;
+  avatarUrl?: string;
+  lifetimeStats: {
+    commits: number;
+    additions: number;
+    deletions: number;
+    netLines: number;
+    firstCommit: string;
+    lastCommit: string;
+  };
+  dailyCommits: { date: string; count: number }[];
+  dailyAdditions: { date: string; count: number }[];
+  dailyDeletions: { date: string; count: number }[];
+  dailyNetLines: { date: string; count: number }[];
+  weeklyStats: { week: string; commits: number; netLines: number }[];
+}
+
+/**
+ * Insights extracted from commit data
+ */
+export interface Insights {
+  // Temporal patterns
+  mostActiveDay: { day: string; commits: number };
+  mostActiveHour: { hour: number; commits: number };
+  quietestPeriod: { start: string; end: string } | null;
+  
+  // Collaboration patterns
+  mostFrequentCollaborators: { user1: string; user2: string; sharedFiles: number }[];
+  soloContributors: string[];
+  
+  // Language patterns
+  languageBreakdown: { language: string; fileCount: number; percentage: number; color: string }[];
+  mostEditedFiles: { filename: string; edits: number; contributors: number; language: string }[];
+  
+  // Commit message patterns
+  commonCommitTypes: { type: string; count: number }[];
+  avgCommitMessageLength: number;
+  
+  // Work patterns
+  weekdayVsWeekend: { weekday: number; weekend: number };
+  morningVsEvening: { morning: number; evening: number };
+}
+
+/**
+ * Commit message analysis types
+ */
+export interface CommitMessageAnalysis {
+  lengthDistribution: {
+    short: number;
+    medium: number;
+    long: number;
+    verbose: number;
+  };
+  typeDistribution: { [key: string]: number };
+  userCategories: {
+    verbose: Array<{
+      userName: string;
+      avgLength: number;
+      category: 'verbose' | 'minimalist' | 'balanced';
+      commitCount: number;
+      exampleMessages: string[];
+    }>;
+    minimalist: Array<{
+      userName: string;
+      avgLength: number;
+      category: 'verbose' | 'minimalist' | 'balanced';
+      commitCount: number;
+      exampleMessages: string[];
+    }>;
+    balanced: Array<{
+      userName: string;
+      avgLength: number;
+      category: 'verbose' | 'minimalist' | 'balanced';
+      commitCount: number;
+      exampleMessages: string[];
+    }>;
+  };
+  statistics: {
+    totalMessages: number;
+    avgLength: number;
+    medianLength: number;
+    mostCommonType: string;
+    conventionalCommitPercentage: number;
+  };
+  patterns: Array<{
+    type: 'single-char' | 'generic' | 'no-message' | 'very-long';
+    count: number;
+    examples: Array<{ author: string; message: string }>;
+  }>;
+}
+
+/**
+ * Advanced analysis response
+ */
+export interface AdvancedAnalysisResponse {
+  timeline: RepositoryTimeline;
+  userContributions: UserContribution[];
+  insights: Insights;
+  commitMessageAnalysis: CommitMessageAnalysis;
+  metadata: {
+    analyzedCommits: number;
+    dateRange: {
+      start: string;
+      end: string;
+    };
+    generatedAt: string;
+  };
+}

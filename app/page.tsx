@@ -8,149 +8,205 @@
 
 import { signIn } from "@/lib/auth";
 import { Button } from "@/components/ui/Button";
-import { Github, BarChart3, GitBranch, Users, TrendingUp } from "lucide-react";
+import { ECGBadge } from "@/components/ECGBadge";
+import { RotatingFeatureCards } from "@/components/RotatingFeatureCards";
+import { NavBar } from "@/components/NavBar";
+import { Footer } from "@/components/Footer";
+import { featureCards } from "@/lib/feature-cards-data";
+import {
+  Github,
+  BarChart3,
+  GitBranch,
+  Users,
+  TrendingUp,
+  Code2,
+  Lock,
+  Zap,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-sky-50 to-teal-50 relative overflow-hidden">
+      {/* Animated Background Orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-64 h-64 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-64 h-64 bg-amber-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-64 h-64 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-sky-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-6000"></div>
+      </div>
+
+      {/* Navigation */}
+      <NavBar />
+
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-        </div>
+      <section className="relative bg-transparent max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 lg:pt-32 lg:pb-20">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
+          {/* Left Content */}
+          <div className="space-y-6 relative z-10">
+            <ECGBadge />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="text-center space-y-8">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white/90 border border-white/20">
-              <BarChart3 className="w-4 h-4" />
-              <span>Analyze • Visualize • Optimize</span>
-            </div>
-
-            {/* Main Heading */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight">
-              GitHub Contribution
-              <br />
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Dashboard
-              </span>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
+              Effortlessly Organize and Simplify Your GitHub Analytics
             </h1>
 
-            {/* Subtitle */}
-            <p className="max-w-2xl mx-auto text-xl sm:text-2xl text-gray-300 leading-relaxed">
-              Unlock powerful insights from your repositories. Track
-              contributions, visualize activity patterns, and make data-driven
-              decisions.
+            <p className="text-lg text-gray-600 leading-relaxed max-w-xl">
+              Track your repositories, contributions, and branches. Gain
+              insights into your development workflow and achieve your project
+              goals.
             </p>
 
-            {/* CTA Button */}
-            <form
-              action={async () => {
-                "use server";
-                await signIn("github", { redirectTo: "/dashboard" });
-              }}
-              className="flex justify-center pt-4"
-            >
-              <Button
-                type="submit"
-                size="lg"
-                className="gap-3 text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-2xl shadow-purple-500/50 transition-all duration-300 transform hover:scale-105"
+            <div className="flex flex-col sm:flex-row gap-4">
+              <form
+                action={async () => {
+                  "use server";
+                  await signIn("github", { redirectTo: "/dashboard" });
+                }}
               >
-                <Github className="w-6 h-6" />
-                Get Started with GitHub
-              </Button>
-            </form>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="backdrop-blur-md bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300 hover-elevate"
+                >
+                  <Github className="w-5 h-5" />
+                  Get Started
+                </Button>
+              </form>
+              <a href="#how-it-works">
+                <Button
+                  size="lg"
+                  className="backdrop-blur-md bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white px-8 py-6 text-base rounded-xl flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300 hover-elevate"
+                >
+                  Explore Features →
+                </Button>
+              </a>
+            </div>
 
-            {/* Trust Badge */}
-            <p className="text-sm text-gray-400">
-              🔒 Secure OAuth authentication • No passwords stored
+            {/* Trust Indicators */}
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                <div className="w-8 h-8 rounded-full bg-orange-500 border-2 border-white"></div>
+                <div className="w-8 h-8 rounded-full bg-sky-500 border-2 border-white"></div>
+                <div className="w-8 h-8 rounded-full bg-teal-500 border-2 border-white"></div>
+              </div>
+              <div className="text-sm">
+                <div className="font-semibold text-gray-900">50k Downloads</div>
+                <div className="text-gray-500">
+                  Trusted by developers worldwide
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Visual */}
+          <div className="relative z-10">
+            <div className="backdrop-blur-md bg-white/30 rounded-3xl p-8 border border-white/40 shadow-2xl">
+              <div className="backdrop-blur-lg bg-white/50 rounded-2xl shadow-lg p-6 space-y-6 border border-white/60">
+                {/* Mock Dashboard Preview */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-orange-600 to-amber-600 rounded-full shadow-lg"></div>
+                      <div>
+                        <div className="text-sm font-semibold text-gray-900">
+                          Repository Overview
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Last updated: 2 min ago
+                        </div>
+                      </div>
+                    </div>
+                    <div className="w-2 h-2 bg-teal-500 rounded-full shadow-lg"></div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="backdrop-blur-sm bg-white/60 rounded-xl p-4 border border-white/50 shadow-md">
+                      <div className="text-2xl font-bold text-gray-900">
+                        247
+                      </div>
+                      <div className="text-xs text-gray-500">Total Commits</div>
+                    </div>
+                    <div className="backdrop-blur-sm bg-white/60 rounded-xl p-4 border border-white/50 shadow-md">
+                      <div className="text-2xl font-bold text-gray-900">12</div>
+                      <div className="text-xs text-gray-500">Contributors</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-500">Repository Activity</span>
+                      <span className="text-gray-900 font-semibold">
+                        +24% this week
+                      </span>
+                    </div>
+                    <div className="h-24 backdrop-blur-sm bg-white/40 rounded-lg flex items-end gap-1 p-2 border border-white/50">
+                      <div
+                        className="flex-1 bg-gradient-to-t from-gray-400 to-gray-300 rounded-sm"
+                        style={{ height: "40%" }}
+                      ></div>
+                      <div
+                        className="flex-1 bg-gradient-to-t from-gray-400 to-gray-300 rounded-sm"
+                        style={{ height: "70%" }}
+                      ></div>
+                      <div
+                        className="flex-1 bg-gradient-to-t from-orange-600 to-sky-500 rounded-sm shadow-lg"
+                        style={{ height: "100%" }}
+                      ></div>
+                      <div
+                        className="flex-1 bg-gradient-to-t from-gray-400 to-gray-300 rounded-sm"
+                        style={{ height: "60%" }}
+                      ></div>
+                      <div
+                        className="flex-1 bg-gradient-to-t from-gray-400 to-gray-300 rounded-sm"
+                        style={{ height: "45%" }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating Card */}
+            <div className="absolute -bottom-6 -left-6 backdrop-blur-md bg-white/50 rounded-2xl shadow-xl p-4 border border-white/60">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6 text-teal-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    All Systems Go
+                  </div>
+                  <div className="text-xs text-gray-500">100% Uptime</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works Section */}
+      <section id="how-it-works" className="relative bg-transparent py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 relative z-10">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              The Dashboard showcases multiple analyses
+            </h2>
+            <p className="text-gray-700 max-w-2xl mx-auto">
+              Seamlessly integrate with your existing workflow. Connect your
+              GitHub account and start analyzing your repositories instantly.
             </p>
           </div>
+
+          <RotatingFeatureCards
+            features={featureCards}
+            rotationInterval={15000}
+          />
         </div>
-      </div>
-
-      {/* Features Section */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Feature Card 1 */}
-          <div className="group relative bg-white/5 backdrop-blur-lg p-8 rounded-2xl border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-105">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4">
-                <GitBranch className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Branch Analysis
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Deep dive into any branch with commit history, contributor
-                stats, and timeline visualization.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature Card 2 */}
-          <div className="group relative bg-white/5 backdrop-blur-lg p-8 rounded-2xl border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-105">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4">
-                <Users className="w-6 h-6 text-purple-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Team Insights
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Track team contributions with detailed metrics on commits,
-                additions, and deletions.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature Card 3 */}
-          <div className="group relative bg-white/5 backdrop-blur-lg p-8 rounded-2xl border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-105">
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-orange-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative">
-              <div className="w-12 h-12 bg-pink-500/20 rounded-lg flex items-center justify-center mb-4">
-                <BarChart3 className="w-6 h-6 text-pink-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Visual Charts
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Beautiful, interactive charts for commits over time, activity
-                heatmaps, and code changes.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature Card 4 */}
-          <div className="group relative bg-white/5 backdrop-blur-lg p-8 rounded-2xl border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-105">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-yellow-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative">
-              <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center mb-4">
-                <TrendingUp className="w-6 h-6 text-orange-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Export Reports
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Generate and download CSV reports for contributors, commits, and
-                detailed analytics.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      </section>
 
       {/* Footer */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-        <p className="text-gray-400 text-sm">
-          Built with Next.js, powered by GitHub API
-        </p>
-      </div>
+      <Footer />
     </div>
   );
 }

@@ -112,10 +112,15 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
           <CardTitle>Select a Branch</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center space-y-4">
-              <Spinner size="lg" />
-              <p className="text-gray-600">Loading branches...</p>
+          <div className="flex flex-col items-center justify-center p-8 space-y-4">
+            <Spinner size="lg" />
+            <div className="text-center">
+              <p className="text-lg font-medium text-gray-900">
+                Loading branches...
+              </p>
+              <p className="text-sm text-gray-600 mt-1">
+                Fetching branch information
+              </p>
             </div>
           </div>
         </CardContent>
@@ -147,39 +152,41 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
       )}`}
     >
       <div
-        className={`flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:border-primary transition-colors cursor-pointer ${
-          isMain ? "bg-blue-50 border-blue-300 hover:bg-blue-100" : ""
+        className={`flex items-center justify-between p-4 backdrop-blur-md border rounded-xl hover:shadow-lg transition-all cursor-pointer ${
+          isMain
+            ? "bg-gradient-to-r from-orange-100/80 to-sky-100/80 border-orange-300/50 hover:from-orange-100 hover:to-sky-100"
+            : "bg-white/50 border-white/30 hover:bg-white/70"
         }`}
       >
         <div className="flex items-center gap-3">
           {isMain ? (
-            <Star className="w-5 h-5 text-blue-600 fill-blue-600" />
+            <Star className="w-5 h-5 text-orange-600 fill-orange-600" />
           ) : (
-            <GitBranch className="w-5 h-5 text-gray-400" />
+            <GitBranch className="w-5 h-5 text-gray-500" />
           )}
           <div>
             <div className="flex items-center gap-2">
               <p
                 className={`font-medium ${
-                  isMain ? "text-blue-900" : "text-gray-900"
+                  isMain ? "text-orange-900" : "text-gray-900"
                 }`}
               >
                 {branch.name}
               </p>
               {isMain && (
-                <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">
+                <span className="text-xs bg-gradient-to-r from-orange-600 to-sky-600 text-white px-2 py-0.5 rounded-full">
                   Default
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-600">
               {branch.commit.sha.substring(0, 7)}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {branch.protected && (
-            <div className="flex items-center gap-1 text-sm text-gray-500">
+            <div className="flex items-center gap-1 text-sm text-gray-600">
               <Shield className="w-4 h-4" />
               <span>Protected</span>
             </div>
@@ -209,7 +216,7 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
             {mainBranch && (
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                  <Star className="w-4 h-4 text-blue-600" />
+                  <Star className="w-4 h-4 text-orange-600" />
                   Default Branch
                 </h3>
                 {renderBranchCard(mainBranch, true)}
@@ -228,8 +235,8 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="mt-6 flex items-center justify-between border-t pt-4">
-                    <div className="text-sm text-gray-600">
+                  <div className="mt-6 flex items-center justify-between backdrop-blur-md bg-white/40 border border-white/30 rounded-lg p-4">
+                    <div className="text-sm text-gray-700">
                       Page {currentPage} of {totalPages} ({otherBranches.length}{" "}
                       branches)
                     </div>
@@ -239,6 +246,7 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
                         disabled={currentPage === 1}
                         variant="outline"
                         size="sm"
+                        className="backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
                       >
                         <ChevronLeft className="w-4 h-4 mr-1" />
                         Previous
@@ -270,7 +278,11 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
                                     : "outline"
                                 }
                                 size="sm"
-                                className="min-w-[40px]"
+                                className={`min-w-[40px] ${
+                                  currentPage === pageNum
+                                    ? "backdrop-blur-md bg-gradient-to-r from-orange-600 to-orange-700"
+                                    : "backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
+                                }`}
                               >
                                 {pageNum}
                               </Button>
@@ -284,6 +296,7 @@ export function BranchSelector({ owner, repo }: BranchSelectorProps) {
                         disabled={currentPage === totalPages}
                         variant="outline"
                         size="sm"
+                        className="backdrop-blur-md bg-white/40 hover:bg-white/60 border-white/30"
                       >
                         Next
                         <ChevronRight className="w-4 h-4 ml-1" />
