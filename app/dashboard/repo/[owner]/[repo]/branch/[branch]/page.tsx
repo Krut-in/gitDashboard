@@ -70,8 +70,25 @@ export default function BranchPage({ params }: BranchPageProps) {
       return;
     }
 
+    // Validate date filters
+    if (filters.since && filters.until) {
+      const sinceDate = new Date(filters.since);
+      const untilDate = new Date(filters.until);
+      
+      if (sinceDate > untilDate) {
+        setAnalysisState({
+          status: "error",
+          message: "Since date must be before until date",
+        });
+        return;
+      }
+    }
+
     setAnalysisState({ status: "analyzing", startTime: Date.now() });
     setProgress({ message: "Connecting to GitHub API...", percent: 0 });
+
+    // Track reader for cleanup
+    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 
     try {
       const response = await fetch("/api/github/analyze/stream", {
@@ -89,7 +106,9 @@ export default function BranchPage({ params }: BranchPageProps) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Analysis failed");
+        throw new Error(
+          errorData.error || `Analysis failed with status ${response.status}`
+        );
       }
 
       if (!response.body) {
@@ -97,7 +116,7 @@ export default function BranchPage({ params }: BranchPageProps) {
       }
 
       // Process SSE stream
-      const reader = response.body.getReader();
+      reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
 
@@ -135,12 +154,31 @@ export default function BranchPage({ params }: BranchPageProps) {
       }
     } catch (error: any) {
       console.error("Analysis error:", error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = "Unknown error occurred";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (error?.name === "AbortError") {
+        errorMessage = "Analysis was cancelled";
+      } else if (error?.name === "TypeError") {
+        errorMessage = "Network error occurred. Please check your connection.";
+      }
+
       setAnalysisState({
         status: "error",
-        message:
-          error instanceof Error ? error.message : "Unknown error occurred",
+        message: errorMessage,
       });
       setProgress(null);
+    } finally {
+      // Clean up reader
+      if (reader) {
+        try {
+          reader.cancel();
+        } catch (e) {
+          console.error("Failed to cancel reader:", e);
+        }
+      }
     }
   };
 
@@ -158,15 +196,22 @@ export default function BranchPage({ params }: BranchPageProps) {
 
       if (!csv || typeof csv !== "string") {
         console.error("Invalid CSV data");
+        alert("CSV data is not available for download");
         return;
       }
+
+      // Sanitize branch name for filename (remove special characters)
+      const safeBranchName = decodedBranch.replace(/[^a-zA-Z0-9-_]/g, "_");
+      const timestamp = new Date().toISOString().split("T")[0];
+      const filename = `${owner}-${repo}-${safeBranchName}-${type}-${timestamp}.csv`;
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${owner}-${repo}-${decodedBranch}-${type}.csv`;
+      a.download = filename;
       a.style.display = "none";
+      a.setAttribute("aria-label", `Download ${type} CSV file`);
       document.body.appendChild(a);
       a.click();
 
@@ -177,6 +222,7 @@ export default function BranchPage({ params }: BranchPageProps) {
       }, 100);
     } catch (error) {
       console.error("Failed to download CSV:", error);
+      alert("Failed to download CSV. Please try again.");
     }
   };
 

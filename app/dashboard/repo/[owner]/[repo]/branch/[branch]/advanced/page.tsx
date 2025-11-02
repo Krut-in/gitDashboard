@@ -56,9 +56,18 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
   const [commitOffset, setCommitOffset] = useState(0);
 
   useEffect(() => {
-    // Auto-start analysis on page load
-    loadAdvancedAnalysis();
-  }, []);
+    // Auto-start analysis on page load only once
+    let isMounted = true;
+    
+    if (isMounted) {
+      loadAdvancedAnalysis();
+    }
+    
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps array is intentional - only run once on mount
 
   const loadAdvancedAnalysis = async (loadMore = false) => {
     // Prevent multiple simultaneous analysis runs
@@ -69,6 +78,9 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
 
     setAnalysisState({ status: "loading" });
     setProgress({ message: "Connecting to GitHub API...", percent: 0 });
+
+    // Track reader for cleanup
+    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 
     try {
       const response = await fetch("/api/github/analyze/advanced/stream", {
@@ -84,15 +96,17 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Failed to start analysis");
+        throw new Error(
+          errorData.error || `Failed to start analysis (Status: ${response.status})`
+        );
       }
 
       if (!response.body) {
-        throw new Error("No response body available");
+        throw new Error("No response body available from server");
       }
 
       // Process SSE stream
-      const reader = response.body.getReader();
+      reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
 
@@ -132,12 +146,31 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
       }
     } catch (error: any) {
       console.error("Analysis error:", error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = "Unknown error occurred";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (error?.name === "AbortError") {
+        errorMessage = "Analysis was cancelled";
+      } else if (error?.name === "TypeError") {
+        errorMessage = "Network error occurred. Please check your connection.";
+      }
+      
       setAnalysisState({
         status: "error",
-        message:
-          error instanceof Error ? error.message : "Unknown error occurred",
+        message: errorMessage,
       });
       setProgress(null);
+    } finally {
+      // Clean up reader
+      if (reader) {
+        try {
+          reader.cancel();
+        } catch (e) {
+          console.error("Failed to cancel reader:", e);
+        }
+      }
     }
   };
 
