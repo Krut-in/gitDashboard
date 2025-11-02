@@ -99,9 +99,9 @@ export function AnalysisLoader({ startTime }: AnalysisLoaderProps) {
 
         {/* Progress Bar */}
         <div className="mb-4">
-          <div className="w-full bg-orange-100 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-sky-100 rounded-full h-3 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-orange-600 to-sky-600 transition-all duration-500 ease-out rounded-full"
+              className="h-full bg-gradient-to-r from-sky-500 to-teal-500 transition-all duration-500 ease-out rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -123,7 +123,7 @@ export function AnalysisLoader({ startTime }: AnalysisLoaderProps) {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   index <= currentStage
-                    ? "bg-gradient-to-r from-orange-600 to-sky-600"
+                    ? "bg-gradient-to-r from-sky-500 to-teal-500"
                     : "bg-gray-300"
                 }`}
               >

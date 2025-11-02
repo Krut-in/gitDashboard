@@ -71,7 +71,7 @@ export function AnalysisModeSelector({
             value={mode}
             onChange={e => setMode(e.target.value as AnalysisMode)}
             disabled={loading}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
           >
             <option value="blame">
               Blame - True Line Ownership (Recommended)
@@ -103,7 +103,7 @@ export function AnalysisModeSelector({
               onChange={e => setRepoPath(e.target.value)}
               placeholder="/path/to/your/repository"
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
             <p className="text-xs text-gray-500 mt-1">
               Absolute path to the git repository on your local machine
@@ -124,7 +124,7 @@ export function AnalysisModeSelector({
                 onChange={e => setOwner(e.target.value)}
                 placeholder="octocat"
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
             <div>
@@ -137,7 +137,7 @@ export function AnalysisModeSelector({
                 onChange={e => setRepo(e.target.value)}
                 placeholder="hello-world"
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
           </div>
@@ -155,7 +155,7 @@ export function AnalysisModeSelector({
               onChange={e => setBranch(e.target.value)}
               placeholder="main"
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
             <p className="text-xs text-gray-500 mt-1">
               Leave empty to analyze all branches

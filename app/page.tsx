@@ -10,6 +10,8 @@ import { signIn } from "@/lib/auth";
 import { Button } from "@/components/ui/Button";
 import { ECGBadge } from "@/components/ECGBadge";
 import { RotatingFeatureCards } from "@/components/RotatingFeatureCards";
+import { NavBar } from "@/components/NavBar";
+import { Footer } from "@/components/Footer";
 import { featureCards } from "@/lib/feature-cards-data";
 import {
   Github,
@@ -22,7 +24,6 @@ import {
   Zap,
   ArrowRight,
   CheckCircle2,
-  Linkedin,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -37,33 +38,7 @@ export default function HomePage() {
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-10 backdrop-blur-md bg-white/30 border-b border-white/20 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center shadow-lg">
-                <Github className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">GitDash</span>
-            </div>
-            <form
-              action={async () => {
-                "use server";
-                await signIn("github", { redirectTo: "/dashboard" });
-              }}
-            >
-              <Button
-                type="submit"
-                size="sm"
-                className="backdrop-blur-md bg-black/80 hover:bg-black/90 text-white flex items-center gap-2 shadow-lg border border-white/20"
-              >
-                <Github className="w-4 h-4" />
-                Sign in with GitHub
-              </Button>
-            </form>
-          </div>
-        </div>
-      </nav>
+      <NavBar />
 
       {/* Hero Section */}
       <section className="relative bg-transparent max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
@@ -231,36 +206,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative backdrop-blur-md bg-white/30 border-t border-white/20 py-10 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-orange-600 to-amber-600 rounded-lg flex items-center justify-center shadow-lg">
-                <Github className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">GitDash</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span>Created by</span>
-                <a
-                  href="https://www.linkedin.com/in/krutin31"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 font-semibold text-gray-900 hover:text-sky-600 transition-colors duration-300"
-                >
-                  <Linkedin className="w-4 h-4" />
-                  Krutin Rathod
-                </a>
-              </div>
-              <p className="text-sm text-gray-500">
-                Built with Next.js, powered by GitHub API • © 2025 All rights
-                reserved
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

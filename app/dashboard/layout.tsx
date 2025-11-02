@@ -1,13 +1,14 @@
 /**
  * Dashboard Layout Component
  *
- * Wraps all dashboard pages with a consistent navigation bar.
+ * Wraps all dashboard pages with a consistent navigation bar and footer.
  * Displays the application name and sign-out functionality.
  * Ensures user is authenticated before accessing any dashboard pages.
  */
 
 import { requireAuth } from "@/lib/auth";
 import { NavBar } from "@/components/NavBar";
+import { Footer } from "@/components/Footer";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
@@ -34,9 +35,10 @@ export default async function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <NavBar user={user} />
-      <main>{children}</main>
+      <main className="flex-grow">{children}</main>
+      <Footer />
     </div>
   );
 }

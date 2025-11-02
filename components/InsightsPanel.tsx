@@ -119,7 +119,7 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
             <div className="flex items-center gap-2">
               <div className="flex-1 h-4 backdrop-blur-md bg-white/50 rounded-full overflow-hidden border border-white/30">
                 <div
-                  className="h-full bg-gradient-to-r from-green-500 to-blue-500"
+                  className="h-full bg-gradient-to-r from-teal-500 to-sky-500"
                   style={{ width: `${workRatio * 100}%` }}
                 />
               </div>
