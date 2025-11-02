@@ -6,7 +6,6 @@
  * Reusable across all pages (landing, dashboard, etc.)
  */
 
-import Link from "next/link";
 import { Github, Linkedin } from "lucide-react";
 
 export function Footer() {
