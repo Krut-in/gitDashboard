@@ -7,25 +7,25 @@
 
 /**
  * Metric color scheme for charts and visualizations
- * Uses "Sunset Code" theme colors for consistency
- * Primary: Deep Orange, Secondary: Sky Blue, Accent: Amber, Tertiary: Teal
+ * Uses bright, vibrant colors for better visual impact
+ * Commits: Purple, Additions: Emerald Green, Deletions: Red, Net Lines: Sky Blue
  */
 export const METRIC_COLORS = {
   commits: {
-    primary: 'orange-600',
-    light: 'orange-100',
-    dark: 'orange-800',
-    hex: '#ea580c',
-    rgb: 'rgb(234, 88, 12)',
-    rgba: (alpha: number) => `rgba(234, 88, 12, ${alpha})`,
+    primary: 'purple-600',
+    light: 'purple-100',
+    dark: 'purple-800',
+    hex: '#9333ea',
+    rgb: 'rgb(147, 51, 234)',
+    rgba: (alpha: number) => `rgba(147, 51, 234, ${alpha})`,
   },
   additions: {
-    primary: 'teal-500',
-    light: 'teal-100',
-    dark: 'teal-700',
-    hex: '#14b8a6',
-    rgb: 'rgb(20, 184, 166)',
-    rgba: (alpha: number) => `rgba(20, 184, 166, ${alpha})`,
+    primary: 'emerald-500',
+    light: 'emerald-100',
+    dark: 'emerald-700',
+    hex: '#10b981',
+    rgb: 'rgb(16, 185, 129)',
+    rgba: (alpha: number) => `rgba(16, 185, 129, ${alpha})`,
   },
   deletions: {
     primary: 'red-500',
@@ -36,12 +36,12 @@ export const METRIC_COLORS = {
     rgba: (alpha: number) => `rgba(239, 68, 68, ${alpha})`,
   },
   netLines: {
-    primary: 'amber-500',
-    light: 'amber-100',
-    dark: 'amber-700',
-    hex: '#f59e0b',
-    rgb: 'rgb(245, 158, 11)',
-    rgba: (alpha: number) => `rgba(245, 158, 11, ${alpha})`,
+    primary: 'sky-500',
+    light: 'sky-100',
+    dark: 'sky-700',
+    hex: '#0ea5e9',
+    rgb: 'rgb(14, 165, 233)',
+    rgba: (alpha: number) => `rgba(14, 165, 233, ${alpha})`,
   },
 } as const;
 

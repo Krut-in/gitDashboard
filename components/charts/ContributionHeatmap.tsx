@@ -4,11 +4,12 @@
  * Displays a 7x26 grid showing contributions over 6 months:
  * - Rows: Days of week (Sun-Sat)
  * - Columns: Weeks (approx 26 for 6 months)
- * - Color intensity based on activity level
+ * - Color intensity based on activity level (5 levels: 0-4)
  * - Month labels on top
  * - Weekday labels on left (Mon, Wed, Fri)
- * - Hover tooltip showing date and value
- * - Navigation buttons for previous/next 6 months
+ * - Interactive hover tooltip with detailed date and count information
+ * - Navigation buttons for previous/next 6 months with proper boundary checks
+ * - Vibrant color schemes with progressive intensity shading
  */
 
 "use client";
@@ -31,7 +32,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface ContributionHeatmapProps {
   title: string;
   dailyData: { date: string; count: number }[];
-  colorScheme: "green" | "orange" | "red" | "amber" | "teal" | "sky";
+  colorScheme:
+    | "green"
+    | "orange"
+    | "red"
+    | "amber"
+    | "teal"
+    | "sky"
+    | "purple"
+    | "emerald";
   firstCommitDate: string;
   lastCommitDate: string;
 }
@@ -58,6 +67,13 @@ export function ContributionHeatmap({
 
   // Get month labels
   const monthLabels = useMemo(() => getMonthLabels(grid), [grid]);
+
+  // Calculate date range for display
+  const startDate = useMemo(() => {
+    const start = new Date(endDate);
+    start.setMonth(start.getMonth() - 6);
+    return start;
+  }, [endDate]);
 
   // Navigation handlers
   const handlePrevious = () => {
@@ -89,25 +105,44 @@ export function ContributionHeatmap({
     <div className="space-y-3">
       {/* Title and Navigation */}
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-gray-900">{title}</h4>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col">
+          <h4 className="text-sm font-semibold text-gray-900">{title}</h4>
+          <span className="text-xs text-gray-500">
+            {startDate.toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
+            })}{" "}
+            -{" "}
+            {endDate.toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
+            })}
+          </span>
+        </div>
+        <div className="flex items-center gap-1 bg-gray-100 rounded-md p-1">
           <button
             onClick={handlePrevious}
             disabled={!canGoPrev}
-            className={`p-1 rounded hover:bg-gray-100 transition-colors ${
-              !canGoPrev ? "opacity-30 cursor-not-allowed" : ""
+            className={`p-1.5 rounded-md transition-all ${
+              !canGoPrev
+                ? "opacity-30 cursor-not-allowed bg-transparent"
+                : "hover:bg-white hover:shadow-sm active:scale-95 text-gray-700 hover:text-gray-900"
             }`}
             title="Previous 6 months"
+            aria-label="View previous 6 months"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={handleNext}
             disabled={!canGoNext}
-            className={`p-1 rounded hover:bg-gray-100 transition-colors ${
-              !canGoNext ? "opacity-30 cursor-not-allowed" : ""
+            className={`p-1.5 rounded-md transition-all ${
+              !canGoNext
+                ? "opacity-30 cursor-not-allowed bg-transparent"
+                : "hover:bg-white hover:shadow-sm active:scale-95 text-gray-700 hover:text-gray-900"
             }`}
             title="Next 6 months"
+            aria-label="View next 6 months"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -160,21 +195,38 @@ export function ContributionHeatmap({
                     intensity,
                     colorScheme
                   );
+
+                  // Format date for display
                   const dateStr = date.toLocaleDateString("en-US", {
+                    weekday: "short",
                     month: "short",
                     day: "numeric",
                     year: "numeric",
                   });
 
+                  // Determine metric label based on title
+                  let metricLabel = "contributions";
+                  if (title.includes("Commits")) metricLabel = "commits";
+                  else if (title.includes("Added")) metricLabel = "lines added";
+                  else if (title.includes("Removed"))
+                    metricLabel = "lines removed";
+                  else if (title.includes("Net")) metricLabel = "net lines";
+
+                  // Create detailed tooltip
+                  const tooltipText =
+                    value === 0
+                      ? `${dateStr}\nNo ${metricLabel}`
+                      : `${dateStr}\n${value.toLocaleString()} ${metricLabel}`;
+
                   return (
                     <div
                       key={dayIndex}
-                      className={`${colorClass} border border-gray-200 rounded-sm cursor-pointer hover:ring-2 hover:ring-teal-400 transition-shadow`}
+                      className={`${colorClass} border border-gray-300 rounded-sm cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-blue-500 hover:scale-110 transition-all duration-150 relative group`}
                       style={{
                         width: `${HEATMAP_CONFIG.CELL_SIZE}px`,
                         height: `${HEATMAP_CONFIG.CELL_SIZE}px`,
                       }}
-                      title={`${dateStr}: ${value}`}
+                      title={tooltipText}
                     />
                   );
                 })}
@@ -185,8 +237,8 @@ export function ContributionHeatmap({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-2 text-xs text-gray-600">
-        <span>Less</span>
+      <div className="flex items-center gap-2 text-xs text-gray-600 pt-2">
+        <span className="font-medium">Less</span>
         <div className="flex gap-1">
           {[0, 1, 2, 3, 4].map(level => (
             <div
@@ -194,15 +246,16 @@ export function ContributionHeatmap({
               className={`${getHeatmapColorClass(
                 level,
                 colorScheme
-              )} border border-gray-200 rounded-sm`}
+              )} border border-gray-300 rounded-sm transition-transform hover:scale-125`}
               style={{
                 width: `${HEATMAP_CONFIG.CELL_SIZE}px`,
                 height: `${HEATMAP_CONFIG.CELL_SIZE}px`,
               }}
+              title={`Intensity level ${level}`}
             />
           ))}
         </div>
-        <span>More</span>
+        <span className="font-medium">More</span>
       </div>
     </div>
   );

@@ -90,30 +90,30 @@ export function UserContributionCard({
         <div className="px-6 py-6 border-t border-gray-200 space-y-8 bg-white/30">
           {/* Heatmaps Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Commits Heatmap */}
-            <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            {/* Commits Heatmap - Vibrant Purple */}
+            <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30 shadow-md hover:shadow-lg transition-shadow">
               <ContributionHeatmap
                 title="Commits"
                 dailyData={user.dailyCommits}
-                colorScheme="teal"
+                colorScheme="purple"
                 firstCommitDate={lifetimeStats.firstCommit}
                 lastCommitDate={lifetimeStats.lastCommit}
               />
             </div>
 
-            {/* Lines Added Heatmap */}
-            <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            {/* Lines Added Heatmap - Vibrant Emerald Green */}
+            <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30 shadow-md hover:shadow-lg transition-shadow">
               <ContributionHeatmap
                 title="Lines Added"
                 dailyData={user.dailyAdditions}
-                colorScheme="orange"
+                colorScheme="emerald"
                 firstCommitDate={lifetimeStats.firstCommit}
                 lastCommitDate={lifetimeStats.lastCommit}
               />
             </div>
 
-            {/* Lines Removed Heatmap */}
-            <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            {/* Lines Removed Heatmap - Vibrant Red */}
+            <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30 shadow-md hover:shadow-lg transition-shadow">
               <ContributionHeatmap
                 title="Lines Removed"
                 dailyData={user.dailyDeletions}
@@ -123,12 +123,12 @@ export function UserContributionCard({
               />
             </div>
 
-            {/* Net Lines Heatmap */}
-            <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30">
+            {/* Net Lines Heatmap - Vibrant Sky Blue */}
+            <div className="p-4 backdrop-blur-md bg-white/50 rounded-lg border border-white/30 shadow-md hover:shadow-lg transition-shadow">
               <ContributionHeatmap
                 title="Net Lines"
                 dailyData={user.dailyNetLines}
-                colorScheme="amber"
+                colorScheme="sky"
                 firstCommitDate={lifetimeStats.firstCommit}
                 lastCommitDate={lifetimeStats.lastCommit}
               />

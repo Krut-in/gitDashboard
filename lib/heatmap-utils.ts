@@ -85,31 +85,33 @@ export function getHeatmapIntensity(value: number, maxValue: number): number {
 
 /**
  * Get color class for heatmap intensity
- * Using Sunset Code theme colors: teal (primary activity), orange, amber, sky
+ * Using vibrant bright colors with 5 intensity levels (0-4)
  * 
  * @param intensity - Intensity level (0-4) where 0 is no activity and 4 is maximum activity
- * @param colorScheme - Color scheme name matching the Sunset Code theme
+ * @param colorScheme - Color scheme name
  * @returns Tailwind CSS class name for the heatmap cell
  * 
  * @example
  * getHeatmapColorClass(0, "teal") // Returns "bg-gray-100" (no activity)
- * getHeatmapColorClass(4, "teal") // Returns "bg-teal-800" (maximum activity)
+ * getHeatmapColorClass(4, "teal") // Returns "bg-teal-600" (maximum activity)
  */
 export function getHeatmapColorClass(
   intensity: number,
-  colorScheme: "green" | "orange" | "red" | "amber" | "teal" | "sky"
+  colorScheme: "green" | "orange" | "red" | "amber" | "teal" | "sky" | "purple" | "emerald"
 ): string {
   // Validate intensity range
   const validIntensity = Math.max(0, Math.min(4, Math.floor(intensity)));
   
   const schemes = {
-    // For backward compatibility, "green" maps to teal (Sunset Code theme)
-    green: ["bg-gray-100", "bg-teal-200", "bg-teal-400", "bg-teal-600", "bg-teal-800"],
-    teal: ["bg-gray-100", "bg-teal-200", "bg-teal-400", "bg-teal-600", "bg-teal-800"],
-    sky: ["bg-gray-100", "bg-sky-200", "bg-sky-400", "bg-sky-600", "bg-sky-800"],
-    orange: ["bg-gray-100", "bg-orange-200", "bg-orange-400", "bg-orange-600", "bg-orange-800"],
-    red: ["bg-gray-100", "bg-red-200", "bg-red-400", "bg-red-600", "bg-red-800"],
-    amber: ["bg-gray-100", "bg-amber-200", "bg-amber-400", "bg-amber-600", "bg-amber-800"],
+    // Bright vibrant color schemes with progressive intensity
+    green: ["bg-gray-100", "bg-emerald-200", "bg-emerald-400", "bg-emerald-500", "bg-emerald-600"],
+    teal: ["bg-gray-100", "bg-teal-200", "bg-teal-400", "bg-teal-500", "bg-teal-600"],
+    sky: ["bg-gray-100", "bg-sky-200", "bg-sky-400", "bg-sky-500", "bg-sky-600"],
+    orange: ["bg-gray-100", "bg-orange-200", "bg-orange-400", "bg-orange-500", "bg-orange-600"],
+    red: ["bg-gray-100", "bg-red-200", "bg-red-400", "bg-red-500", "bg-red-600"],
+    amber: ["bg-gray-100", "bg-amber-200", "bg-amber-400", "bg-amber-500", "bg-amber-600"],
+    purple: ["bg-gray-100", "bg-purple-200", "bg-purple-400", "bg-purple-500", "bg-purple-600"],
+    emerald: ["bg-gray-100", "bg-emerald-200", "bg-emerald-400", "bg-emerald-500", "bg-emerald-600"],
   };
   
   // Fallback to gray if scheme is invalid
