@@ -13,7 +13,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Download, Play, AlertCircle } from "lucide-react";
+import { ArrowLeft, Download, Play, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
@@ -190,104 +190,107 @@ export default function BranchPage({ params }: BranchPageProps) {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header */}
-        <div className="mb-6">
+        {/* Header Section */}
+        <div className="mb-8">
           <Link href={`/dashboard/repo/${owner}/${repo}`}>
-            <Button variant="gradient" size="sm" className="gap-2 mb-4">
+            <Button variant="gradient" size="sm" className="gap-2 mb-6">
               <ArrowLeft className="w-4 h-4" />
               Back to Branches
             </Button>
           </Link>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {owner} / {repo}
-          </h1>
-          <p className="text-lg text-gray-600 mb-6">
-            Branch: <Badge variant="code">{decodedBranch}</Badge>
-          </p>
+          <div className="mb-6">
+            <h1 className="text-4xl font-bold text-gray-900 mb-3">
+              {owner} / {repo}
+            </h1>
+            <p className="text-lg text-gray-600">
+              Branch: <Badge variant="code">{decodedBranch}</Badge>
+            </p>
+          </div>
+        </div>
 
-          {/* Analysis Controls */}
-          {analysisState.status === "idle" && (
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Analysis Options
-                </h3>
+        {/* Analysis Controls */}
+        {analysisState.status === "idle" && (
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                Analysis Options
+              </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div>
-                    <label
-                      htmlFor="since-date"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Since Date (Optional)
-                    </label>
-                    <Input
-                      id="since-date"
-                      type="date"
-                      value={filters.since}
-                      onChange={e =>
-                        setFilters({ ...filters, since: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="until-date"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Until Date (Optional)
-                    </label>
-                    <Input
-                      id="until-date"
-                      type="date"
-                      value={filters.until}
-                      onChange={e =>
-                        setFilters({ ...filters, until: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-end">
-                    <label className="flex items-center gap-2 cursor-pointer backdrop-blur-md bg-white/40 px-4 py-2.5 rounded-lg border border-white/30 hover:bg-white/50 focus-within:ring-2 focus-within:ring-ring transition-all">
-                      <input
-                        id="filter-bots"
-                        type="checkbox"
-                        checked={filters.filterBots}
-                        onChange={e =>
-                          setFilters({
-                            ...filters,
-                            filterBots: e.target.checked,
-                          })
-                        }
-                        className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-2 focus:ring-ring"
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        Filter bot commits
-                      </span>
-                    </label>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <label
+                    htmlFor="since-date"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Since Date (Optional)
+                  </label>
+                  <Input
+                    id="since-date"
+                    type="date"
+                    value={filters.since}
+                    onChange={e =>
+                      setFilters({ ...filters, since: e.target.value })
+                    }
+                  />
                 </div>
 
-                <Button
-                  onClick={startAnalysis}
-                  variant="gradient"
-                  className="gap-2"
-                  aria-label="Start repository analysis"
-                >
-                  <Play className="w-4 h-4" aria-hidden="true" />
-                  Start Analysis
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                <div>
+                  <label
+                    htmlFor="until-date"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Until Date (Optional)
+                  </label>
+                  <Input
+                    id="until-date"
+                    type="date"
+                    value={filters.until}
+                    onChange={e =>
+                      setFilters({ ...filters, until: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-end">
+                  <label className="flex items-center gap-2 cursor-pointer backdrop-blur-md bg-white/40 px-4 py-2.5 rounded-lg border border-white/30 hover:bg-white/50 focus-within:ring-2 focus-within:ring-ring transition-all">
+                    <input
+                      id="filter-bots"
+                      type="checkbox"
+                      checked={filters.filterBots}
+                      onChange={e =>
+                        setFilters({
+                          ...filters,
+                          filterBots: e.target.checked,
+                        })
+                      }
+                      className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-2 focus:ring-ring"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Filter bot commits
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <Button
+                onClick={startAnalysis}
+                variant="gradient"
+                className="gap-2"
+                aria-label="Start repository analysis"
+              >
+                <Play className="w-4 h-4" aria-hidden="true" />
+                Start Analysis
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Analysis Progress */}
         {analysisState.status === "analyzing" && (
           <Card>
             <CardContent className="p-6">
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">
                     Analyzing Repository...
@@ -325,15 +328,16 @@ export default function BranchPage({ params }: BranchPageProps) {
             </CardContent>
           </Card>
         )}
+
         {/* Error State */}
         {analysisState.status === "error" && (
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center gap-3 text-red-600 mb-4">
+              <div className="flex items-center gap-3 text-red-600 mb-6">
                 <AlertCircle className="w-6 h-6 flex-shrink-0" />
                 <div>
                   <h3 className="font-semibold text-lg">Analysis Failed</h3>
-                  <p className="text-sm">{analysisState.message}</p>
+                  <p className="text-sm mt-1">{analysisState.message}</p>
                 </div>
               </div>
               <Button
@@ -346,31 +350,10 @@ export default function BranchPage({ params }: BranchPageProps) {
             </CardContent>
           </Card>
         )}
+
         {/* Results */}
         {analysisState.status === "complete" && (
           <div className="space-y-6">
-            {/* Export Actions */}
-            <div className="flex gap-4 justify-end">
-              <Button
-                onClick={() => handleDownloadCSV("contributors")}
-                variant="outline"
-                size="sm"
-                className="gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Contributors CSV
-              </Button>
-              <Button
-                onClick={() => handleDownloadCSV("commits")}
-                variant="outline"
-                size="sm"
-                className="gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Commits CSV
-              </Button>
-            </div>
-
             {/* Manager Summary */}
             <AnalysisSummary
               contributors={analysisState.data.contributors as Contributor[]}
@@ -379,30 +362,67 @@ export default function BranchPage({ params }: BranchPageProps) {
               branchName={decodedBranch}
             />
 
-            {/* Advanced Analysis Link */}
+            {/* Export Actions Card */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <CardContent className="p-6 pt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Want deeper insights?
+                      Export Analysis Data
                     </h3>
                     <p className="text-sm text-gray-600">
-                      View advanced timeline analysis, Gantt charts, and
-                      individual user contributions
+                      Download contributor and commit data as CSV files
                     </p>
                   </div>
-                  <Link
-                    href={`/dashboard/repo/${owner}/${repo}/branch/${branch}/advanced`}
-                    className="flex-shrink-0"
-                  >
-                    <Button variant="gradient" className="gap-2">
-                      View Advanced Analysis →
+                  <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+                    <Button
+                      onClick={() => handleDownloadCSV("contributors")}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      Contributors CSV
                     </Button>
-                  </Link>
+                    <Button
+                      onClick={() => handleDownloadCSV("commits")}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      Commits CSV
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Advanced Analysis Link */}
+            <div className="p-4 backdrop-blur-md bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-5 h-5 text-purple-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Want deeper insights?
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    View advanced timeline analysis, Gantt charts, and
+                    individual user contributions
+                  </p>
+                </div>
+                <Link
+                  href={`/dashboard/repo/${owner}/${repo}/branch/${branch}/advanced`}
+                  className="flex-shrink-0"
+                >
+                  <Button variant="gradient" size="sm" className="gap-2">
+                    View Advanced Analysis →
+                  </Button>
+                </Link>
+              </div>
+            </div>
 
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -426,7 +446,7 @@ export default function BranchPage({ params }: BranchPageProps) {
             />
 
             {/* Re-analyze Button */}
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center pt-2">
               <Button
                 onClick={() => setAnalysisState({ status: "idle" })}
                 variant="outline"
