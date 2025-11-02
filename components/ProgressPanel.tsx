@@ -108,7 +108,7 @@ export function ProgressPanel({
         <CardTitle className="flex items-center gap-2">
           {status === "running" && <Loader className="w-5 h-5 animate-spin" />}
           {status === "complete" && (
-            <CheckCircle className="w-5 h-5 text-green-600" />
+            <CheckCircle className="w-5 h-5 text-teal-600" />
           )}
           {status === "error" && (
             <AlertTriangle className="w-5 h-5 text-red-600" />
@@ -127,7 +127,7 @@ export function ProgressPanel({
             <div
               className={`h-full transition-all duration-300 ${
                 status === "complete"
-                  ? "bg-green-600"
+                  ? "bg-teal-600"
                   : status === "error"
                   ? "bg-red-600"
                   : "bg-primary"
@@ -151,7 +151,7 @@ export function ProgressPanel({
                     log.type === "error"
                       ? "text-red-600"
                       : log.type === "complete"
-                      ? "text-green-600"
+                      ? "text-teal-600"
                       : "text-gray-700"
                   }`}
                 >
@@ -172,8 +172,8 @@ export function ProgressPanel({
 
         {/* Status Message */}
         {status === "complete" && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-sm text-green-800">
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-3">
+            <p className="text-sm text-teal-800">
               ✓ Analysis completed successfully! Results are now available
               below.
             </p>

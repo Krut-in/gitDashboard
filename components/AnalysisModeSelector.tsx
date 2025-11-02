@@ -178,7 +178,7 @@ export function AnalysisModeSelector({
       </div>
 
       {/* Mode Information */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-4">
+      <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-md p-4">
         <h3 className="font-semibold text-sm mb-2">
           About {mode.charAt(0).toUpperCase() + mode.slice(1)} Mode
         </h3>

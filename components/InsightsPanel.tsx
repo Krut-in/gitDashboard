@@ -84,7 +84,7 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
           {insights.mostActiveHour.commits > 0 && (
             <div>
               <p className="text-sm text-gray-600 mb-1">Most Active Hour</p>
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="text-2xl font-bold text-sky-600">
                 {insights.mostActiveHour.hour}:00
               </p>
               <p className="text-xs text-gray-500">
@@ -162,7 +162,7 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Code className="w-5 h-5 text-green-600" />
+            <Code className="w-5 h-5 text-teal-600" />
             <CardTitle className="text-lg">Language Patterns</CardTitle>
           </div>
         </CardHeader>
@@ -233,7 +233,7 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
                       <p className="text-xs font-medium text-gray-700 truncate flex-1">
                         {file.filename.split("/").pop()}
                       </p>
-                      <span className="text-xs font-bold text-blue-600 ml-2">
+                      <span className="text-xs font-bold text-sky-600 ml-2">
                         {file.edits}
                       </span>
                     </div>

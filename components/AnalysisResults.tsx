@@ -204,7 +204,7 @@ function CommitsResults({ result }: { result: CommitsResult }) {
                   <td className="px-4 py-2 text-sm text-right">
                     {author.commits}
                   </td>
-                  <td className="px-4 py-2 text-sm text-right text-green-600">
+                  <td className="px-4 py-2 text-sm text-right text-teal-600">
                     +{author.additions.toLocaleString()}
                   </td>
                   <td className="px-4 py-2 text-sm text-right text-red-600">
@@ -363,7 +363,7 @@ function HybridResults({ result }: { result: HybridResult }) {
                 <tr key={idx}>
                   <td className="px-3 py-2 font-medium">{author.name}</td>
                   <td className="px-3 py-2 text-right">{author.commits}</td>
-                  <td className="px-3 py-2 text-right text-green-600">
+                  <td className="px-3 py-2 text-right text-teal-600">
                     +{author.additions.toLocaleString()}
                   </td>
                   <td className="px-3 py-2 text-right text-red-600">

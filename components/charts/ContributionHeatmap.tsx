@@ -31,7 +31,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface ContributionHeatmapProps {
   title: string;
   dailyData: { date: string; count: number }[];
-  colorScheme: "green" | "orange" | "red" | "amber";
+  colorScheme: "green" | "orange" | "red" | "amber" | "teal" | "sky";
   firstCommitDate: string;
   lastCommitDate: string;
 }

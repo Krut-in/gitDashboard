@@ -20,6 +20,7 @@ import {
 } from "chart.js";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { formatNumber } from "@/lib/format";
+import { METRIC_COLORS } from "@/lib/constants";
 
 ChartJS.register(
   CategoryScale,
@@ -57,10 +58,14 @@ export function NetLinesBar({
         label: "Net Lines",
         data: topContributors.map(c => c.netLines),
         backgroundColor: topContributors.map(c =>
-          c.netLines >= 0 ? "rgba(34, 197, 94, 0.8)" : "rgba(239, 68, 68, 0.8)"
+          c.netLines >= 0
+            ? METRIC_COLORS.additions.rgba(0.8)
+            : METRIC_COLORS.deletions.rgba(0.8)
         ),
         borderColor: topContributors.map(c =>
-          c.netLines >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"
+          c.netLines >= 0
+            ? METRIC_COLORS.additions.rgb
+            : METRIC_COLORS.deletions.rgb
         ),
         borderWidth: 1,
       },

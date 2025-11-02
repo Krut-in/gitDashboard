@@ -7,24 +7,25 @@
 
 /**
  * Metric color scheme for charts and visualizations
- * Uses consistent colors across all components
+ * Uses "Sunset Code" theme colors for consistency
+ * Primary: Deep Orange, Secondary: Sky Blue, Accent: Amber, Tertiary: Teal
  */
 export const METRIC_COLORS = {
   commits: {
-    primary: 'orange-500',
+    primary: 'orange-600',
     light: 'orange-100',
-    dark: 'orange-700',
-    hex: '#f97316',
-    rgb: 'rgb(249, 115, 22)',
-    rgba: (alpha: number) => `rgba(249, 115, 22, ${alpha})`,
+    dark: 'orange-800',
+    hex: '#ea580c',
+    rgb: 'rgb(234, 88, 12)',
+    rgba: (alpha: number) => `rgba(234, 88, 12, ${alpha})`,
   },
   additions: {
-    primary: 'green-500',
-    light: 'green-100',
-    dark: 'green-700',
-    hex: '#22c55e',
-    rgb: 'rgb(34, 197, 94)',
-    rgba: (alpha: number) => `rgba(34, 197, 94, ${alpha})`,
+    primary: 'teal-500',
+    light: 'teal-100',
+    dark: 'teal-700',
+    hex: '#14b8a6',
+    rgb: 'rgb(20, 184, 166)',
+    rgba: (alpha: number) => `rgba(20, 184, 166, ${alpha})`,
   },
   deletions: {
     primary: 'red-500',

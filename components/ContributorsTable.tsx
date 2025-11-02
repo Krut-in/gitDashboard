@@ -224,7 +224,7 @@ export function ContributorsTable({ contributors }: ContributorsTableProps) {
                     <td className="py-3 px-4 text-right font-mono">
                       {formatNumber(contributor.commitCount)}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono text-green-600">
+                    <td className="py-3 px-4 text-right font-mono text-teal-600">
                       +{formatNumber(contributor.additions)}
                     </td>
                     <td className="py-3 px-4 text-right font-mono text-red-600">

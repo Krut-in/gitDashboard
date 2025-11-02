@@ -107,16 +107,16 @@ export function CommitMessageAnalysisCard({
       <CardContent className="space-y-6">
         {/* Statistics Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+          <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
             <div className="text-sm text-gray-600 mb-1">Total Messages</div>
-            <div className="text-2xl font-bold text-blue-900">
+            <div className="text-2xl font-bold text-orange-900">
               {statistics.totalMessages.toLocaleString()}
             </div>
           </div>
 
-          <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+          <div className="p-4 bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg border border-teal-200">
             <div className="text-sm text-gray-600 mb-1">Avg Length</div>
-            <div className="text-2xl font-bold text-green-900">
+            <div className="text-2xl font-bold text-teal-900">
               {statistics.avgLength} chars
             </div>
           </div>
@@ -222,7 +222,7 @@ export function CommitMessageAnalysisCard({
         {topTypes.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
+              <CheckCircle className="w-5 h-5 text-teal-600" />
               <h3 className="text-lg font-semibold">Top Commit Types</h3>
             </div>
 
@@ -242,11 +242,11 @@ export function CommitMessageAnalysisCard({
                       <div
                         className={`w-3 h-3 rounded-full ${
                           type === "feat"
-                            ? "bg-green-500"
+                            ? "bg-teal-500"
                             : type === "fix"
                             ? "bg-red-500"
                             : type === "docs"
-                            ? "bg-blue-500"
+                            ? "bg-sky-500"
                             : type === "other"
                             ? "bg-gray-400"
                             : "bg-amber-500"
@@ -312,8 +312,8 @@ export function CommitMessageAnalysisCard({
 
             {/* Balanced Writers */}
             {userCategories.balanced.length > 0 && (
-              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                <h4 className="font-semibold text-green-900 mb-2">
+              <div className="p-4 bg-teal-50 rounded-lg border border-teal-200">
+                <h4 className="font-semibold text-teal-900 mb-2">
                   Balanced ({userCategories.balanced.length})
                 </h4>
                 <div className="space-y-2">

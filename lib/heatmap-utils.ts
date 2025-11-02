@@ -85,23 +85,41 @@ export function getHeatmapIntensity(value: number, maxValue: number): number {
 
 /**
  * Get color class for heatmap intensity
+ * Using Sunset Code theme colors: teal (primary activity), orange, amber, sky
  * 
- * @param intensity - Intensity level (0-4)
- * @param colorScheme - Color scheme name (green, orange, red, amber)
- * @returns Tailwind CSS class name
+ * @param intensity - Intensity level (0-4) where 0 is no activity and 4 is maximum activity
+ * @param colorScheme - Color scheme name matching the Sunset Code theme
+ * @returns Tailwind CSS class name for the heatmap cell
+ * 
+ * @example
+ * getHeatmapColorClass(0, "teal") // Returns "bg-gray-100" (no activity)
+ * getHeatmapColorClass(4, "teal") // Returns "bg-teal-800" (maximum activity)
  */
 export function getHeatmapColorClass(
   intensity: number,
-  colorScheme: "green" | "orange" | "red" | "amber"
+  colorScheme: "green" | "orange" | "red" | "amber" | "teal" | "sky"
 ): string {
+  // Validate intensity range
+  const validIntensity = Math.max(0, Math.min(4, Math.floor(intensity)));
+  
   const schemes = {
-    green: ["bg-gray-100", "bg-green-200", "bg-green-400", "bg-green-600", "bg-green-800"],
+    // For backward compatibility, "green" maps to teal (Sunset Code theme)
+    green: ["bg-gray-100", "bg-teal-200", "bg-teal-400", "bg-teal-600", "bg-teal-800"],
+    teal: ["bg-gray-100", "bg-teal-200", "bg-teal-400", "bg-teal-600", "bg-teal-800"],
+    sky: ["bg-gray-100", "bg-sky-200", "bg-sky-400", "bg-sky-600", "bg-sky-800"],
     orange: ["bg-gray-100", "bg-orange-200", "bg-orange-400", "bg-orange-600", "bg-orange-800"],
     red: ["bg-gray-100", "bg-red-200", "bg-red-400", "bg-red-600", "bg-red-800"],
     amber: ["bg-gray-100", "bg-amber-200", "bg-amber-400", "bg-amber-600", "bg-amber-800"],
   };
   
-  return schemes[colorScheme][intensity] || schemes[colorScheme][0];
+  // Fallback to gray if scheme is invalid
+  const scheme = schemes[colorScheme];
+  if (!scheme) {
+    console.warn(`Invalid color scheme: ${colorScheme}. Falling back to gray.`);
+    return "bg-gray-100";
+  }
+  
+  return scheme[validIntensity];
 }
 
 /**

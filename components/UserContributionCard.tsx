@@ -95,7 +95,7 @@ export function UserContributionCard({
               <ContributionHeatmap
                 title="Commits"
                 dailyData={user.dailyCommits}
-                colorScheme="green"
+                colorScheme="teal"
                 firstCommitDate={lifetimeStats.firstCommit}
                 lastCommitDate={lifetimeStats.lastCommit}
               />

@@ -132,7 +132,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
       case "medium":
         return "bg-yellow-50 border-yellow-200";
       case "low":
-        return "bg-blue-50 border-blue-200";
+        return "bg-sky-50 border-sky-200";
       default:
         return "bg-gray-50 border-gray-200";
     }
@@ -143,9 +143,9 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
       case "high":
         return "text-red-900";
       case "medium":
-        return "text-yellow-900";
+        return "text-amber-900";
       case "low":
-        return "text-blue-900";
+        return "text-sky-900";
       default:
         return "text-gray-900";
     }
@@ -156,9 +156,9 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
       case "high":
         return "text-red-600";
       case "medium":
-        return "text-yellow-600";
+        return "text-amber-600";
       case "low":
-        return "text-blue-600";
+        return "text-sky-600";
       default:
         return "text-gray-600";
     }
@@ -188,7 +188,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                     year: "numeric",
                   })}
                   {isCached && (
-                    <span className="ml-2 text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                    <span className="ml-2 text-xs px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full">
                       Cached
                     </span>
                   )}
@@ -289,7 +289,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+                  <TrendingUp className="w-5 h-5 text-teal-600" />
                   <CardTitle>Team Health Score</CardTitle>
                 </div>
               </CardHeader>
@@ -322,9 +322,9 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                         }`}
                         className={
                           aiInsights.teamHealth.score >= 80
-                            ? "text-green-600"
+                            ? "text-teal-600"
                             : aiInsights.teamHealth.score >= 60
-                            ? "text-yellow-600"
+                            ? "text-amber-600"
                             : "text-red-600"
                         }
                         strokeLinecap="round"
@@ -346,7 +346,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                             key={i}
                             className="text-sm text-gray-700 flex items-start gap-2"
                           >
-                            <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                            <CheckCircle className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
                             {factor}
                           </li>
                         ))}
@@ -367,7 +367,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <CheckCircle className="w-5 h-5 text-teal-600" />
                   <CardTitle>Strengths</CardTitle>
                 </div>
               </CardHeader>
@@ -376,7 +376,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
                   <ul className="space-y-2">
                     {aiInsights.strengths.map((strength, i) => (
                       <li key={i} className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                        <CheckCircle className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
                         <span className="text-sm text-gray-700">
                           {strength}
                         </span>
@@ -422,7 +422,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                  <TrendingUp className="w-5 h-5 text-sky-600" />
                   <CardTitle>AI-Powered Recommendations</CardTitle>
                 </div>
               </CardHeader>
@@ -508,7 +508,7 @@ export function AIManagerReport({ data }: AIManagerReportProps) {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-600" />
+                <TrendingUp className="w-5 h-5 text-teal-600" />
                 <CardTitle>Executive Summary</CardTitle>
               </div>
             </CardHeader>

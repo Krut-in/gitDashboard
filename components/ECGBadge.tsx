@@ -7,7 +7,19 @@ import { ECGHeartbeat } from "./ECGHeartbeat";
 /**
  * ECG Badge Component
  *
- * A badge with ECG heartbeat animation and Zap icon that glows when the sweep starts.
+ * A visually engaging badge component featuring an ECG heartbeat animation
+ * with a Zap icon that pulses with teal color (#14b8a6) from the Sunset Code theme.
+ * The animation provides visual feedback when the ECG sweep starts.
+ *
+ * @component
+ * @returns {JSX.Element} Animated ECG badge with heartbeat visualization
+ *
+ * Features:
+ * - ECG heartbeat animation with customizable sweep timing
+ * - Synchronized Zap icon glow effect
+ * - Teal color scheme (#14b8a6) matching Sunset Code design theme
+ * - Glassmorphism styling with backdrop blur
+ * - Automatic cleanup of animation timeouts
  */
 export function ECGBadge() {
   const [isGlowing, setIsGlowing] = useState(false);
@@ -43,8 +55,8 @@ export function ECGBadge() {
         <div className="absolute inset-0 opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
           <ECGHeartbeat
             className="w-full h-full"
-            color="#10b981"
-            glowColor="#10b981"
+            color="#14b8a6"
+            glowColor="#14b8a6"
             sweepDuration={2500}
             sweepInterval={3500}
             lineWidth={1.5}
@@ -54,7 +66,7 @@ export function ECGBadge() {
           />
         </div>
         <Zap
-          className={`w-4 h-4 text-green-500 relative z-10 transition-all duration-300 ${
+          className={`w-4 h-4 text-teal-500 relative z-10 transition-all duration-300 ${
             isGlowing ? "zap-icon-glow" : "zap-heartbeat"
           }`}
         />
