@@ -22,7 +22,7 @@ export function NavBar({ user }: NavBarProps) {
   const isAuthenticated = !!user;
 
   return (
-    <nav className="relative z-10 backdrop-blur-md bg-gradient-to-r from-orange-50/40 via-sky-50/40 to-teal-50/40 border-b border-white/30 shadow-lg">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg bg-white/30 border-b border-white/40 shadow-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo - links to dashboard if authenticated, stays on home if not */}
@@ -47,7 +47,7 @@ export function NavBar({ user }: NavBarProps) {
                   href={`https://github.com/${user.username}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 backdrop-blur-md bg-white/40 px-3 py-1.5 rounded-full border border-sky-200/50 hover:bg-sky-50/60 hover:border-sky-300 transition-all"
+                  className="flex items-center gap-3 backdrop-blur-md bg-white/50 px-3 py-1.5 rounded-full border border-white/60 hover:bg-white/70 hover:border-white/80 transition-all shadow-lg hover:shadow-xl"
                 >
                   {user.avatarUrl && (
                     <Image
@@ -75,7 +75,7 @@ export function NavBar({ user }: NavBarProps) {
                     variant="outline"
                     size="sm"
                     type="submit"
-                    className="gap-2 backdrop-blur-md bg-white/40 hover:bg-red-50 hover:border-red-300 border-orange-200/50 transition-colors"
+                    className="gap-2 backdrop-blur-md bg-white/50 hover:bg-red-50/70 hover:border-red-300/70 border-white/60 transition-all shadow-lg hover:shadow-xl"
                   >
                     <LogOut className="w-4 h-4" />
                     <span className="hidden sm:inline">Sign out</span>
@@ -94,7 +94,7 @@ export function NavBar({ user }: NavBarProps) {
                   <Button
                     type="submit"
                     size="sm"
-                    className="backdrop-blur-md bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white flex items-center gap-2 shadow-lg border border-white/20"
+                    className="backdrop-blur-md bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white flex items-center gap-2 shadow-xl border border-white/30 hover:shadow-2xl transition-all"
                   >
                     <Github className="w-4 h-4" />
                     Sign in with GitHub

@@ -10,7 +10,7 @@ import { Github, Linkedin } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="relative backdrop-blur-md bg-gradient-to-r from-orange-50/40 via-sky-50/40 to-teal-50/40 border-t border-white/30 py-10 shadow-lg mt-auto">
+    <footer className="relative backdrop-blur-lg bg-white/30 border-t border-white/40 py-10 shadow-xl mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           {/* Logo */}

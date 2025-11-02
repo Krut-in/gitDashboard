@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Download, Play, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
@@ -181,282 +181,281 @@ export default function BranchPage({ params }: BranchPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-sky-50 to-teal-50 relative overflow-hidden">
-      {/* Animated background orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-48 h-48 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute top-40 right-10 w-48 h-48 bg-amber-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Header Section */}
+      <div className="mb-8">
+        <Link href={`/dashboard/repo/${owner}/${repo}`}>
+          <Button variant="gradient" size="sm" className="gap-2 mb-6">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Branches
+          </Button>
+        </Link>
+
+        <div className="mb-6">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+            {owner} / {repo}
+          </h1>
+          <p className="text-lg text-gray-600">
+            Branch: <Badge variant="code">{decodedBranch}</Badge>
+          </p>
+        </div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header Section */}
-        <div className="mb-8">
-          <Link href={`/dashboard/repo/${owner}/${repo}`}>
-            <Button variant="gradient" size="sm" className="gap-2 mb-6">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Branches
-            </Button>
-          </Link>
-
-          <div className="mb-6">
-            <h1 className="text-4xl font-bold text-gray-900 mb-3">
-              {owner} / {repo}
-            </h1>
-            <p className="text-lg text-gray-600">
-              Branch: <Badge variant="code">{decodedBranch}</Badge>
-            </p>
-          </div>
-        </div>
-
-        {/* Analysis Controls */}
-        {analysisState.status === "idle" && (
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                Analysis Options
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div>
-                  <label
-                    htmlFor="since-date"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Since Date (Optional)
-                  </label>
-                  <Input
-                    id="since-date"
-                    type="date"
-                    value={filters.since}
-                    onChange={e =>
-                      setFilters({ ...filters, since: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="until-date"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Until Date (Optional)
-                  </label>
-                  <Input
-                    id="until-date"
-                    type="date"
-                    value={filters.until}
-                    onChange={e =>
-                      setFilters({ ...filters, until: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="flex items-end">
-                  <label className="flex items-center gap-2 cursor-pointer backdrop-blur-md bg-white/40 px-4 py-2.5 rounded-lg border border-white/30 hover:bg-white/50 focus-within:ring-2 focus-within:ring-ring transition-all">
-                    <input
-                      id="filter-bots"
-                      type="checkbox"
-                      checked={filters.filterBots}
-                      onChange={e =>
-                        setFilters({
-                          ...filters,
-                          filterBots: e.target.checked,
-                        })
-                      }
-                      className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-2 focus:ring-ring"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Filter bot commits
-                    </span>
-                  </label>
-                </div>
+      {/* Analysis Controls */}
+      {analysisState.status === "idle" && (
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Analysis Options
+            </h3>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label
+                  htmlFor="since-date"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Since Date (Optional)
+                </label>
+                <Input
+                  id="since-date"
+                  type="date"
+                  value={filters.since}
+                  onChange={e =>
+                    setFilters({ ...filters, since: e.target.value })
+                  }
+                />
               </div>
 
-              <Button
-                onClick={startAnalysis}
-                variant="gradient"
-                className="gap-2"
-                aria-label="Start repository analysis"
-              >
-                <Play className="w-4 h-4" aria-hidden="true" />
-                Start Analysis
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Analysis Progress */}
-        {analysisState.status === "analyzing" && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Analyzing Repository...
-                  </h3>
-                  <span className="text-sm font-medium text-gray-600">
-                    {progress ? `${Math.round(progress.percent)}%` : "0%"}
-                  </span>
-                </div>
-
-                {/* Progress Bar */}
-                <ProgressBar
-                  value={progress?.percent || 0}
-                  max={100}
-                  variant="default"
-                  size="default"
-                  barStyle="gradient"
+              <div>
+                <label
+                  htmlFor="until-date"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Until Date (Optional)
+                </label>
+                <Input
+                  id="until-date"
+                  type="date"
+                  value={filters.until}
+                  onChange={e =>
+                    setFilters({ ...filters, until: e.target.value })
+                  }
                 />
+              </div>
 
-                {/* Progress Message */}
-                {progress && (
-                  <p
-                    className="text-sm text-gray-600 flex items-center gap-2"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    <Spinner className="w-4 h-4" aria-hidden="true" />
-                    {progress.message}
+              <div className="flex items-end">
+                <label className="flex items-center gap-2 cursor-pointer backdrop-blur-md bg-white/40 px-4 py-2.5 rounded-lg border border-white/30 hover:bg-white/50 focus-within:ring-2 focus-within:ring-ring transition-all">
+                  <input
+                    id="filter-bots"
+                    type="checkbox"
+                    checked={filters.filterBots}
+                    onChange={e =>
+                      setFilters({
+                        ...filters,
+                        filterBots: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-2 focus:ring-ring"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Filter bot commits
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <Button
+              onClick={startAnalysis}
+              variant="gradient"
+              className="gap-2"
+              aria-label="Start repository analysis"
+            >
+              <Play className="w-4 h-4" aria-hidden="true" />
+              Start Analysis
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Analysis Progress */}
+      {analysisState.status === "analyzing" && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Analyzing Repository...
+              </h3>
+              <span className="text-sm font-medium text-gray-600">
+                {progress ? `${Math.round(progress.percent)}%` : "0%"}
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Progress Bar */}
+              <ProgressBar
+                value={progress?.percent || 0}
+                max={100}
+                variant="default"
+                size="default"
+                barStyle="gradient"
+              />
+
+              {/* Progress Message */}
+              {progress && (
+                <p
+                  className="text-sm text-gray-600 flex items-center gap-2"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <Spinner className="w-4 h-4" aria-hidden="true" />
+                  {progress.message}
+                </p>
+              )}
+
+              <p className="text-xs text-gray-500">
+                This may take a few minutes for large repositories...
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Error State */}
+      {analysisState.status === "error" && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3 text-red-600">
+              <AlertCircle className="w-6 h-6 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-lg">Analysis Failed</h3>
+                <p className="text-sm mt-1">{analysisState.message}</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => setAnalysisState({ status: "idle" })}
+              variant="outline"
+              size="sm"
+            >
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Results */}
+      {analysisState.status === "complete" && (
+        <div className="space-y-6">
+          {/* Manager Summary */}
+          <AnalysisSummary
+            contributors={analysisState.data.contributors as Contributor[]}
+            metadata={analysisState.data.metadata}
+            repoName={`${owner}/${repo}`}
+            branchName={decodedBranch}
+          />
+
+          {/* Export Actions Card */}
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Export Analysis Data
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Download contributor and commit data as CSV files
                   </p>
-                )}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+                  <Button
+                    onClick={() => handleDownloadCSV("contributors")}
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Contributors CSV
+                  </Button>
+                  <Button
+                    onClick={() => handleDownloadCSV("commits")}
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Commits CSV
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
 
-                <p className="text-xs text-gray-500">
-                  This may take a few minutes for large repositories...
+          {/* Advanced Analysis Link */}
+          <div className="p-6 backdrop-blur-md bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-purple-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Want deeper insights?
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-700">
+                  View advanced timeline analysis, Gantt charts, and individual
+                  user contributions
                 </p>
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Error State */}
-        {analysisState.status === "error" && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 text-red-600 mb-6">
-                <AlertCircle className="w-6 h-6 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-lg">Analysis Failed</h3>
-                  <p className="text-sm mt-1">{analysisState.message}</p>
-                </div>
-              </div>
-              <Button
-                onClick={() => setAnalysisState({ status: "idle" })}
-                variant="outline"
-                size="sm"
+              <Link
+                href={`/dashboard/repo/${owner}/${repo}/branch/${branch}/advanced`}
+                className="flex-shrink-0"
               >
-                Try Again
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Results */}
-        {analysisState.status === "complete" && (
-          <div className="space-y-6">
-            {/* Manager Summary */}
-            <AnalysisSummary
-              contributors={analysisState.data.contributors as Contributor[]}
-              metadata={analysisState.data.metadata}
-              repoName={`${owner}/${repo}`}
-              branchName={decodedBranch}
-            />
-
-            {/* Export Actions Card */}
-            <Card>
-              <CardContent className="p-6 pt-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Export Analysis Data
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Download contributor and commit data as CSV files
-                    </p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
-                    <Button
-                      onClick={() => handleDownloadCSV("contributors")}
-                      variant="outline"
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      Contributors CSV
-                    </Button>
-                    <Button
-                      onClick={() => handleDownloadCSV("commits")}
-                      variant="outline"
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      Commits CSV
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Advanced Analysis Link */}
-            <div className="p-4 backdrop-blur-md bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-5 h-5 text-purple-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Want deeper insights?
-                    </h3>
-                  </div>
-                  <p className="text-sm text-gray-700">
-                    View advanced timeline analysis, Gantt charts, and
-                    individual user contributions
-                  </p>
-                </div>
-                <Link
-                  href={`/dashboard/repo/${owner}/${repo}/branch/${branch}/advanced`}
-                  className="flex-shrink-0"
+                <Button
+                  size="sm"
+                  className="gap-2 backdrop-blur-md bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl border border-white/30 transition-all"
                 >
-                  <Button variant="gradient" size="sm" className="gap-2">
-                    View Advanced Analysis →
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Charts Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <NetLinesBar
-                contributors={analysisState.data.contributors as Contributor[]}
-              />
-              <AddRemoveStacked
-                contributors={analysisState.data.contributors as Contributor[]}
-              />
-              <CommitsOverTime
-                commitTimes={analysisState.data.commitTimes as any[]}
-              />
-              <ActivityHeatmap
-                commitTimes={analysisState.data.commitTimes as any[]}
-              />
-            </div>
-
-            {/* Contributors Table */}
-            <ContributorsTable
-              contributors={analysisState.data.contributors as Contributor[]}
-            />
-
-            {/* Re-analyze Button */}
-            <div className="flex justify-center pt-2">
-              <Button
-                onClick={() => setAnalysisState({ status: "idle" })}
-                variant="outline"
-              >
-                Run New Analysis
-              </Button>
+                  <Sparkles className="w-4 h-4" />
+                  View Advanced Analysis →
+                </Button>
+              </Link>
             </div>
           </div>
-        )}
-      </div>
+
+          {/* Charts Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <NetLinesBar
+              contributors={analysisState.data.contributors as Contributor[]}
+            />
+            <AddRemoveStacked
+              contributors={analysisState.data.contributors as Contributor[]}
+            />
+            <CommitsOverTime
+              commitTimes={analysisState.data.commitTimes as any[]}
+            />
+            <ActivityHeatmap
+              commitTimes={analysisState.data.commitTimes as any[]}
+            />
+          </div>
+
+          {/* Contributors Table */}
+          <ContributorsTable
+            contributors={analysisState.data.contributors as Contributor[]}
+          />
+
+          {/* Re-analyze Button */}
+          <div className="flex justify-center pt-2">
+            <Button
+              onClick={() => setAnalysisState({ status: "idle" })}
+              variant="outline"
+            >
+              Run New Analysis
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

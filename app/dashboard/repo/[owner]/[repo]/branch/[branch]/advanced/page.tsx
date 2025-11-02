@@ -142,281 +142,267 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-sky-50 to-teal-50 relative overflow-hidden">
-      {/* Animated background orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-48 h-48 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute top-40 right-10 w-48 h-48 bg-amber-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute -bottom-8 left-20 w-48 h-48 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Breadcrumb Navigation */}
+      <div className="mb-6">
+        <Link href={`/dashboard/repo/${owner}/${repo}/branch/${branch}`}>
+          <Button variant="gradient" size="sm" className="gap-2 mb-4">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Analysis
+          </Button>
+        </Link>
+
+        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+          <Link href="/dashboard" className="hover:text-gray-900">
+            Dashboard
+          </Link>
+          <span>/</span>
+          <Link
+            href={`/dashboard/repo/${owner}/${repo}`}
+            className="hover:text-gray-900"
+          >
+            {owner}/{repo}
+          </Link>
+          <span>/</span>
+          <Link
+            href={`/dashboard/repo/${owner}/${repo}/branch/${branch}`}
+            className="hover:text-gray-900"
+          >
+            {decodedBranch}
+          </Link>
+          <span>/</span>
+          <span className="text-gray-900 font-medium">Advanced Analysis</span>
+        </div>
+
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          Advanced Analysis
+        </h1>
+        <p className="text-lg text-gray-600">
+          Deep dive into repository contributions and patterns
+        </p>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
-        {/* Breadcrumb Navigation */}
-        <div className="mb-6">
-          <Link href={`/dashboard/repo/${owner}/${repo}/branch/${branch}`}>
-            <Button variant="gradient" size="sm" className="gap-2 mb-4">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Analysis
-            </Button>
-          </Link>
-
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-            <Link href="/dashboard" className="hover:text-gray-900">
-              Dashboard
-            </Link>
-            <span>/</span>
-            <Link
-              href={`/dashboard/repo/${owner}/${repo}`}
-              className="hover:text-gray-900"
-            >
-              {owner}/{repo}
-            </Link>
-            <span>/</span>
-            <Link
-              href={`/dashboard/repo/${owner}/${repo}/branch/${branch}`}
-              className="hover:text-gray-900"
-            >
-              {decodedBranch}
-            </Link>
-            <span>/</span>
-            <span className="text-gray-900 font-medium">Advanced Analysis</span>
-          </div>
-
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Advanced Analysis
-          </h1>
-          <p className="text-lg text-gray-600">
-            Deep dive into repository contributions and patterns
-          </p>
+      {/* Tab Navigation */}
+      <div className="mb-6">
+        <div className="flex gap-3 backdrop-blur-md bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg p-2 border border-white/40 shadow-lg">
+          {(["overview", "timeline", "users", "report"] as TabView[]).map(
+            tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 px-6 py-3 font-medium capitalize transition-all duration-200 rounded-md cursor-pointer ${
+                  activeTab === tab
+                    ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-white/60"
+                }`}
+              >
+                {tab}
+              </button>
+            )
+          )}
         </div>
+      </div>
 
-        {/* Tab Navigation */}
-        <div className="mb-6">
-          <div className="flex gap-3 backdrop-blur-md bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg p-2 border border-white/40 shadow-lg">
-            {(["overview", "timeline", "users", "report"] as TabView[]).map(
-              tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`flex-1 px-6 py-3 font-medium capitalize transition-all duration-200 rounded-md cursor-pointer ${
-                    activeTab === tab
-                      ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-white/60"
-                  }`}
-                >
-                  {tab}
-                </button>
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Content Area */}
-        {analysisState.status === "loading" && (
-          <Card>
-            <CardContent className="p-12">
-              <div className="flex flex-col items-center justify-center">
-                <Loader2
-                  className="w-12 h-12 text-orange-600 animate-spin mb-4"
-                  aria-hidden="true"
-                />
-                <p
-                  className="text-gray-600 mb-4"
-                  role="status"
-                  aria-live="polite"
-                >
-                  {progress?.message || "Loading advanced analysis..."}
+      {/* Content Area */}
+      {analysisState.status === "loading" && (
+        <Card>
+          <CardContent className="p-12">
+            <div className="flex flex-col items-center justify-center">
+              <Loader2
+                className="w-12 h-12 text-orange-600 animate-spin mb-4"
+                aria-hidden="true"
+              />
+              <p
+                className="text-gray-600 mb-4"
+                role="status"
+                aria-live="polite"
+              >
+                {progress?.message || "Loading advanced analysis..."}
+              </p>
+              {progress && (
+                <div className="w-64">
+                  <ProgressBar
+                    value={progress.percent}
+                    max={100}
+                    variant="solid"
+                    size="default"
+                    barStyle="solid"
+                    showLabel
+                  />
+                </div>
+              )}
+              {!progress && (
+                <p className="text-sm text-gray-500 mt-2">
+                  This may take a few minutes for large repositories
                 </p>
-                {progress && (
-                  <div className="w-64">
-                    <ProgressBar
-                      value={progress.percent}
-                      max={100}
-                      variant="solid"
-                      size="default"
-                      barStyle="solid"
-                      showLabel
-                    />
-                  </div>
-                )}
-                {!progress && (
-                  <p className="text-sm text-gray-500 mt-2">
-                    This may take a few minutes for large repositories
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {analysisState.status === "error" && (
-          <Card>
-            <CardContent className="p-12">
-              <div className="text-center">
-                <div className="inline-block p-4 bg-red-100 rounded-full mb-4">
-                  <svg
-                    className="w-8 h-8 text-red-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Analysis Error
-                </h3>
-                <p className="text-gray-600 mb-4">{analysisState.message}</p>
-                <p className="text-sm text-gray-500 mb-6">
-                  Please check your GitHub authentication and repository access.
-                  If the issue persists, the repository may be too large or the
-                  branch may not exist.
-                </p>
-                <Button
-                  onClick={() => loadAdvancedAnalysis()}
-                  variant="outline"
-                >
-                  Try Again
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {analysisState.status === "complete" && (
-          <>
-            <div className="space-y-6">
-              {activeTab === "overview" && (
-                <div className="space-y-6">
-                  {/* Summary Statistics */}
-                  <Card>
-                    <CardContent className="p-8">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <div className="text-center py-4">
-                          <p className="text-sm text-gray-600 mb-2">
-                            Total Commits
-                          </p>
-                          <p className="text-3xl font-bold text-metric-commits">
-                            {analysisState.data.timeline.totalCommits.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="text-center py-4">
-                          <p className="text-sm text-gray-600 mb-2">
-                            Contributors
-                          </p>
-                          <p className="text-3xl font-bold text-gray-900">
-                            {analysisState.data.timeline.users.length}
-                          </p>
-                        </div>
-                        <div className="text-center py-4">
-                          <p className="text-sm text-gray-600 mb-2">
-                            Lines Added
-                          </p>
-                          <p className="text-3xl font-bold text-metric-additions">
-                            +
-                            {analysisState.data.timeline.totalAdditions.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="text-center py-4">
-                          <p className="text-sm text-gray-600 mb-2">
-                            Net Change
-                          </p>
-                          <p
-                            className={`text-3xl font-bold ${
-                              analysisState.data.timeline.totalNetLines >= 0
-                                ? "text-metric-net"
-                                : "text-metric-deletions"
-                            }`}
-                          >
-                            {analysisState.data.timeline.totalNetLines >= 0
-                              ? "+"
-                              : ""}
-                            {analysisState.data.timeline.totalNetLines.toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Flatten all daily metrics for timeline charts */}
-                  {(() => {
-                    const allDailyMetrics =
-                      analysisState.data.timeline.users.flatMap(
-                        user => user.dailyMetrics
-                      );
-                    return (
-                      <>
-                        <CommitsTimeline dailyMetrics={allDailyMetrics} />
-                        <LinesChangedTimeline dailyMetrics={allDailyMetrics} />
-                      </>
-                    );
-                  })()}
-
-                  {/* Commit Message Quality Analysis */}
-                  {analysisState.data.commitMessageAnalysis && (
-                    <CommitMessageAnalysisCard
-                      data={analysisState.data.commitMessageAnalysis}
-                    />
-                  )}
-                </div>
-              )}
-
-              {activeTab === "timeline" && (
-                <ContributionGantt timeline={analysisState.data.timeline} />
-              )}
-
-              {activeTab === "users" && (
-                <UserContributionsSection
-                  users={analysisState.data.userContributions}
-                />
-              )}
-
-              {activeTab === "report" && (
-                <div className="space-y-6">
-                  <AIManagerReport data={analysisState.data} />
-                  <InsightsPanel insights={analysisState.data.insights} />
-                </div>
               )}
             </div>
+          </CardContent>
+        </Card>
+      )}
 
-            {/* Load More Button */}
-            {hasMore && (
-              <Card className="mt-6">
-                <CardContent className="py-6">
-                  <div className="text-center">
-                    <p className="text-gray-600 mb-4">
-                      This repository has more commits available. You can load
-                      the next 5,000 commits to see more history.
-                    </p>
-                    <Button
-                      onClick={() => loadAdvancedAnalysis(true)}
-                      variant="outline"
-                      className="gap-2"
-                    >
-                      Load Next 5,000 Commits
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </>
-        )}
-
-        {analysisState.status === "idle" && (
-          <Card>
-            <CardContent className="py-12">
-              <div className="text-center">
-                <p className="text-gray-600">Preparing advanced analysis...</p>
+      {analysisState.status === "error" && (
+        <Card>
+          <CardContent className="p-12">
+            <div className="text-center">
+              <div className="inline-block p-4 bg-red-100 rounded-full mb-4">
+                <svg
+                  className="w-8 h-8 text-red-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
               </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Analysis Error
+              </h3>
+              <p className="text-gray-600 mb-4">{analysisState.message}</p>
+              <p className="text-sm text-gray-500 mb-6">
+                Please check your GitHub authentication and repository access.
+                If the issue persists, the repository may be too large or the
+                branch may not exist.
+              </p>
+              <Button onClick={() => loadAdvancedAnalysis()} variant="outline">
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {analysisState.status === "complete" && (
+        <>
+          <div className="space-y-6">
+            {activeTab === "overview" && (
+              <div className="space-y-6">
+                {/* Summary Statistics */}
+                <Card>
+                  <CardContent className="p-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      <div className="text-center py-4">
+                        <p className="text-sm text-gray-600 mb-2">
+                          Total Commits
+                        </p>
+                        <p className="text-3xl font-bold text-metric-commits">
+                          {analysisState.data.timeline.totalCommits.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="text-center py-4">
+                        <p className="text-sm text-gray-600 mb-2">
+                          Contributors
+                        </p>
+                        <p className="text-3xl font-bold text-gray-900">
+                          {analysisState.data.timeline.users.length}
+                        </p>
+                      </div>
+                      <div className="text-center py-4">
+                        <p className="text-sm text-gray-600 mb-2">
+                          Lines Added
+                        </p>
+                        <p className="text-3xl font-bold text-metric-additions">
+                          +
+                          {analysisState.data.timeline.totalAdditions.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="text-center py-4">
+                        <p className="text-sm text-gray-600 mb-2">Net Change</p>
+                        <p
+                          className={`text-3xl font-bold ${
+                            analysisState.data.timeline.totalNetLines >= 0
+                              ? "text-metric-net"
+                              : "text-metric-deletions"
+                          }`}
+                        >
+                          {analysisState.data.timeline.totalNetLines >= 0
+                            ? "+"
+                            : ""}
+                          {analysisState.data.timeline.totalNetLines.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Flatten all daily metrics for timeline charts */}
+                {(() => {
+                  const allDailyMetrics =
+                    analysisState.data.timeline.users.flatMap(
+                      user => user.dailyMetrics
+                    );
+                  return (
+                    <>
+                      <CommitsTimeline dailyMetrics={allDailyMetrics} />
+                      <LinesChangedTimeline dailyMetrics={allDailyMetrics} />
+                    </>
+                  );
+                })()}
+
+                {/* Commit Message Quality Analysis */}
+                {analysisState.data.commitMessageAnalysis && (
+                  <CommitMessageAnalysisCard
+                    data={analysisState.data.commitMessageAnalysis}
+                  />
+                )}
+              </div>
+            )}
+
+            {activeTab === "timeline" && (
+              <ContributionGantt timeline={analysisState.data.timeline} />
+            )}
+
+            {activeTab === "users" && (
+              <UserContributionsSection
+                users={analysisState.data.userContributions}
+              />
+            )}
+
+            {activeTab === "report" && (
+              <div className="space-y-6">
+                <AIManagerReport data={analysisState.data} />
+                <InsightsPanel insights={analysisState.data.insights} />
+              </div>
+            )}
+          </div>
+
+          {/* Load More Button */}
+          {hasMore && (
+            <Card className="mt-6">
+              <CardContent className="py-6">
+                <div className="text-center">
+                  <p className="text-gray-600 mb-4">
+                    This repository has more commits available. You can load the
+                    next 5,000 commits to see more history.
+                  </p>
+                  <Button
+                    onClick={() => loadAdvancedAnalysis(true)}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    Load Next 5,000 Commits
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      {analysisState.status === "idle" && (
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center">
+              <p className="text-gray-600">Preparing advanced analysis...</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

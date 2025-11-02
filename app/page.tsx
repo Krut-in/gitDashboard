@@ -41,7 +41,7 @@ export default function HomePage() {
       <NavBar />
 
       {/* Hero Section */}
-      <section className="relative bg-transparent max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+      <section className="relative bg-transparent max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 lg:pt-32 lg:pb-20">
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left Content */}
           <div className="space-y-6 relative z-10">
