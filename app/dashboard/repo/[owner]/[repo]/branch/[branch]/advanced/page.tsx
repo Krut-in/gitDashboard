@@ -58,11 +58,11 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
   useEffect(() => {
     // Auto-start analysis on page load only once
     let isMounted = true;
-    
+
     if (isMounted) {
       loadAdvancedAnalysis();
     }
-    
+
     return () => {
       isMounted = false;
     };
@@ -97,7 +97,8 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.error || `Failed to start analysis (Status: ${response.status})`
+          errorData.error ||
+            `Failed to start analysis (Status: ${response.status})`
         );
       }
 
@@ -146,7 +147,7 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
       }
     } catch (error: any) {
       console.error("Analysis error:", error);
-      
+
       // Provide user-friendly error messages
       let errorMessage = "Unknown error occurred";
       if (error instanceof Error) {
@@ -156,7 +157,7 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
       } else if (error?.name === "TypeError") {
         errorMessage = "Network error occurred. Please check your connection.";
       }
-      
+
       setAnalysisState({
         status: "error",
         message: errorMessage,
@@ -223,13 +224,29 @@ export default function AdvancedAnalysisPage({ params }: AdvancedPageProps) {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 px-6 py-3 font-medium capitalize transition-all duration-200 rounded-md cursor-pointer ${
+                className={`relative flex-1 px-6 py-3 font-medium capitalize transition-all duration-300 rounded-md cursor-pointer overflow-hidden group ${
                   activeTab === tab
                     ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-white/60"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                {tab}
+                {/* Animated shimmer effect on hover - only for inactive tabs */}
+                {activeTab !== tab && (
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                )}
+
+                {/* Subtle gradient overlay on hover - only for inactive tabs */}
+                {activeTab !== tab && (
+                  <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50" />
+                )}
+
+                {/* Glass effect border on hover - only for inactive tabs */}
+                {activeTab !== tab && (
+                  <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 border-2 border-orange-200/50 rounded-md" />
+                )}
+
+                {/* Tab text */}
+                <span className="relative z-10">{tab}</span>
               </button>
             )
           )}
